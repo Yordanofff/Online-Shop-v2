@@ -16,6 +16,9 @@ public class EmployeeRequestDto {
     @NotEmpty(message = "Last name cannot be empty")
     private String lastName;
 
+    @NotEmpty(message = "Username cannot be empty")
+    private String username;
+
     @Column(unique = true)
     @NotEmpty(message = "Email cannot be empty")
     @Email(message = "Invalid email format.")

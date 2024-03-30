@@ -1,8 +1,7 @@
 package com.project.Onlineshop.Controller;
 
-import com.project.Onlineshop.Repository.EmployeeRepository;
 import com.project.Onlineshop.Service.EmployeeService;
-import lombok.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,9 +12,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/employee")
 public class EmployeeController {
     private final EmployeeService employeeService;
+
     @GetMapping("/get_all")
-    public String listAllEmployees(Model model){
+    public String listAllEmployees(Model model) {
         model.addAttribute("employees", employeeService.getAllEmployees());  // responseDTO
         return "/employees/get_all";
+    }
+
+    @GetMapping("/employee/login")
+    String employeeLogin() {
+        return "login_employee";
     }
 }

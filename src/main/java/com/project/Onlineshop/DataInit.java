@@ -8,14 +8,13 @@ import com.project.Onlineshop.Repository.RoleRepository;
 import com.project.Onlineshop.Repository.UserRepository;
 import com.project.Onlineshop.Service.UserService;
 import com.project.Onlineshop.Static.RoleType;
-//import com.project.Onlineshop.Utility.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import static java.time.LocalDateTime.*;
+import static java.time.LocalDateTime.now;
 
 @Component
 @RequiredArgsConstructor
@@ -54,12 +53,14 @@ public class DataInit implements ApplicationRunner {
             Role role_employee = roleRepository.findByName(RoleType.ROLE_EMPLOYEE.name()).orElseThrow();
 
             employeeRepository.save(Employee.builder()
-                            .firstName("Default")
-                            .lastName("Admin")
-                            .email("admin@abv.bg")
-                            .password(encoder.encode("123"))
-                            .role(role_admin)
-                            .createdAt(now())
+                    .firstName("Default")
+                    .lastName("Admin")
+                    .email("admin@abv.bg")
+                    .password(encoder.encode("123"))
+                    .role(role_admin)
+                    .createdAt(now())
+                    .username("admin")
+                    .isEnabled(true)
                     .build());
 
             employeeRepository.save(Employee.builder()
@@ -69,6 +70,8 @@ public class DataInit implements ApplicationRunner {
                     .password(encoder.encode("123"))
                     .role(role_employee)
                     .createdAt(now())
+                    .username("employee")
+                    .isEnabled(true)
                     .build());
         }
 

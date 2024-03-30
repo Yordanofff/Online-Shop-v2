@@ -1,7 +1,6 @@
 package com.project.Onlineshop.Dto.Response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.project.Onlineshop.Entity.Role;
 import lombok.Data;
 
@@ -15,6 +14,7 @@ public class EmployeeResponseDto {
     private Long id;
     private String firstName;
     private String lastName;
+    private String username;
     private String email;
     private LocalDate dateOfBirth;
     private int age;
