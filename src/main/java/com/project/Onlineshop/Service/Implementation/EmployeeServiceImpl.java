@@ -9,8 +9,9 @@ import com.project.Onlineshop.Repository.EmployeeRepository;
 import com.project.Onlineshop.Repository.RoleRepository;
 import com.project.Onlineshop.Service.EmployeeService;
 import com.project.Onlineshop.Static.RoleType;
-import com.project.Onlineshop.Utility.PasswordEncoder;
+//import com.project.Onlineshop.Utility.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,17 +54,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Optional<Role> optionalRole = roleRepository.findByName(RoleType.ROLE_EMPLOYEE.name());
         if (optionalRole.isEmpty()) {
-            throw new RuntimeException("Employee role not found");
+            throw new RuntimeException("Employee role not found in the DB");
         }
 
         try {
             Employee employee = employeeMapper.toEntity(employeeRequestDto);
             employee.setRole(optionalRole.get());
-            employee.setPassword(encoder.passwordEncoder().encode(employeeRequestDto.getPassword()));
+            employee.setPassword(encoder.encode(employeeRequestDto.getPassword()));
             employeeRepository.save(employee);
             return employeeMapper.toDto(employee);
         } catch (Exception exception) {
-            throw new RuntimeException("An internal error occurred. Please try again. " + exception.getCause());
+            throw new RuntimeException("An internal error occurred. Please try again. " + exception.getMessage());
         }
     }
 
@@ -79,7 +80,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             Employee newDataForEmployee = employeeMapper.toEntity(employeeRequestDto);
             newDataForEmployee.setId(employee.getId());
             newDataForEmployee.setRole(employee.getRole());  // keep same role  // TODO: new method to update the role for user
-            newDataForEmployee.setPassword(encoder.passwordEncoder().encode(employeeRequestDto.getPassword())); // TODO: delete this once there's another DTO for password
+            newDataForEmployee.setPassword(encoder.encode(employeeRequestDto.getPassword())); // TODO: delete this once there's another DTO for password
 
             employeeRepository.save(newDataForEmployee);
             return employeeMapper.toDto(newDataForEmployee);

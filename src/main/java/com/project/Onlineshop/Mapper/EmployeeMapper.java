@@ -15,7 +15,7 @@ import java.time.Period;
 public interface EmployeeMapper {
     EmployeeMapper INSTANCE = Mappers.getMapper(EmployeeMapper.class);
     @Mapping(target = "age", expression = "java(EmployeeMapper.calculateAge(employee.getDateOfBirth()))")
-    @Mapping(target = "dateOfBirth", source = "employee.dateOfBirth")
+    @Mapping(target = "dateOfBirth", source = "dateOfBirth")
     EmployeeResponseDto toDto(Employee employee);
 
     //toEntity will be used when creating new user, so the attributes can be added here instead of the service class
@@ -25,7 +25,10 @@ public interface EmployeeMapper {
     @Mapping(target = "role", ignore = true)  // will be set in the service class
     Employee toEntity(EmployeeRequestDto employeeRequestDto);
     static int calculateAge(LocalDate birthDate) {
-        LocalDate currentDate = LocalDate.now();
-        return Period.between(birthDate, currentDate).getYears();
+        if (birthDate != null) {
+            LocalDate currentDate = LocalDate.now();
+            return Period.between(birthDate, currentDate).getYears();
+        }
+        return 0;
     }
 }
