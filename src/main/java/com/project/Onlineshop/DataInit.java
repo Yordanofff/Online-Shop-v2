@@ -119,5 +119,9 @@ public class DataInit implements ApplicationRunner {
             productRepository.save(new Accessories("Cable", BigDecimal.valueOf(2.20), 15, optionalColor.get()));
         }
 
+        List<Product> productList = productRepository.getAllProductsWithQuantityGreaterThan10();
+        for (Product p: productList) {
+            System.out.println(p.getName());
+        }
     }
 }

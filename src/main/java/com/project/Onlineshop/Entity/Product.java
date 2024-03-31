@@ -10,18 +10,18 @@ import java.math.BigDecimal;
 //@MappedSuperclass
 //@NoArgsConstructor
 //@AllArgsConstructor
-//@Data
+@Data
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "products")
-public abstract class Product {
+@DiscriminatorColumn(name = "product")
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long id;
-    private String name;
-    private BigDecimal price;
-    private int quantity;
+    protected Long id;
+    protected String name;
+    protected BigDecimal price;
+    protected int quantity;
 
     protected Product() {
     }

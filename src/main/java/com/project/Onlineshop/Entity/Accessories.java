@@ -24,4 +24,15 @@ public class Accessories extends Product {
         super(name, price, quantity);
         this.color = color;
     }
+
+    @Override
+    public String toString() {
+        return "Accessories{" +
+                "color=" + color +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                '}';
+    }
 }
