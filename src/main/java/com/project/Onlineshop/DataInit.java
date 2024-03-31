@@ -29,6 +29,7 @@ public class DataInit implements ApplicationRunner {
     private final ColorRepository colorRepository;
     private final CategoryRepository categoryRepository;
     private final FoodRepository foodRepository;
+    private final ProductRepository productRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -89,12 +90,16 @@ public class DataInit implements ApplicationRunner {
 
         if (categoryRepository.count() == 0) {
             for (ProductCategory c : ProductCategory.values()) {
-                categoryRepository.save(new Category(c.name()));
+                categoryRepository.save(new Category(c.getId(), c.name()));
             }
         }
 
         if (foodRepository.count() == 0) {
-            foodRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1)));
+            ProductInformation productInformation = new ProductInformation("Баничка", BigDecimal.valueOf(2.10), 10, ProductCategory.FOOD);
+            Food food = new Food(LocalDate.of(2022, 4, 1), productInformation);
+            productRepository.save(productInformation);
+            foodRepository.save(food);
+//            foodRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1)));
 
         }
     }

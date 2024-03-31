@@ -1,26 +1,34 @@
 package com.project.Onlineshop.Entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "foods")
-public class Food extends Product {
+public class Food {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
+
     @Column
     private LocalDate expiryDate;
 
-    public Food(String name, BigDecimal price, int quantity, LocalDate expiryDate) {
-        super(name, price, quantity);
+    @OneToOne
+    @JoinColumn(name = "product_information_id")
+    private ProductInformation productInformation;
+
+    public Food(LocalDate expiryDate, ProductInformation productInformation) {
         this.expiryDate = expiryDate;
+        this.productInformation = productInformation;
     }
 }
