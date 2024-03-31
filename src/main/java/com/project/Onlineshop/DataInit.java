@@ -154,5 +154,6 @@ public class DataInit implements ApplicationRunner {
         for (Product p: productList) {
             System.out.println(p.getName());
         }
+        // test merge
     }
 }
