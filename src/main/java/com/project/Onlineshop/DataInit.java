@@ -1,10 +1,11 @@
 package com.project.Onlineshop;
 
 import com.project.Onlineshop.Dto.Request.UserRequestDto;
-import com.project.Onlineshop.Entity.*;
+import com.project.Onlineshop.Entity.Employee;
 import com.project.Onlineshop.Entity.ProductHelpers.Color;
 import com.project.Onlineshop.Entity.ProductHelpers.Material;
 import com.project.Onlineshop.Entity.Products.*;
+import com.project.Onlineshop.Entity.Role;
 import com.project.Onlineshop.Repository.*;
 import com.project.Onlineshop.Service.UserService;
 import com.project.Onlineshop.Static.RoleType;
@@ -30,9 +31,6 @@ public class DataInit implements ApplicationRunner {
     private final UserService userService;
     private final PasswordEncoder encoder;
     private final ColorRepository colorRepository;
-//    private final CategoryRepository categoryRepository;
-//    private final FoodRepository foodRepository;
-//    private final AccessoriesRepository accessoriesRepository;
     private final ProductRepository productRepository;
     private final MaterialRepository materialRepository;
 
@@ -130,30 +128,35 @@ public class DataInit implements ApplicationRunner {
         }
 
         if (materialRepository.count() == 0) {
-            List<String> materials = List.of("Metal", "Wood", "Plastic");
+            List<String> materials = List.of("Metal", "Wood", "Plastic", "Bamboo", "Cotton", "Foam", "Microfiber", "Silk");
             materials.forEach(material -> materialRepository.save(new Material(material)));
         }
 
         List<Railing> railingList = productRepository.getAllByEntityType(Railing.class);
-        if (railingList.isEmpty()){
+        if (railingList.isEmpty()) {
             Material metal = materialRepository.findByName("Metal").orElseThrow();
             Color red = colorRepository.findByName("Red").orElseThrow();
 
             productRepository.save(Railing.builder()
                     .name("Best in brand railing system")
-                            .price(BigDecimal.valueOf(19.99))
-                            .quantity(50)
-                            .material(metal)
-                            .isOutdoor(true)
-                            .isNonSlip(true)
-                            .color(red)
+                    .price(BigDecimal.valueOf(19.99))
+                    .quantity(50)
+                    .material(metal)
+                    .isOutdoor(true)
+                    .isNonSlip(true)
+                    .color(red)
                     .build());
         }
 
+        List<Sanitary> sanitaryList = productRepository.getAllByEntityType(Sanitary.class);
+        if (sanitaryList.isEmpty()) {
+            Material cotton = materialRepository.findByName("Cotton").orElseThrow();
+            productRepository.save(new Sanitary("Bodyform Ultra Goodnight Sanitary Towels", BigDecimal.valueOf(11.50), 1000, true, false, cotton));
+        }
+
         List<Product> productList = productRepository.getAllProductsWithQuantityGreaterThan(10);
-        for (Product p: productList) {
+        for (Product p : productList) {
             System.out.println(p.getName());
         }
-        // test merge
     }
 }
