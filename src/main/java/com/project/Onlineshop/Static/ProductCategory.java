@@ -1,23 +1,23 @@
 package com.project.Onlineshop.Static;
 
+import lombok.Getter;
+
+@Getter
 public enum ProductCategory {
 
-    FOOD(true),
-    DRINK(true),
-    SANITARY(false),
-    RAILING(false),
-    ACCESSORIES(false),
-    DECORATION(false),
-    OTHERS(false);
+    FOOD(1),
+    DRINK(2),
+    SANITARY(3),
+    RAILING(4),
+    ACCESSORIES(5),
+    DECORATION(6),
+    OTHERS(7);
 
-    private final boolean expirable;
+    private final long id;
 
-    ProductCategory(boolean expirable) {
-        this.expirable = expirable;
+    ProductCategory(long id) {
+        this.id = id;
     }
 
-    public boolean isExpirable() {
-        return expirable;
-    }
 }
 
