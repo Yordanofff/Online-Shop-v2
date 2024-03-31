@@ -27,6 +27,7 @@ public class DataInit implements ApplicationRunner {
     private final PasswordEncoder encoder;
     private final ColorRepository colorRepository;
     private final CategoryRepository categoryRepository;
+    private final FoodRepository foodRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -89,6 +90,11 @@ public class DataInit implements ApplicationRunner {
             for (ProductCategory c : ProductCategory.values()) {
                 categoryRepository.save(new Category(c.name()));
             }
+        }
+
+        if (foodRepository.count() == 0) {
+            foodRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1)));
+
         }
     }
 }
