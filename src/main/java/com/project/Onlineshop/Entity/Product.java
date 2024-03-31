@@ -2,13 +2,18 @@ package com.project.Onlineshop.Entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@MappedSuperclass
+//@MappedSuperclass
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Data
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "products")
 public abstract class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,9 +23,14 @@ public abstract class Product {
     private BigDecimal price;
     private int quantity;
 
-    public Product(String name, BigDecimal price, int quantity) {
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    public Product(String name, BigDecimal price, int quantity, Category category) {
         this.name = name;
         this.price = price;
         this.quantity = quantity;
+        this.category = category;
     }
 }

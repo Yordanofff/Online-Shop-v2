@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static java.time.LocalDateTime.now;
 
@@ -29,6 +30,7 @@ public class DataInit implements ApplicationRunner {
     private final ColorRepository colorRepository;
     private final CategoryRepository categoryRepository;
     private final FoodRepository foodRepository;
+    private final AccessoriesRepository accessoriesRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -81,7 +83,7 @@ public class DataInit implements ApplicationRunner {
         }
 
         if (colorRepository.count() == 0) {
-            List<String> colors = List.of("Black", "White", "Green", "Red", "Blue", "Other");
+            List<String> colors = List.of("Black", "White", "Green", "Red", "Blue", "Other"); // todo ENUMS
             for (String color : colors) {
                 colorRepository.save(Color.builder().name(color).build());
             }
@@ -94,8 +96,32 @@ public class DataInit implements ApplicationRunner {
         }
 
         if (foodRepository.count() == 0) {
-            foodRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1)));
 
+            Category foodCategory = new Category();
+            Optional<Category> optionalCategory = categoryRepository.findByName(ProductCategory.FOOD.name());
+            if (optionalCategory.isEmpty()) {
+                foodCategory = categoryRepository.save(new Category(ProductCategory.FOOD.name()));
+            } else {
+                foodCategory = optionalCategory.get();
+            }
+
+            foodRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1), foodCategory));
+
+        }
+
+        if (accessoriesRepository.count() == 0) {
+            Category accessoriesCategory = new Category();
+            Optional<Category> optionalCategory = categoryRepository.findByName(ProductCategory.ACCESSORIES.name());
+            if (optionalCategory.isEmpty()) {
+                accessoriesCategory = categoryRepository.save(new Category(ProductCategory.ACCESSORIES.name()));
+            } else {
+                accessoriesCategory = optionalCategory.get();
+            }
+
+            Color blackColor = new Color();
+            Optional<Color> optionalColor = colorRepository.findById(1L);
+
+            accessoriesRepository.save(new Accessories("Cable", BigDecimal.valueOf(2.20), 15, accessoriesCategory, blackColor));
         }
     }
 }

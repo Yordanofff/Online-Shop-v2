@@ -1,9 +1,7 @@
 package com.project.Onlineshop.Entity;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,15 +13,13 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-//@Table(name = "foods")
-//@DiscriminatorValue("food")
-public class Food extends Product {
+public class Accessories extends Product {
 
     @Column
-    private LocalDate expiryDate;
+    private Color color;
 
-    public Food(String name, BigDecimal price, int quantity, LocalDate expiryDate, Category category) {
+    public Accessories(String name, BigDecimal price, int quantity, Category category, Color color) {
         super(name, price, quantity, category);
-        this.expiryDate = expiryDate;
+        this.color = color;
     }
 }
