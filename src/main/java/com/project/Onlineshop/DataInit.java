@@ -28,9 +28,10 @@ public class DataInit implements ApplicationRunner {
     private final UserService userService;
     private final PasswordEncoder encoder;
     private final ColorRepository colorRepository;
-    private final CategoryRepository categoryRepository;
-    private final FoodRepository foodRepository;
-    private final AccessoriesRepository accessoriesRepository;
+//    private final CategoryRepository categoryRepository;
+//    private final FoodRepository foodRepository;
+//    private final AccessoriesRepository accessoriesRepository;
+    private final ProductRepository productRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -89,39 +90,34 @@ public class DataInit implements ApplicationRunner {
             }
         }
 
-        if (categoryRepository.count() == 0) {
-            for (ProductCategory c : ProductCategory.values()) {
-                categoryRepository.save(new Category(c.name()));
-            }
+//        if (categoryRepository.count() == 0) {
+//            for (ProductCategory c : ProductCategory.values()) {
+//                categoryRepository.save(new Category(c.name()));
+//            }
+//        }
+
+
+//        ==========================
+//        if (foodRepository.count() == 0) {
+//            foodRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1)));
+//        }
+//
+//        if (accessoriesRepository.count() == 0) {
+//            Optional<Color> optionalColor = colorRepository.findById(1L);
+//            accessoriesRepository.save(new Accessories("Cable", BigDecimal.valueOf(2.20), 15, optionalColor.get()));
+//        }
+//        ==========================
+
+        List<Food> foodList = productRepository.getAllFood();
+        if (foodList.isEmpty()) {
+            productRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1)));
         }
 
-        if (foodRepository.count() == 0) {
-
-            Category foodCategory = new Category();
-            Optional<Category> optionalCategory = categoryRepository.findByName(ProductCategory.FOOD.name());
-            if (optionalCategory.isEmpty()) {
-                foodCategory = categoryRepository.save(new Category(ProductCategory.FOOD.name()));
-            } else {
-                foodCategory = optionalCategory.get();
-            }
-
-            foodRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1), foodCategory));
-
-        }
-
-        if (accessoriesRepository.count() == 0) {
-            Category accessoriesCategory = new Category();
-            Optional<Category> optionalCategory = categoryRepository.findByName(ProductCategory.ACCESSORIES.name());
-            if (optionalCategory.isEmpty()) {
-                accessoriesCategory = categoryRepository.save(new Category(ProductCategory.ACCESSORIES.name()));
-            } else {
-                accessoriesCategory = optionalCategory.get();
-            }
-
-            Color blackColor = new Color();
+        List<Accessories> accessoriesList = productRepository.getAllAccessories();
+        if (accessoriesList.isEmpty()) {
             Optional<Color> optionalColor = colorRepository.findById(1L);
-
-            accessoriesRepository.save(new Accessories("Cable", BigDecimal.valueOf(2.20), 15, accessoriesCategory, blackColor));
+            productRepository.save(new Accessories("Cable", BigDecimal.valueOf(2.20), 15, optionalColor.get()));
         }
+
     }
 }

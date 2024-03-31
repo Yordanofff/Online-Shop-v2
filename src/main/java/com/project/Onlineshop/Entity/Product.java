@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 //@MappedSuperclass
-@NoArgsConstructor
-@AllArgsConstructor
+//@NoArgsConstructor
+//@AllArgsConstructor
+//@Data
 @Entity
-@Data
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "products")
 public abstract class Product {
@@ -23,14 +23,19 @@ public abstract class Product {
     private BigDecimal price;
     private int quantity;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+//    @ManyToOne
+//    @JoinColumn(name = "category_id")
+//    private Category category;
 
-    public Product(String name, BigDecimal price, int quantity, Category category) {
+    protected Product() {
+    }
+
+//    public Product(String name, BigDecimal price, int quantity, Category category) {
+    public Product(String name, BigDecimal price, int quantity) {
         this.name = name;
         this.price = price;
         this.quantity = quantity;
-        this.category = category;
+//        this.category = category;
     }
+
 }
