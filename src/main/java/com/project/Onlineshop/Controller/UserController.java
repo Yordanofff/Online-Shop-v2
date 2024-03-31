@@ -24,11 +24,11 @@ public class UserController {
 
     @GetMapping("/register")
     String register(Model model) {
-        model.addAttribute("user", new UserRequestDto());
+        model.addAttribute("userRequestDto", new UserRequestDto());
         return "register";}
 
     @PostMapping("/register")
-    String registerNewUser(@ModelAttribute @Valid UserRequestDto user, BindingResult bindingResult, Model model){
-        return userService.registerNewUser(user, bindingResult, model);
+    String registerNewUser(@ModelAttribute @Valid UserRequestDto userRequestDto, BindingResult bindingResult, Model model){
+        return userService.registerNewUser(userRequestDto, bindingResult, model);
     }
 }
