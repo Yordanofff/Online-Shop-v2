@@ -1,9 +1,8 @@
-package com.project.Onlineshop.Entity;
+package com.project.Onlineshop.Entity.Products;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 
@@ -14,6 +13,7 @@ import java.math.BigDecimal;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "product")
+@SuperBuilder
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

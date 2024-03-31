@@ -1,17 +1,16 @@
-package com.project.Onlineshop.Entity;
+package com.project.Onlineshop.Entity.Products;
 
-import jakarta.persistence.Column;
+import com.project.Onlineshop.Entity.ProductHelpers.Color;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Accessories extends Product {

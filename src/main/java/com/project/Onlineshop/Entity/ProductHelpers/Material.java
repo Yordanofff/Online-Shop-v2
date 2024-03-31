@@ -1,8 +1,7 @@
-package com.project.Onlineshop.Entity;
+package com.project.Onlineshop.Entity.ProductHelpers;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,15 +9,15 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Table(name = "product_colors")
-public class Color {
+@Table(name = "material")
+public class Material {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-
-//    @Column(name = "name")
     private String name;
 
+    public Material(String name) {
+        this.name = name;
+    }
 }

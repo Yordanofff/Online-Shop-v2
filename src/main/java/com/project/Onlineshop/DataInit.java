@@ -2,9 +2,11 @@ package com.project.Onlineshop;
 
 import com.project.Onlineshop.Dto.Request.UserRequestDto;
 import com.project.Onlineshop.Entity.*;
+import com.project.Onlineshop.Entity.ProductHelpers.Color;
+import com.project.Onlineshop.Entity.ProductHelpers.Material;
+import com.project.Onlineshop.Entity.Products.*;
 import com.project.Onlineshop.Repository.*;
 import com.project.Onlineshop.Service.UserService;
-import com.project.Onlineshop.Static.ProductCategory;
 import com.project.Onlineshop.Static.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
@@ -32,6 +34,7 @@ public class DataInit implements ApplicationRunner {
 //    private final FoodRepository foodRepository;
 //    private final AccessoriesRepository accessoriesRepository;
     private final ProductRepository productRepository;
+    private final MaterialRepository materialRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -119,7 +122,35 @@ public class DataInit implements ApplicationRunner {
             productRepository.save(new Accessories("Cable", BigDecimal.valueOf(2.20), 15, optionalColor.get()));
         }
 
-        List<Product> productList = productRepository.getAllProductsWithQuantityGreaterThan10();
+        List<Drink> drinkList = productRepository.getAllByEntityType(Drink.class);
+        if (drinkList.isEmpty()) {
+            productRepository.save(new Drink("Ayran", BigDecimal.valueOf(0.80), 30, LocalDate.of(2024, 4, 10)));
+            productRepository.save(new Drink("Soda", BigDecimal.valueOf(1), 100, LocalDate.of(2025, 5, 1)));
+            productRepository.save(new Drink("Fanta", BigDecimal.valueOf(1.40), 85, LocalDate.of(2024, 4, 1)));
+        }
+
+        if (materialRepository.count() == 0) {
+            List<String> materials = List.of("Metal", "Wood", "Plastic");
+            materials.forEach(material -> materialRepository.save(new Material(material)));
+        }
+
+        List<Railing> railingList = productRepository.getAllByEntityType(Railing.class);
+        if (railingList.isEmpty()){
+            Material metal = materialRepository.findByName("Metal").orElseThrow();
+            Color red = colorRepository.findByName("Red").orElseThrow();
+
+            productRepository.save(Railing.builder()
+                    .name("Best in brand railing system")
+                            .price(BigDecimal.valueOf(19.99))
+                            .quantity(50)
+                            .material(metal)
+                            .isOutdoor(true)
+                            .isNonSlip(true)
+                            .color(red)
+                    .build());
+        }
+
+        List<Product> productList = productRepository.getAllProductsWithQuantityGreaterThan(10);
         for (Product p: productList) {
             System.out.println(p.getName());
         }
