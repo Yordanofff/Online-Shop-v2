@@ -4,6 +4,7 @@ import com.project.Onlineshop.Dto.Request.UserRequestDto;
 import com.project.Onlineshop.Entity.*;
 import com.project.Onlineshop.Repository.*;
 import com.project.Onlineshop.Service.UserService;
+import com.project.Onlineshop.Static.ProductCategory;
 import com.project.Onlineshop.Static.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
