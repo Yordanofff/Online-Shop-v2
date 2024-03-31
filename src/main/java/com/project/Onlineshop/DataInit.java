@@ -1,11 +1,8 @@
 package com.project.Onlineshop;
 
 import com.project.Onlineshop.Dto.Request.UserRequestDto;
-import com.project.Onlineshop.Entity.Employee;
-import com.project.Onlineshop.Entity.Role;
-import com.project.Onlineshop.Repository.EmployeeRepository;
-import com.project.Onlineshop.Repository.RoleRepository;
-import com.project.Onlineshop.Repository.UserRepository;
+import com.project.Onlineshop.Entity.*;
+import com.project.Onlineshop.Repository.*;
 import com.project.Onlineshop.Service.UserService;
 import com.project.Onlineshop.Static.RoleType;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +10,10 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 import static java.time.LocalDateTime.now;
 
@@ -24,6 +25,8 @@ public class DataInit implements ApplicationRunner {
     private final EmployeeRepository employeeRepository;
     private final UserService userService;
     private final PasswordEncoder encoder;
+    private final ColorRepository colorRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -75,5 +78,17 @@ public class DataInit implements ApplicationRunner {
                     .build());
         }
 
+        if (colorRepository.count() == 0) {
+            List<String> colors = List.of("Black", "White", "Green", "Red", "Blue", "Other");
+            for (String color : colors) {
+                colorRepository.save(Color.builder().name(color).build());
+            }
+        }
+
+        if (categoryRepository.count() == 0) {
+            for (ProductCategory c : ProductCategory.values()) {
+                categoryRepository.save(new Category(c.name()));
+            }
+        }
     }
 }
