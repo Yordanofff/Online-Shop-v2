@@ -12,9 +12,13 @@ import com.project.Onlineshop.Service.UserService;
 import com.project.Onlineshop.Static.RoleType;
 //import com.project.Onlineshop.Utility.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -23,10 +27,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
-    private final PasswordEncoder encoder;
+    private final BCryptPasswordEncoder encoder;
+
     @Override
     public UserResponseDto addUser(UserRequestDto userRequestDto) {
-        if (isEmailInDB(userRequestDto.getEmail())){
+        if (isEmailInDB(userRequestDto.getEmail())) {
             throw new RuntimeException("Email already in use. Please use a different email");
         }
         if (isUsernameInDB(userRequestDto.getUsername())) {
@@ -39,7 +44,7 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User role not found in the DB");
         }
 
-        try{
+        try {
             User user = userMapper.toEntity(userRequestDto);
             user.setRole(optionalRole.get());
             user.setPassword(encoder.encode(userRequestDto.getPassword()));
@@ -50,11 +55,11 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private boolean isEmailInDB(String email){
+    private boolean isEmailInDB(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    private boolean isUsernameInDB(String username){
+    private boolean isUsernameInDB(String username) {
         return userRepository.findByUsername(username).isPresent();
     }
 
@@ -63,4 +68,17 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Passwords don't match");
         }
     }
+
+    public String registerNewUser(UserRequestDto user, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("user", user);
+            return "register";
+        }
+        if(user.getFirstName().length()<3 || user.getFirstName().length()>30){
+            model.addAttribute("firstname_error","You must enter First name between 3 and 40");
+        }
+        addUser(user);
+        return "redirect:/index";
+    }
+
 }
