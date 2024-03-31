@@ -23,19 +23,12 @@ public abstract class Product {
     private BigDecimal price;
     private int quantity;
 
-//    @ManyToOne
-//    @JoinColumn(name = "category_id")
-//    private Category category;
-
     protected Product() {
     }
 
-//    public Product(String name, BigDecimal price, int quantity, Category category) {
     public Product(String name, BigDecimal price, int quantity) {
         this.name = name;
         this.price = price;
         this.quantity = quantity;
-//        this.category = category;
     }
-
 }

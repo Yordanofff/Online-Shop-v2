@@ -11,12 +11,12 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+//@Table(name = "foods")
+//@DiscriminatorValue("food")
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-//@Table(name = "foods")
-//@DiscriminatorValue("food")
 public class Food extends Product {
 
     @Column
