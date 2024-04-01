@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import static java.time.LocalDateTime.now;
 
@@ -38,9 +37,17 @@ public class DataInit implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        initializeDefaultUsers();
+        initializeProductHelpers();
+        initializeProducts();
+    }
+
+    private void initializeDefaultUsers() {
         if (roleRepository.count() == 0) {
             for (RoleType roleType : RoleType.values()) {
+
                 Role role = new Role();
+                role.setId(roleType.getId());
                 role.setName(roleType.name());
                 roleRepository.save(role);
             }
@@ -60,15 +67,14 @@ public class DataInit implements ApplicationRunner {
         // Create ADMIN ROLE - custom version of Employee
         if (employeeRepository.count() == 0) {
 
-            Role role_admin = roleRepository.findByName(RoleType.ROLE_ADMIN.name()).orElseThrow();
-            Role role_employee = roleRepository.findByName(RoleType.ROLE_EMPLOYEE.name()).orElseThrow();
-
+            Role roleAdmin = new Role(RoleType.ROLE_ADMIN.getId(), RoleType.ROLE_ADMIN.name());
+            Role roleEmployee = new Role(RoleType.ROLE_EMPLOYEE.getId(), RoleType.ROLE_EMPLOYEE.name());
             employeeRepository.save(Employee.builder()
                     .firstName("Default")
                     .lastName("Admin")
                     .email("admin@abv.bg")
                     .password(encoder.encode("123"))
-                    .role(role_admin)
+                    .role(roleAdmin)
                     .createdAt(now())
                     .username("admin")
                     .isEnabled(true)
@@ -79,20 +85,32 @@ public class DataInit implements ApplicationRunner {
                     .lastName("Employee")
                     .email("employee@abv.bg")
                     .password(encoder.encode("123"))
-                    .role(role_employee)
+                    .role(roleEmployee)
                     .createdAt(now())
                     .username("employee")
                     .isEnabled(true)
                     .build());
         }
+    }
 
+    private void initializeProductHelpers() {
         if (colorRepository.count() == 0) {
             List<String> colors = List.of("Black", "White", "Green", "Red", "Blue", "Other"); // todo ENUMS
             for (String color : colors) {
                 colorRepository.save(Color.builder().name(color).build());
             }
         }
+        if (materialRepository.count() == 0) {
+            List<String> materials = List.of("Metal", "Wood", "Plastic", "Bamboo", "Cotton", "Foam", "Microfiber", "Silk");
+            materials.forEach(material -> materialRepository.save(new Material(material)));
+        }
+        if (brandRepository.count() == 0) {
+            List<String> brands = List.of("Nike", "The CocaCola Company", "Zavet OOD", "Mlin Rz", "Elektroresurs", "RailingSystems LTD", "TheDecorationBrand");
+            brands.forEach((brand) -> brandRepository.save(new Brand(brand)));
+        }
+    }
 
+    private void initializeProducts() {
         List<Food> foodList = productRepository.getAllFood();
         if (foodList.isEmpty()) {
             productRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1)));
@@ -100,8 +118,9 @@ public class DataInit implements ApplicationRunner {
 
         List<Accessories> accessoriesList = productRepository.getAllAccessories();
         if (accessoriesList.isEmpty()) {
-            Optional<Color> optionalColor = colorRepository.findById(1L);
-            productRepository.save(new Accessories("Cable", BigDecimal.valueOf(2.20), 15, optionalColor.get()));
+            Color black = colorRepository.findByName("Black").orElseThrow();
+            Brand brand = brandRepository.findByName("Elektroresurs").orElseThrow();
+            productRepository.save(new Accessories("Cable", BigDecimal.valueOf(2.20), 15, black, brand));
         }
 
         List<Drink> drinkList = productRepository.getAllByEntityType(Drink.class);
@@ -109,16 +128,6 @@ public class DataInit implements ApplicationRunner {
             productRepository.save(new Drink("Ayran", BigDecimal.valueOf(0.80), 30, LocalDate.of(2024, 4, 10)));
             productRepository.save(new Drink("Soda", BigDecimal.valueOf(1), 100, LocalDate.of(2025, 5, 1)));
             productRepository.save(new Drink("Fanta", BigDecimal.valueOf(1.40), 85, LocalDate.of(2024, 4, 1)));
-        }
-
-        if (materialRepository.count() == 0) {
-            List<String> materials = List.of("Metal", "Wood", "Plastic", "Bamboo", "Cotton", "Foam", "Microfiber", "Silk");
-            materials.forEach(material -> materialRepository.save(new Material(material)));
-        }
-
-        if (brandRepository.count() == 0) {
-            List<String> brands = List.of("Nike", "The CocaCola Company", "Zavet OOD", "Mlin Rz", "Elektroresurs", "RailingSystems LTD", "TheDecorationBrand");
-            brands.forEach((brand) -> brandRepository.save(new Brand(brand)));
         }
 
         List<Railing> railingList = productRepository.getAllByEntityType(Railing.class);

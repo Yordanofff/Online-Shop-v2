@@ -1,5 +1,6 @@
 package com.project.Onlineshop.Entity.Products;
 
+import com.project.Onlineshop.Entity.ProductHelpers.Brand;
 import com.project.Onlineshop.Entity.ProductHelpers.Color;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -19,9 +20,14 @@ public class Accessories extends Product {
     @JoinColumn(name = "color_id")
     private Color color;
 
-    public Accessories(String name, BigDecimal price, int quantity, Color color) {
+    @ManyToOne
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
+
+    public Accessories(String name, BigDecimal price, int quantity, Color color, Brand brand) {
         super(name, price, quantity);
         this.color = color;
+        this.brand = brand;
     }
 
     @Override

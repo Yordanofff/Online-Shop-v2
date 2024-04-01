@@ -39,14 +39,11 @@ public class UserServiceImpl implements UserService {
         }
         validatePasswordsAreMatching(userRequestDto);
 
-        Optional<Role> optionalRole = roleRepository.findByName(RoleType.ROLE_USER.name());
-        if (optionalRole.isEmpty()) {
-            throw new ServerErrorException("User role not found in the DB");
-        }
+        Role userRole = new Role(RoleType.ROLE_USER.getId(), RoleType.ROLE_USER.name());
 
         try {
             User user = userMapper.toEntity(userRequestDto);
-            user.setRole(optionalRole.get());
+            user.setRole(userRole);
             user.setPassword(encoder.encode(userRequestDto.getPassword()));
             userRepository.save(user);
             return userMapper.toDto(user);
