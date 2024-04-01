@@ -69,22 +69,22 @@ public class UserServiceImpl implements UserService {
     public String registerNewUser(UserRequestDto userRequestDto, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("userRequestDto", userRequestDto);
-            return "register";
+            return "register_user";
         }
         try {
             addUser(userRequestDto);
         } catch (EmailInUseException e) {
             model.addAttribute("userRequestDto", userRequestDto);
             model.addAttribute("email_error", e.getMessage());
-            return "register";
+            return "register_user";
         } catch (UsernameInUseException e) {
             model.addAttribute("userRequestDto", userRequestDto);
             model.addAttribute("user_error", e.getMessage());
-            return "register";
+            return "register_user";
         } catch (PasswordsNotMatchingException e) {
             model.addAttribute("userRequestDto", userRequestDto);
             model.addAttribute("password_error", e.getMessage());
-            return "register";
+            return "register_user";
         }
         return "redirect:/";
     }

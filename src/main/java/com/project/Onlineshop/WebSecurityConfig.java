@@ -25,13 +25,13 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests((requests) -> requests
 //                                .anyRequest().permitAll()
-                        .requestMatchers("/", "/about", "/icon.png", "/user_info" , "/login", "/employee/login", "user/login", "/register").permitAll()
+//                        .requestMatchers("/", "/about", "/icon.png", "/user_info" , "/login", "/employee/login", "user/login", "/register").permitAll()
 //                        .requestMatchers("/admin").hasRole("ADMIN")
 //                        .requestMatchers("/admin").hasAuthority("ROLE_ADMIN")
 //                        .requestMatchers("/user").hasRole("USER")
 //                        .requestMatchers("/user").hasAuthority("ROLE_USER")
 //                        .requestMatchers("/user_and_admin").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
