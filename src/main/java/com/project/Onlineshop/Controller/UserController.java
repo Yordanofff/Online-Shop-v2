@@ -22,10 +22,10 @@ public class UserController {
         return "login_user";
     }
 
-    @GetMapping("/register")
+    @GetMapping("/user/register")
     String register(Model model) {
         model.addAttribute("userRequestDto", new UserRequestDto());
-        return "register";}
+        return "register_user";}
 
     @PostMapping("/register")
     String registerNewUser(@ModelAttribute @Valid UserRequestDto userRequestDto, BindingResult bindingResult, Model model){

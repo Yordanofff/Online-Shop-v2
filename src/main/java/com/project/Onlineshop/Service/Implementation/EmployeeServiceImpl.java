@@ -1,9 +1,13 @@
 package com.project.Onlineshop.Service.Implementation;
 
 import com.project.Onlineshop.Dto.Request.EmployeeRequestDto;
+import com.project.Onlineshop.Dto.Request.UserRequestDto;
 import com.project.Onlineshop.Dto.Response.EmployeeResponseDto;
 import com.project.Onlineshop.Entity.Employee;
 import com.project.Onlineshop.Entity.Role;
+import com.project.Onlineshop.Exceptions.EmailInUseException;
+import com.project.Onlineshop.Exceptions.PasswordsNotMatchingException;
+import com.project.Onlineshop.Exceptions.UsernameInUseException;
 import com.project.Onlineshop.Mapper.EmployeeMapper;
 import com.project.Onlineshop.Repository.EmployeeRepository;
 import com.project.Onlineshop.Repository.RoleRepository;
@@ -13,6 +17,8 @@ import com.project.Onlineshop.Static.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -150,6 +156,29 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private boolean isPhoneNumberInDB(String phoneNumber) {
         return employeeRepository.findByPhoneNumber(phoneNumber).isPresent();
+    }
+
+    public String registerNewEmployee(EmployeeRequestDto employeeRequestDto, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("employeeRequestDto", employeeRequestDto);
+            return "register_employee";
+        }
+        try {
+            create(employeeRequestDto);
+        } catch (EmailInUseException e) {
+            model.addAttribute("employeeRequestDto", employeeRequestDto);
+            model.addAttribute("email_error", e.getMessage());
+            return "register_employee";
+        } catch (UsernameInUseException e) {
+            model.addAttribute("employeeRequestDto", employeeRequestDto);
+            model.addAttribute("user_error", e.getMessage());
+            return "register_employee";
+        } catch (PasswordsNotMatchingException e) {
+            model.addAttribute("employeeRequestDto", employeeRequestDto);
+            model.addAttribute("password_error", e.getMessage());
+            return "register_employee";
+        }
+        return "redirect:/";
     }
 
 }
