@@ -2,6 +2,7 @@ package com.project.Onlineshop;
 
 import com.project.Onlineshop.Dto.Request.UserRequestDto;
 import com.project.Onlineshop.Entity.Employee;
+import com.project.Onlineshop.Entity.OrderStatus;
 import com.project.Onlineshop.Entity.ProductHelpers.Brand;
 import com.project.Onlineshop.Entity.ProductHelpers.Color;
 import com.project.Onlineshop.Entity.ProductHelpers.Material;
@@ -9,6 +10,7 @@ import com.project.Onlineshop.Entity.Products.*;
 import com.project.Onlineshop.Entity.Role;
 import com.project.Onlineshop.Repository.*;
 import com.project.Onlineshop.Service.UserService;
+import com.project.Onlineshop.Static.OrderStatusType;
 import com.project.Onlineshop.Static.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
@@ -34,12 +36,26 @@ public class DataInit implements ApplicationRunner {
     private final ProductRepository productRepository;
     private final MaterialRepository materialRepository;
     private final BrandRepository brandRepository;
+    private final OrderStatusRepository orderStatusRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        initializeOrderStatuses();
+
         initializeDefaultUsers();
         initializeProductHelpers();
         initializeProducts();
+    }
+
+    private void initializeOrderStatuses() {
+        if (orderStatusRepository.count() == 0) {
+            for (OrderStatusType orderStatusType : OrderStatusType.values()) {
+                orderStatusRepository.save(OrderStatus.builder()
+                        .id(orderStatusType.getId())
+                        .name(orderStatusType.name())
+                        .build());
+            }
+        }
     }
 
     private void initializeDefaultUsers() {
