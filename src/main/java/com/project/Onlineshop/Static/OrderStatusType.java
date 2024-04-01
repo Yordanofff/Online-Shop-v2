@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum OrderStatusType {
+    BASKET(0),  // This will be the status of the items in the basket before they get ordered
     PENDING(1),
     PROCESSING(2),
     SHIPPED(3),

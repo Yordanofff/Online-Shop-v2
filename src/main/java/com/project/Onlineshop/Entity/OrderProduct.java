@@ -2,10 +2,14 @@ package com.project.Onlineshop.Entity;
 
 import com.project.Onlineshop.Entity.Products.Product;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
 public class OrderProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,3 +26,8 @@ public class OrderProduct {
 
     private int quantity;
 }
+
+// 1 ябълка 10
+// 1 круши 5
+// 1 сливи 2
+// 2 ябълка 2
