@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Food extends Product {
 
-    @Column
+    @Column(name = "expiry_date")
     private LocalDate expiryDate;
 
     public Food(String name, BigDecimal price, int quantity, LocalDate expiryDate) {

@@ -2,6 +2,7 @@ package com.project.Onlineshop;
 
 import com.project.Onlineshop.Dto.Request.UserRequestDto;
 import com.project.Onlineshop.Entity.Employee;
+import com.project.Onlineshop.Entity.ProductHelpers.Brand;
 import com.project.Onlineshop.Entity.ProductHelpers.Color;
 import com.project.Onlineshop.Entity.ProductHelpers.Material;
 import com.project.Onlineshop.Entity.Products.*;
@@ -33,6 +34,7 @@ public class DataInit implements ApplicationRunner {
     private final ColorRepository colorRepository;
     private final ProductRepository productRepository;
     private final MaterialRepository materialRepository;
+    private final BrandRepository brandRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -91,24 +93,6 @@ public class DataInit implements ApplicationRunner {
             }
         }
 
-//        if (categoryRepository.count() == 0) {
-//            for (ProductCategory c : ProductCategory.values()) {
-//                categoryRepository.save(new Category(c.name()));
-//            }
-//        }
-
-
-//        ==========================
-//        if (foodRepository.count() == 0) {
-//            foodRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1)));
-//        }
-//
-//        if (accessoriesRepository.count() == 0) {
-//            Optional<Color> optionalColor = colorRepository.findById(1L);
-//            accessoriesRepository.save(new Accessories("Cable", BigDecimal.valueOf(2.20), 15, optionalColor.get()));
-//        }
-//        ==========================
-
         List<Food> foodList = productRepository.getAllFood();
         if (foodList.isEmpty()) {
             productRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1)));
@@ -132,11 +116,16 @@ public class DataInit implements ApplicationRunner {
             materials.forEach(material -> materialRepository.save(new Material(material)));
         }
 
+        if (brandRepository.count() == 0) {
+            List<String> brands = List.of("Nike", "The CocaCola Company", "Zavet OOD", "Mlin Rz", "Elektroresurs", "RailingSystems LTD", "TheDecorationBrand");
+            brands.forEach((brand) -> brandRepository.save(new Brand(brand)));
+        }
+
         List<Railing> railingList = productRepository.getAllByEntityType(Railing.class);
         if (railingList.isEmpty()) {
             Material metal = materialRepository.findByName("Metal").orElseThrow();
             Color red = colorRepository.findByName("Red").orElseThrow();
-
+            Brand brand = brandRepository.findByName("RailingSystems LTD").orElseThrow();
             productRepository.save(Railing.builder()
                     .name("Best in brand railing system")
                     .price(BigDecimal.valueOf(19.99))
@@ -145,6 +134,7 @@ public class DataInit implements ApplicationRunner {
                     .isOutdoor(true)
                     .isNonSlip(true)
                     .color(red)
+                    .brand(brand)
                     .build());
         }
 
@@ -152,6 +142,14 @@ public class DataInit implements ApplicationRunner {
         if (sanitaryList.isEmpty()) {
             Material cotton = materialRepository.findByName("Cotton").orElseThrow();
             productRepository.save(new Sanitary("Bodyform Ultra Goodnight Sanitary Towels", BigDecimal.valueOf(11.50), 1000, true, false, cotton));
+        }
+
+        List<Decoration> decorations = productRepository.getAllByEntityType(Decoration.class);
+        if (decorations.isEmpty()) {
+            Material wood = materialRepository.findByName("wood").orElseThrow();
+            Brand decoration = brandRepository.findByName("TheDecorationBrand").orElseThrow();
+            productRepository.save(new Decoration("Cinvo 30 Pieces Flowers Wood Cutouts Floral Wooden Slices 7cm Unfinished",
+                    BigDecimal.valueOf(7.99), 60, wood, decoration));
         }
 
         List<Product> productList = productRepository.getAllProductsWithQuantityGreaterThan(10);
