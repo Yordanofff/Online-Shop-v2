@@ -19,7 +19,7 @@ public class EmployeeController {
         return "/employees/get_all";
     }
 
-    @GetMapping("/employee/login")
+    @GetMapping("/login")
     String employeeLogin() {
         return "login_employee";
     }
