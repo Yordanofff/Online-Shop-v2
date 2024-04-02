@@ -35,8 +35,12 @@
                     <h5 class="card-title" th:text="${product.name}">Product Name</h5>
                     <p class="card-text" th:text="${'Price: ' + product.price}">Price: $0.00</p>
                     <p class="card-text" th:text="${'Quantity: ' + product.quantity}">Quantity: 0</p>
-                    <div sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
+                    <div sec:authorize="hasRole('ROLE_USER')">
                         <a href="#" class="btn btn-primary">Add to cart</a>
+                    </div>
+                    <div sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
+                        <a th:href="@{'/products/edit?id=' + ${product.id}}" class="btn btn-warning">Edit</a>
+                        <a th:href="@{'/products/delete?id=' + ${product.id}}" class="btn btn-danger">Delete</a>
                     </div>
                 </div>
             </div>
