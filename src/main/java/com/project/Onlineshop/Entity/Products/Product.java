@@ -23,7 +23,9 @@ public class Product {
     protected BigDecimal price;
     protected int quantity;
 
-    protected Product() {
+    protected String imageLocation;
+
+    public Product() {
     }
 
     public Product(String name, BigDecimal price, int quantity) {
