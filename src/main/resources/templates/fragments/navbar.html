@@ -1,6 +1,28 @@
-<nav class="navbar navbar-expand-lg bg-success" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<nav class="navbar navbar-expand-lg bg-success" xmlns:th="http://www.w3.org/1999/xhtml"
+     xmlns:sec="http://www.w3.org/1999/xhtml">
+    <head>
+        <style>
+            .dropdown-menu li {
+                position: relative;
+            }
+            .dropdown-menu .dropdown-submenu {
+                display: none;
+                position: absolute;
+                left: 100%;
+                top: -7px;
+            }
+            .dropdown-menu .dropdown-submenu-left {
+                right: 100%;
+                left: auto;
+            }
+            .dropdown-menu > li:hover > .dropdown-submenu {
+                display: block;
+            }
+        </style>
+    </head>
     <div class="container-fluid">
-<!--        <a class="navbar-brand" href="/"><img th:src="@{/icon.png}" width="30"></a>-->
+        <!--        <a class="navbar-brand" href="/"><img th:src="@{/icon.png}" width="30"></a>-->
         <a class="navbar-brand" href="/">Home</a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -10,21 +32,54 @@
 
         <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
             <ul class="navbar-nav">
-<!--                <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">-->
-<!--                    <a class="nav-link active text-white" aria-current="page" href="/actors">Actors</a>-->
-<!--                </li>-->
-<!--                <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">-->
-<!--                    <a class="nav-link text-white" href="/countries">Countries</a>-->
-<!--                </li>-->
-<!--                <li class="nav-item">-->
-<!--                    <a class="nav-link text-white" href="/movies">Movies</a>-->
-<!--                </li>-->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Products
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" th:href="@{/products/show}">Show all</a>
+                        </li>
+                            <li class="dropdown" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
+
+                                <a class="dropdown-item" href="#">
+                                    Add new product &raquo;
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-submenu">
+                                    <li>
+                                        <a class="dropdown-item" th:href="@{/products/add?productType=Drink}">Drink</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" th:href="@{/products/add?productType=Food}">Food</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" th:href="@{/products/add?productType=Sanitary}">Sanitary</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" th:href="@{/products/add?productType=Railing}">Railing</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" th:href="@{/products/add?productType=Accessory}">Accessory</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" th:href="@{/products/add?productType=Decoration}">Decoration</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" th:href="@{/products/add?productType=Others}">Others</a>
+                                    </li>
+                                </ul>
+                            </li>
+                    </ul>
+                </li>
             </ul>
 
             <ul class="navbar-nav">
 
                 <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
-                    <a class="nav-link text-white" th:inline="text"> Hello <span th:remove="tag" sec:authentication="name">!</span></a>
+                    <a class="nav-link text-white" th:inline="text"> Hello <span th:remove="tag"
+                                                                                 sec:authentication="name">!</span></a>
                 </li>
 
                 <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
@@ -33,14 +88,29 @@
                     </form>
                 </li>
 
-                <li th:unless="${#authorization.expression('isAuthenticated()')}">
-                    <a href="/login" class="nav-link text-white"> Login</a>
+                <li th:unless="${#authorization.expression('isAuthenticated()')}" class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Login
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/user/login}">Login as user</a></li>
+                        <li><a class="dropdown-item" th:href="@{/employee/login}">Login as employee</a></li>
+                    </ul>
                 </li>
-                <li th:unless="${#authorization.expression('isAuthenticated()')}">
-                    <a href="/register" class="nav-link text-white"> Registration</a>
+                <li th:unless="${#authorization.expression('isAuthenticated()')}" class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Register
+                    </a>
+                    <ul class="dropdown-menu position-absolute" style="left: 0 !important;">
+                        <li><a class="dropdown-item" th:href="@{/user/register}">Register as user</a></li>
+                        <li><a class="dropdown-item" th:href="@{/employee/register}">Register as employee</a></li>
+                    </ul>
                 </li>
+
             </ul>
         </div>
-
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     </div>
 </nav>
