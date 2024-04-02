@@ -12,18 +12,31 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import com.project.Onlineshop.Service.ImageService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+
 
 @Controller
 @RequestMapping("/products")
+@RequiredArgsConstructor
 public class ProductController {
 
     private final ProductRepository productRepository;
     @Autowired
     private ProductServiceImpl productService;
 
-    public ProductController(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
+    private final ImageService imageService;
+
+
 
     @GetMapping("/show")
     public String showAllProducts(Model model) {
@@ -111,12 +124,30 @@ public class ProductController {
                 model.addAttribute("product", others);
                 model.addAttribute("product_type", others.getClass().getSimpleName());
                 break;
+
+    private Class<? extends Product> getProductClass(String category) {
+        // TODO - can we use the Enum instead of this?
+        switch (category) {
+            case "FOOD":
+                return Food.class;
+            case "DRINK":
+                return Drink.class;
+            case "SANITARY":
+                return Sanitary.class;
+            case "RAILING":
+                return Railing.class;
+            case "ACCESSORIES":
+                return Accessories.class;
+            case "DECORATION":
+                return Decoration.class;
+            case "OTHERS":
+                return Others.class;
+
             default:
                 return "error_page";
         }
         return "product_add";
     }
-
 
 //    @PostMapping("/add")
 //    public <T extends Product> String saveProduct(@ModelAttribute @Valid T product, @RequestParam("productType") String productType, BindingResult bindingResult, Model model) {
@@ -129,5 +160,13 @@ public class ProductController {
 //        return "redirect:/index";
 //    }
 
+    // UPLOADING IMAGE TEST ------
+    @GetMapping("/uploadimage") public String displayUploadForm() {
+        return "upload_test";
+    }
+
+    @PostMapping("/upload") public String uploadImage(Model model, @RequestParam("image") MultipartFile file) throws IOException {
+        return imageService.uploadImage(model, file);
+    }
 
 }
