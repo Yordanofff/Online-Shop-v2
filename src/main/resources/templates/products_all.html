@@ -15,7 +15,8 @@
             <select id="categorySelect" class="form-select mr-2" name="category"
                     onchange="this.form.action='/products/filter?category=' + this.value; this.form.submit();"
                     style="margin-bottom: 10px; margin-top: 10px;">
-                <option selected disabled>Choose category</option>
+                <option value="PRODUCT" th:selected="${category == null || category == 'PRODUCT'}">Show All</option>
+<!--                <option value="PRODUCT" th:selected="${category == 'PRODUCT'}">Show All</option>-->
                 <option value="FOOD" th:selected="${category == 'FOOD'}">Food</option>
                 <option value="DRINK" th:selected="${category == 'DRINK'}">Drink</option>
                 <option value="SANITARY" th:selected="${category == 'SANITARY'}">Sanitary</option>

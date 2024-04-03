@@ -1,28 +1,22 @@
 package com.project.Onlineshop.Controller;
 
-import com.project.Onlineshop.Entity.Products.*;
+import com.project.Onlineshop.Dto.Request.ProductRequestDto;
+import com.project.Onlineshop.Entity.Products.Product;
+import com.project.Onlineshop.Mapper.ProductMapper;
 import com.project.Onlineshop.Repository.ProductRepository;
+import com.project.Onlineshop.Service.ImageService;
 import com.project.Onlineshop.Service.Implementation.ProductServiceImpl;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
-import com.project.Onlineshop.Service.ImageService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Objects;
+import java.util.Optional;
 
 
 @Controller
@@ -31,11 +25,8 @@ import java.io.IOException;
 public class ProductController {
 
     private final ProductRepository productRepository;
-    @Autowired
-    private ProductServiceImpl productService;
-
+    private final ProductServiceImpl productService;
     private final ImageService imageService;
-
 
 
     @GetMapping("/show")
@@ -46,12 +37,17 @@ public class ProductController {
 
     @GetMapping("/filter")
     public String sortProducts(@RequestParam String category, Model model) {
-        Class<? extends Product> productClass = productService.getProductClass(category);
-        if (productClass != null) {
-            model.addAttribute("products", productRepository.getAllByEntityType(productClass));
+        if (Objects.equals(category, "PRODUCT")) {
+            model.addAttribute("products", productRepository.findAll());
             model.addAttribute("category", category);
         } else {
-            throw new NullPointerException("The product category was not found!");
+            Class<? extends Product> productClass = productService.getProductClass(category);
+            if (productClass != null) {
+                model.addAttribute("products", productRepository.getAllByEntityType(productClass));
+                model.addAttribute("category", category);
+            } else {
+                throw new NullPointerException("The product category was not found!");
+            }
         }
         return "products_all";
     }
@@ -86,86 +82,56 @@ public class ProductController {
         return "redirect:/products/show";
     }
 
+
     @GetMapping("/add")
     public String addNewProduct(@RequestParam("productType") String productType, Model model) {
-        switch (productType) {
-            case "Drink":
-                Drink drink = new Drink();
-                model.addAttribute("product", drink);
-                model.addAttribute("product_type", drink.getClass().getSimpleName());
-                break;
-            case "Food":
-                Food food = new Food();
-                model.addAttribute("product", food);
-                model.addAttribute("product_type", food.getClass().getSimpleName());
-                break;
-            case "Sanitary":
-                Sanitary sanitary = new Sanitary();
-                model.addAttribute("product", sanitary);
-                model.addAttribute("product_type", sanitary.getClass().getSimpleName());
-                break;
-            case "Railing":
-                Railing railing = new Railing();
-                model.addAttribute("product", railing);
-                model.addAttribute("product_type", railing.getClass().getSimpleName());
-                break;
-            case "Accessory":
-                Accessories accessories = new Accessories();
-                model.addAttribute("product", accessories);
-                model.addAttribute("product_type", accessories.getClass().getSimpleName());
-                break;
-            case "Decoration":
-                Decoration decoration = new Decoration();
-                model.addAttribute("product", decoration);
-                model.addAttribute("product_type", decoration.getClass().getSimpleName());
-                break;
-            case "Others":
-                Others others = new Others();
-                model.addAttribute("product", others);
-                model.addAttribute("product_type", others.getClass().getSimpleName());
-                break;
-
-    private Class<? extends Product> getProductClass(String category) {
-        // TODO - can we use the Enum instead of this?
-        switch (category) {
-            case "FOOD":
-                return Food.class;
-            case "DRINK":
-                return Drink.class;
-            case "SANITARY":
-                return Sanitary.class;
-            case "RAILING":
-                return Railing.class;
-            case "ACCESSORIES":
-                return Accessories.class;
-            case "DECORATION":
-                return Decoration.class;
-            case "OTHERS":
-                return Others.class;
-
-            default:
-                return "error_page";
-        }
-        return "product_add";
+        model.addAttribute("product", new ProductRequestDto());
+        return "product_add"; // Return the view to render the form
     }
 
-//    @PostMapping("/add")
-//    public <T extends Product> String saveProduct(@ModelAttribute @Valid T product, @RequestParam("productType") String productType, BindingResult bindingResult, Model model) {
-//        if (bindingResult.hasErrors()) {
-//            model.addAttribute("product", product);
-//            model.addAttribute("product_type", productType);
-//            return "product_add";
+// TODO - do we need this?
+//    private Class<? extends Product> getProductClass(String category) {
+//        // TODO - can we use the Enum instead of this?
+//        switch (category) {
+//            case "ALL":
+//                return Product.class;
+//            case "FOOD":
+//                return Food.class;
+//            case "DRINK":
+//                return Drink.class;
+//            case "SANITARY":
+//                return Sanitary.class;
+//            case "RAILING":
+//                return Railing.class;
+//            case "ACCESSORIES":
+//                return Accessories.class;
+//            case "DECORATION":
+//                return Decoration.class;
+//            case "OTHERS":
+//                return Others.class;
+//
+//            default:
+//                return Others.class;
 //        }
-//        productRepository.save(product);
-//        return "redirect:/index";
 //    }
 
+    @PostMapping("/add")
+    public String saveProduct(@RequestParam("productType") String productType,
+                              @Valid @ModelAttribute ProductRequestDto productRequestDto,
+                              BindingResult bindingResult,
+                              Model model) {
+        return productService.saveProduct(productType, productRequestDto, bindingResult, model);
+    }
+
+
     // UPLOADING IMAGE TEST ------
-    @GetMapping("/uploadimage") public String displayUploadForm() {
+    @GetMapping("/uploadimage")
+    public String displayUploadForm() {
         return "upload_test";
     }
 
-    @PostMapping("/upload") public String uploadImage(Model model, @RequestParam("image") MultipartFile file) throws IOException {
+    @PostMapping("/upload")
+    public String uploadImage(Model model, @RequestParam("image") MultipartFile file) throws IOException {
         return imageService.uploadImage(model, file);
     }
 
