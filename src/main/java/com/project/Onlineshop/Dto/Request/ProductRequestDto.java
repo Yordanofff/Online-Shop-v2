@@ -3,17 +3,14 @@ package com.project.Onlineshop.Dto.Request;
 import com.project.Onlineshop.Entity.ProductHelpers.Brand;
 import com.project.Onlineshop.Entity.ProductHelpers.Color;
 import com.project.Onlineshop.Entity.ProductHelpers.Material;
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -39,6 +36,19 @@ public class ProductRequestDto {
     private boolean isBiodegradable;
     private boolean isReusable;
     private boolean isNonSlip;
+    private boolean isOutdoor;
 
+    public boolean getIsBiodegradable(){
+        return this.isBiodegradable;
+    }
+    public boolean getIsReusable(){
+        return this.isReusable;
+    }
+    public boolean getIsNonSlip(){
+        return this.isNonSlip;
+    }
+    public boolean getIsOutdoor(){
+        return this.isOutdoor;
+    }
 }
 
