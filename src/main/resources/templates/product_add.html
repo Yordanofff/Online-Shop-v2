@@ -17,7 +17,8 @@
                 <input type="hidden" name="productType" th:value="${param.productType}">
                 <div class="form-group">
                     <label for="name">Name:</label>
-                    <input type="text" th:field="*{name}" class="form-control" id="name" placeholder="Enter product name">
+                    <input type="text" th:field="*{name}" class="form-control" id="name"
+                           placeholder="Enter product name">
                     <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
                 </div>
                 <div class="form-group">
@@ -27,10 +28,127 @@
                 </div>
                 <div class="form-group">
                     <label for="quantity">Quantity:</label>
-                    <input type="number" th:field="*{quantity}" class="form-control" id="quantity" placeholder="Enter quantity">
+                    <input type="number" th:field="*{quantity}" class="form-control" id="quantity"
+                           placeholder="Enter quantity">
                     <span class="text-danger" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></span>
                 </div>
+                <div class="form-group" th:if="${productType == 'Drink'}">
+                    <label for="bestBefore">Best before:</label>
+                    <input type="date" th:field="*{bestBefore}" class="form-control" id="bestBefore">
+                </div>
+                <div class="form-group" th:if="${productType == 'Food'}">
+                    <label for="expiryDate">Expiry Date:</label>
+                    <input type="date" th:field="*{expiryDate}" class="form-control" id="expiryDate">
+                </div>
+                <div th:if="${productType == 'Sanitary'}">
+                    <div class="form-group">
+                        <label for="isBiodegradable">Is the product biodegradable:</label>
+                        <select th:field="*{isBiodegradable}" class="form-select" id="isBiodegradable">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="isReusable">Is the product reusable:</label>
+                        <select th:field="*{isReusable}" class="form-select" id="isReusable">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="materials">Material:</label>
+                        <select th:field="*{material}" class="form-select" id="materials">
+                            <option th:each="material : ${materials}" th:value="${material.id}"
+                                    th:text="${material.name}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div th:if="${productType == 'Railing'}">
+                    <div class="form-group">
+                        <label for="material">Material:</label>
+                        <select th:field="*{material}" class="form-select" id="material">
+                            <option th:each="material : ${materials}" th:value="${material.id}"
+                                    th:text="${material.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="color">Color:</label>
+                        <select th:field="*{color}" class="form-select" id="color">
+                            <option th:each="color : ${colors}" th:value="${color.id}"
+                                    th:text="${color.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="brand">Brand:</label>
+                        <select th:field="*{brand}" class="form-select" id="brand">
+                            <option th:each="brand : ${brands}" th:value="${brand.id}"
+                                    th:text="${brand.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="isOutdoor">Is the railing outdoor:</label>
+                        <select th:field="*{isOutdoor}" class="form-select" id="isOutdoor">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="isNonSlip">Is the railing non-slip:</label>
+                        <select th:field="*{isNonSlip}" class="form-select" id="isNonSlip">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div th:if="${productType == 'Accessory'}">
+                    <div class="form-group">
+                        <label for="colorAccessory">Color:</label>
+                        <select th:field="*{color}" class="form-select" id="colorAccessory">
+                            <option th:each="color : ${colors}" th:value="${color.id}"
+                                    th:text="${color.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="brandAccessory">Brand:</label>
+                        <select th:field="*{brand}" class="form-select" id="brandAccessory">
+                            <option th:each="brand : ${brands}" th:value="${brand.id}"
+                                    th:text="${brand.name}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div th:if="${productType == 'Decoration'}">
+                    <div class="form-group">
+                        <label for="brandDecoration">Brand:</label>
+                        <select th:field="*{brand}" class="form-select" id="brandDecoration">
+                            <option th:each="brand : ${brands}" th:value="${brand.id}"
+                                    th:text="${brand.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="materialDecoration">Material:</label>
+                        <select th:field="*{material}" class="form-select" id="materialDecoration">
+                            <option th:each="material : ${materials}" th:value="${material.id}"
+                                    th:text="${material.name}"></option>
+                        </select>
+                    </div>
+                </div>
 
+                <div th:if="${productType == 'Others'}">
+                    <div class="form-group">
+                        <label for="materialOthers">Material:</label>
+                        <select th:field="*{material}" class="form-select" id="materialOthers">
+                            <option th:each="material : ${materials}" th:value="${material.id}"
+                                    th:text="${material.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="othersColor">Color:</label>
+                        <select th:field="*{color}" class="form-select" id="othersColor">
+                            <option th:each="color : ${colors}" th:value="${color.id}"
+                                    th:text="${color.name}"></option>
+                        </select>
+                    </div>
+                </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-secondary btn-lg">Add</button>
                 </div>

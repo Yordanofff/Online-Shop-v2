@@ -1,13 +1,12 @@
 package com.project.Onlineshop.Entity.Products;
 
+import com.project.Onlineshop.Dto.Request.ProductRequestDto;
 import com.project.Onlineshop.Entity.ProductHelpers.Material;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -15,7 +14,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Sanitary extends Product{
+public class Sanitary extends Product {
     @Column
     private boolean isBiodegradable;
 
@@ -30,6 +29,7 @@ public class Sanitary extends Product{
     public Sanitary(String name, BigDecimal price, int quantity, boolean isBiodegradable, boolean isReusable, Material material, String imageLocation) {
         super(name, price, quantity, imageLocation);
         this.isBiodegradable = isBiodegradable;
+        this.isReusable = isReusable;
         this.material = material;
     }
 }

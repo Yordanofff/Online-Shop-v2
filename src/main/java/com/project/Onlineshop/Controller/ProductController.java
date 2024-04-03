@@ -3,6 +3,9 @@ package com.project.Onlineshop.Controller;
 import com.project.Onlineshop.Dto.Request.ProductRequestDto;
 import com.project.Onlineshop.Entity.Products.Product;
 import com.project.Onlineshop.Mapper.ProductMapper;
+import com.project.Onlineshop.Repository.BrandRepository;
+import com.project.Onlineshop.Repository.ColorRepository;
+import com.project.Onlineshop.Repository.MaterialRepository;
 import com.project.Onlineshop.Repository.ProductRepository;
 import com.project.Onlineshop.Service.ImageService;
 import com.project.Onlineshop.Service.Implementation.ProductServiceImpl;
@@ -27,6 +30,9 @@ public class ProductController {
     private final ProductRepository productRepository;
     private final ProductServiceImpl productService;
     private final ImageService imageService;
+    private final MaterialRepository materialRepository;
+    private final ColorRepository colorRepository;
+    private final BrandRepository brandRepository;
 
 
     @GetMapping("/show")
@@ -86,6 +92,23 @@ public class ProductController {
     @GetMapping("/add")
     public String addNewProduct(@RequestParam("productType") String productType, Model model) {
         model.addAttribute("product", new ProductRequestDto());
+        model.addAttribute("productType", productType);
+
+ //       TODO - the ifs below need to be better looking + validations should be added
+
+        if (productType.equalsIgnoreCase("Sanitary")||productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Decoration") || productType.equalsIgnoreCase("Others")) {
+            model.addAttribute("materials", materialRepository.findAll());
+        }
+        if(productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Accessory")){
+            model.addAttribute("colors",colorRepository.findAll());
+            model.addAttribute("brands", brandRepository.findAll());
+        }
+        if(productType.equalsIgnoreCase("Decoration")){
+            model.addAttribute("brands", brandRepository.findAll());
+        }
+        if(productType.equalsIgnoreCase("Others")){
+            model.addAttribute("colors",colorRepository.findAll());
+        }
         return "product_add"; // Return the view to render the form
     }
 
