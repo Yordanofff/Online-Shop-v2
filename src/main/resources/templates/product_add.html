@@ -9,11 +9,11 @@
 <body class="d-flex flex-column min-vh-100">
 
 <div class="col-6 container flex-grow-1 mt-5 mb-5">
-
     <div class="row justify-content-center">
         <div class="col-md-6">
             <h2 class="mb-4 text-center">Add new <span th:text="${param.productType}"></span></h2>
-            <form action="#" name="productType" th:action="@{/products/add}" th:object="${product}" method="post">
+            <form action="#" name="productType" th:action="@{/products/add}" th:object="${productRequestDto}"
+                  method="post" enctype="multipart/form-data">
                 <input type="hidden" name="productType" th:value="${param.productType}">
                 <div class="form-group">
                     <label for="name">Name:</label>
@@ -32,6 +32,35 @@
                            placeholder="Enter quantity">
                     <span class="text-danger" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></span>
                 </div>
+
+                <br>
+                <h6>Upload Image</h6>
+                <p th:text="${message}" th:if="${message ne null}" class="alert alert-primary"></p>
+                <div class="form-group">
+                    <input type="file" id="imageInput" name="image" accept="image/*" class="form-control-file">
+                </div>
+                <button type="button" id="uploadButton" class="btn btn-primary mt-3 mb-3">Upload image</button>
+                <input type="hidden" id="imageFileName" th:field="*{imageLocation}" name="imageLocation">
+
+                <!--  th:if is not working for some reason and I can't figure it out. Will be using NO_IMG -->
+                <!--  <img th:src="@{'/images/' + ${imageLocation}}" th:if="${imageLocation != null}" />-->
+                <!--  <img th:src="@{'/images/' + ${imageLocation}}"/>-->
+
+                <img th:if="${imageLocation == null}" src="/images/no_img.png" alt="No Image Available" class="img-thumbnail" style="max-width: 400px; max-height: 400px;"/>
+
+
+                <script>
+                    // Assuming you already have AJAX/JavaScript code here to handle file upload
+                    // After the upload is successful, add this function to copy the filename to imageLocation
+                    function updateImageLocation() {
+                        var imageFileName = document.getElementById("imageFileName").value;
+                        document.getElementById("imageLocation").value = imageFileName;
+                        // Refresh the image to display the newly uploaded one
+                        document.querySelector('img').src = '/images/' + imageFileName;
+                    }
+                </script>
+
+
                 <div class="form-group" th:if="${productType == 'Drink'}">
                     <label for="bestBefore">Best before:</label>
                     <input type="date" th:field="*{bestBefore}" class="form-control" id="bestBefore">
@@ -157,9 +186,51 @@
     </div>
 </div>
 
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script th:inline="javascript">
+    $(document).ready(function () {
+        $('#uploadButton').click(function () {
+            var formData = new FormData();
+            var fileInput = document.getElementById('imageInput').files[0];
+            formData.append('image', fileInput);
+
+            // Fetch CSRF token from the hidden input field
+            var csrfToken = $("input[name='_csrf']").val();
+
+            $.ajax({
+                type: 'POST',
+                url: '/products/upload',
+                data: formData,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                },
+                success: function(data) {
+                    var imgName = data.img_name;
+                    console.log(imgName)
+                    $('#imageFileName').val(imgName);
+                    $('img').attr('src', '/images/' + imgName);
+                    formData.append('imageFileName', imgName);
+                    formData.append('image', fileInput);
+                },
+                error: function (error) {
+                    console.log('Error uploading image: ' + error);
+                }
+            });
+        });
+    });
+</script>
+
+
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

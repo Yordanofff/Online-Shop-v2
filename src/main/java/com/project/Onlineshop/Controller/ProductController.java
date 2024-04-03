@@ -2,7 +2,6 @@ package com.project.Onlineshop.Controller;
 
 import com.project.Onlineshop.Dto.Request.ProductRequestDto;
 import com.project.Onlineshop.Entity.Products.Product;
-import com.project.Onlineshop.Mapper.ProductMapper;
 import com.project.Onlineshop.Repository.BrandRepository;
 import com.project.Onlineshop.Repository.ColorRepository;
 import com.project.Onlineshop.Repository.MaterialRepository;
@@ -11,6 +10,7 @@ import com.project.Onlineshop.Service.ImageService;
 import com.project.Onlineshop.Service.Implementation.ProductServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -91,7 +91,7 @@ public class ProductController {
 
     @GetMapping("/add")
     public String addNewProduct(@RequestParam("productType") String productType, Model model) {
-        model.addAttribute("product", new ProductRequestDto());
+        model.addAttribute("productRequestDto", new ProductRequestDto());
         model.addAttribute("productType", productType);
 
  //       TODO - the ifs below need to be better looking + validations should be added
@@ -148,14 +148,20 @@ public class ProductController {
 
 
     // UPLOADING IMAGE TEST ------
-    @GetMapping("/uploadimage")
+    @GetMapping("/upload_image")
     public String displayUploadForm() {
         return "upload_test";
     }
 
+//    @PostMapping("/upload")
+//    public String uploadImage(Model model, @RequestParam("image") MultipartFile file) throws IOException {
+//        return imageService.uploadImage(model, file);
+//    }
+
     @PostMapping("/upload")
-    public String uploadImage(Model model, @RequestParam("image") MultipartFile file) throws IOException {
-        return imageService.uploadImage(model, file);
+    @ResponseBody
+    public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
+        return imageService.uploadImage(file);
     }
 
 }

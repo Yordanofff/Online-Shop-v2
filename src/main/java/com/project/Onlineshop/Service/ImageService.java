@@ -1,7 +1,8 @@
 package com.project.Onlineshop.Service;
 
+import org.json.JSONObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class ImageService {
     public static final String UPLOAD_DIRECTORY = "C:/app_data";
 
 
-    public String uploadImage(Model model, MultipartFile file) throws IOException {
+    public ResponseEntity<?> uploadImage(MultipartFile file) throws IOException {
         StringBuilder nameOfUploadedFile = new StringBuilder();
 
         if (!Files.exists(Path.of(UPLOAD_DIRECTORY))) {
@@ -34,11 +35,10 @@ public class ImageService {
 
         Files.write(fileNameAndPath, file.getBytes());
 
-        model.addAttribute("msg", "Uploaded images: " + nameOfUploadedFile.toString() +
-                "\n Saved at: " + fileNameAndPath);
+        JSONObject response = new JSONObject();
+        response.put("img_name", nameOfFileToSave);
 
-        model.addAttribute("uploadedFileName", nameOfFileToSave);
-        return "upload_test";
+        return ResponseEntity.ok(response.toString());
     }
 
     private String generateUUIDFileName(String originalFileName) {

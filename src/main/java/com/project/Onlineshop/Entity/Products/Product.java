@@ -34,4 +34,12 @@ public class Product {
         this.quantity = quantity;
         this.imageLocation = imageLocation;
     }
+
+    public void setImageLocation(String imageLocation) {
+        // Set the image to null if not set in the frontend so that it doesn't show up an empty/missing picture
+        if (imageLocation.isEmpty()) {
+            imageLocation = null;
+        }
+        this.imageLocation = imageLocation;
+    }
 }

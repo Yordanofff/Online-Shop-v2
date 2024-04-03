@@ -19,7 +19,7 @@ public class ProductRequestDto {
     private String name;
     private BigDecimal price;
     private int quantity;
-    private String imageLocation;
+    private String imageLocation;  // TODO: rename to imageFileName?
 
 //    private String productType; // will be creating different products of this
 
