@@ -27,8 +27,8 @@ public class Sanitary extends Product{
     private Material material;
 
 
-    public Sanitary(String name, BigDecimal price, int quantity, boolean isBiodegradable, boolean isReusable, Material material) {
-        super(name, price, quantity);
+    public Sanitary(String name, BigDecimal price, int quantity, boolean isBiodegradable, boolean isReusable, Material material, String imageLocation) {
+        super(name, price, quantity, imageLocation);
         this.isBiodegradable = isBiodegradable;
         this.material = material;
     }

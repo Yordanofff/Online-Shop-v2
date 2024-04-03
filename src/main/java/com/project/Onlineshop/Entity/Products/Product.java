@@ -23,14 +23,15 @@ public class Product {
     protected BigDecimal price;
     protected int quantity;
 
-    protected String imageLocation;
+    protected String imageLocation;  // TODO: Rename to imageName?
 
     public Product() {
     }
 
-    public Product(String name, BigDecimal price, int quantity) {
+    public Product(String name, BigDecimal price, int quantity, String imageLocation) {
         this.name = name;
         this.price = price;
         this.quantity = quantity;
+        this.imageLocation = imageLocation;
     }
 }

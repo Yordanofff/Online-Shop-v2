@@ -24,8 +24,8 @@ public class Accessories extends Product {
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
-    public Accessories(String name, BigDecimal price, int quantity, Color color, Brand brand) {
-        super(name, price, quantity);
+    public Accessories(String name, BigDecimal price, int quantity, Color color, Brand brand, String imageLocation) {
+        super(name, price, quantity, imageLocation);
         this.color = color;
         this.brand = brand;
     }

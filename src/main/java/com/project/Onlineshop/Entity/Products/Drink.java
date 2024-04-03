@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "drinks")
 @Data
 @NoArgsConstructor
 public class Drink extends Product {
@@ -18,8 +17,8 @@ public class Drink extends Product {
     @Column(name = "best_before")
     private LocalDate bestBefore;
 
-    public Drink(String name, BigDecimal price, int quantity, LocalDate bestBefore) {
-        super(name, price, quantity);
+    public Drink(String name, BigDecimal price, int quantity, LocalDate bestBefore, String imageLocation) {
+        super(name, price, quantity, imageLocation);
         this.bestBefore = bestBefore;
     }
 }

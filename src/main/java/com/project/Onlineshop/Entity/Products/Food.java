@@ -18,8 +18,8 @@ public class Food extends Product {
     @Column(name = "expiry_date")
     private LocalDate expiryDate;
 
-    public Food(String name, BigDecimal price, int quantity, LocalDate expiryDate) {
-        super(name, price, quantity);
+    public Food(String name, BigDecimal price, int quantity, LocalDate expiryDate, String imageLocation) {
+        super(name, price, quantity, imageLocation);
         this.expiryDate = expiryDate;
     }
 }

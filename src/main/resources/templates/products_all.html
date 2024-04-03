@@ -16,7 +16,6 @@
                     onchange="this.form.action='/products/filter?category=' + this.value; this.form.submit();"
                     style="margin-bottom: 10px; margin-top: 10px;">
                 <option value="PRODUCT" th:selected="${category == null || category == 'PRODUCT'}">Show All</option>
-<!--                <option value="PRODUCT" th:selected="${category == 'PRODUCT'}">Show All</option>-->
                 <option value="FOOD" th:selected="${category == 'FOOD'}">Food</option>
                 <option value="DRINK" th:selected="${category == 'DRINK'}">Drink</option>
                 <option value="SANITARY" th:selected="${category == 'SANITARY'}">Sanitary</option>
@@ -28,15 +27,21 @@
         </form>
     </div>
 
-    <div class="row">
-        <div class="col-md-4" th:each="product : ${products}">
-            <div class="card mb-4">
-                <img class="card-img-top" th:src="@{/path/to/product/image/{id}(id=${product.id})}" alt="Product Image">
-                <div class="card-body">
+    <div class="row row-cols-1 row-cols-md-4">
+        <div class="col mb-4" th:each="product : ${products}">
+            <div class="card h-100 d-flex flex-column">
+                <img th:src="@{'/images/' + ${product.imageLocation}}" th:if="${product.imageLocation != null}"
+                     class="card-img-top img-fluid img-thumbnail"/>
+
+                <div class="card-body flex-grow-1">
                     <h5 class="card-title" th:text="${product.name}">Product Name</h5>
                     <p class="card-text" th:text="${'Price: ' + product.price}">Price: $0.00</p>
                     <p class="card-text" th:text="${'Quantity: ' + product.quantity}">Quantity: 0</p>
-                    <div sec:authorize="hasRole('ROLE_USER')">
+                </div>
+
+                <div class="card-footer">
+                    <a th:href="@{'/user/login'}" sec:authorize="isAnonymous()" class="btn btn-primary">Login to Add to Cart</a>
+                    <div sec:authorize="isAuthenticated()">
                         <a href="#" class="btn btn-primary">Add to cart</a>
                     </div>
                     <div sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
@@ -44,9 +49,11 @@
                         <a th:href="@{'/products/delete?id=' + ${product.id}}" class="btn btn-danger">Delete</a>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
+
 </div>
 </body>
 </html>

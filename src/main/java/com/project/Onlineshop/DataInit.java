@@ -129,21 +129,21 @@ public class DataInit implements ApplicationRunner {
     private void initializeProducts() {
         List<Food> foodList = productRepository.getAllFood();
         if (foodList.isEmpty()) {
-            productRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1)));
+            productRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1), "banica.jpg"));
         }
 
         List<Accessories> accessoriesList = productRepository.getAllAccessories();
         if (accessoriesList.isEmpty()) {
             Color black = colorRepository.findByName("Black").orElseThrow();
             Brand brand = brandRepository.findByName("Elektroresurs").orElseThrow();
-            productRepository.save(new Accessories("Cable", BigDecimal.valueOf(2.20), 15, black, brand));
+            productRepository.save(new Accessories("Cable", BigDecimal.valueOf(2.20), 15, black, brand, "cable.jpg"));
         }
 
         List<Drink> drinkList = productRepository.getAllByEntityType(Drink.class);
         if (drinkList.isEmpty()) {
-            productRepository.save(new Drink("Ayran", BigDecimal.valueOf(0.80), 30, LocalDate.of(2024, 4, 10)));
-            productRepository.save(new Drink("Soda", BigDecimal.valueOf(1), 100, LocalDate.of(2025, 5, 1)));
-            productRepository.save(new Drink("Fanta", BigDecimal.valueOf(1.40), 85, LocalDate.of(2024, 4, 1)));
+            productRepository.save(new Drink("Ayran", BigDecimal.valueOf(0.80), 30, LocalDate.of(2024, 4, 10), "ayran.png"));
+            productRepository.save(new Drink("Soda", BigDecimal.valueOf(1), 100, LocalDate.of(2025, 5, 1), "soda.jpg"));
+            productRepository.save(new Drink("Fanta", BigDecimal.valueOf(1.40), 85, LocalDate.of(2024, 4, 1), "fanta.jpg"));
         }
 
         List<Railing> railingList = productRepository.getAllByEntityType(Railing.class);
@@ -160,13 +160,14 @@ public class DataInit implements ApplicationRunner {
                     .isNonSlip(true)
                     .color(red)
                     .brand(brand)
+                    .imageLocation("railing.jpeg")
                     .build());
         }
 
         List<Sanitary> sanitaryList = productRepository.getAllByEntityType(Sanitary.class);
         if (sanitaryList.isEmpty()) {
             Material cotton = materialRepository.findByName("Cotton").orElseThrow();
-            productRepository.save(new Sanitary("Bodyform Ultra Goodnight Sanitary Towels", BigDecimal.valueOf(11.50), 1000, true, false, cotton));
+            productRepository.save(new Sanitary("Bodyform Ultra Goodnight Sanitary Towels", BigDecimal.valueOf(11.50), 1000, true, false, cotton, "bodyfoam.jpg"));
         }
 
         List<Decoration> decorations = productRepository.getAllByEntityType(Decoration.class);
@@ -174,12 +175,12 @@ public class DataInit implements ApplicationRunner {
             Material wood = materialRepository.findByName("wood").orElseThrow();
             Brand decoration = brandRepository.findByName("TheDecorationBrand").orElseThrow();
             productRepository.save(new Decoration("Cinvo 30 Pieces Flowers Wood Cutouts Floral Wooden Slices 7cm Unfinished",
-                    BigDecimal.valueOf(7.99), 60, wood, decoration));
+                    BigDecimal.valueOf(7.99), 60, wood, decoration, "wooden.jpg"));
         }
 
-        List<Product> productList = productRepository.getAllProductsWithQuantityGreaterThan(10);
-        for (Product p : productList) {
-            System.out.println(p.getName());
-        }
+//        List<Product> productList = productRepository.getAllProductsWithQuantityGreaterThan(10);
+//        for (Product p : productList) {
+//            System.out.println(p.getName());
+//        }
     }
 }
