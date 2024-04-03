@@ -65,6 +65,7 @@
                            placeholder="Enter Phone Number">
                     <span class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}"
                           th:errors="*{phoneNumber}"></span>
+                    <p class="text-danger" th:text="${phone_error != null} ? ${phone_error}"></p>
                 </div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-secondary btn-lg">Register</button>

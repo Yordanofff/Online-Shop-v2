@@ -1,19 +1,15 @@
 package com.project.Onlineshop.Service.Implementation;
 
 import com.project.Onlineshop.Dto.Request.EmployeeRequestDto;
-import com.project.Onlineshop.Dto.Request.UserRequestDto;
 import com.project.Onlineshop.Dto.Response.EmployeeResponseDto;
 import com.project.Onlineshop.Entity.Employee;
 import com.project.Onlineshop.Entity.Role;
-import com.project.Onlineshop.Exceptions.EmailInUseException;
-import com.project.Onlineshop.Exceptions.PasswordsNotMatchingException;
-import com.project.Onlineshop.Exceptions.UsernameInUseException;
+import com.project.Onlineshop.Exceptions.*;
 import com.project.Onlineshop.Mapper.EmployeeMapper;
 import com.project.Onlineshop.Repository.EmployeeRepository;
 import com.project.Onlineshop.Repository.RoleRepository;
 import com.project.Onlineshop.Service.EmployeeService;
 import com.project.Onlineshop.Static.RoleType;
-//import com.project.Onlineshop.Utility.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,17 +46,17 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponseDto create(EmployeeRequestDto employeeRequestDto) {
         if (isEmailInDB(employeeRequestDto.getEmail())) {
-            throw new RuntimeException("Email already in use. Please use a different email");
+            throw new EmailInUseException("Email already in use. Please use a different email");
         }
         if (employeeRequestDto.getPhoneNumber() != null && isPhoneNumberInDB(employeeRequestDto.getPhoneNumber())) {
-            throw new RuntimeException("Phone number already in use. Please use a different phone number or leave blank");
+            throw new PhoneInUseException("Phone number already in use. Please use a different phone number or leave blank");
         }
 
         validatePasswordsAreMatching(employeeRequestDto);
 
         Optional<Role> optionalRole = roleRepository.findByName(RoleType.ROLE_EMPLOYEE.name());
         if (optionalRole.isEmpty()) {
-            throw new RuntimeException("Employee role not found in the DB");
+            throw new ServerErrorException("Employee role not found in the DB");
         }
 
         try {
@@ -70,7 +66,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             employeeRepository.save(employee);
             return employeeMapper.toDto(employee);
         } catch (Exception exception) {
-            throw new RuntimeException("An internal error occurred. Please try again. " + exception.getMessage());
+            throw new ServerErrorException("An internal error occurred. Please try again. " + exception.getMessage());
         }
     }
 
@@ -95,15 +91,17 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
     }
 
+
+    // TODO - move password validations in Util/Helper
     private void validatePasswordsAreMatching(EmployeeRequestDto employeeRequestDto) {
         if (!employeeRequestDto.getPassword().equals(employeeRequestDto.getRepeatedPassword())) {
-            throw new RuntimeException("Passwords don't match");
+            throw new PasswordsNotMatchingException("Passwords don't match");
         }
     }
 
     private void validatePasswordsAreMatching(String pw1, String pw2) {
         if (!pw1.equals(pw2)) {
-            throw new RuntimeException("Passwords don't match");
+            throw new PasswordsNotMatchingException("Passwords don't match");
         }
     }
 
@@ -112,7 +110,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (e != null) {
             // Employee with this email exist
             if (!e.getId().equals(id)) {
-                throw new RuntimeException("Another employee is registered with this Phone number: " + employeeRequestDto.getPhoneNumber());
+                throw new PhoneInUseException("Another employee is registered with this Phone number: " + employeeRequestDto.getPhoneNumber());
             }
         }
 
@@ -123,7 +121,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (e != null) {
             // Employee with this email exist
             if (!e.getId().equals(id)) {
-                throw new RuntimeException("Another employee is registered with this Email: " + employeeRequestDto.getEmail());
+                throw new EmailInUseException("Another employee is registered with this Email: " + employeeRequestDto.getEmail());
             }
         }
 
@@ -132,7 +130,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private Employee validateEmployeeExistsById(Long id) {
         Optional<Employee> optionalEmployee = employeeRepository.findById(id);
         if (optionalEmployee.isEmpty()) {
-            throw new RuntimeException("Employee with ID: " + id + " not found!");
+            throw new UserIdDoestExistException("Employee with ID: " + id + " not found!");
         }
         return optionalEmployee.get();
     }
@@ -176,6 +174,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         } catch (PasswordsNotMatchingException e) {
             model.addAttribute("employeeRequestDto", employeeRequestDto);
             model.addAttribute("password_error", e.getMessage());
+            return "register_employee";
+        } catch (PhoneInUseException e) {
+            model.addAttribute("employeeRequestDto", employeeRequestDto);
+            model.addAttribute("phone_error", e.getMessage());
             return "register_employee";
         }
         return "redirect:/";
