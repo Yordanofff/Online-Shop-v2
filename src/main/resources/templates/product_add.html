@@ -20,17 +20,20 @@
                     <input type="text" th:field="*{name}" class="form-control" id="name"
                            placeholder="Enter product name">
                     <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                    <span class="text-danger" th:if="${name_too_short}" th:text="${name_too_short}"></span>
                 </div>
                 <div class="form-group">
                     <label for="price">Price:</label>
                     <input type="number" th:field="*{price}" class="form-control" id="price" placeholder="Enter price">
                     <span class="text-danger" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
+                    <span class="text-danger" th:if="${price_zero_or_negative}" th:text="${price_zero_or_negative}"></span>
                 </div>
                 <div class="form-group">
                     <label for="quantity">Quantity:</label>
                     <input type="number" th:field="*{quantity}" class="form-control" id="quantity"
                            placeholder="Enter quantity">
                     <span class="text-danger" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></span>
+                    <span class="text-danger" th:if="${quality_zero_or_negative}" th:text="${quality_zero_or_negative}"></span>
                 </div>
 
                 <br>

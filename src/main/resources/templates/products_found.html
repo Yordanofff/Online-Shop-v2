@@ -8,37 +8,18 @@
 </head>
 <nav th:replace="~{fragments/navbar.html}"></nav>
 <body class="d-flex flex-column min-vh-100">
-<div class="container">
-    <h1 class="text-center mt-4">Products</h1>
-    <div class="text-center col-4 container flex-grow-1 mt-3 mb-3">
-        <form th:action="@{/products/filter}" method="get">
-            <select id="categorySelect" class="form-select mr-2" name="category"
-                    onchange="this.form.action='/products/filter?category=' + this.value; this.form.submit();"
-                    style="margin-bottom: 10px; margin-top: 10px;">
-                <option value="PRODUCT" th:selected="${category == null || category == 'PRODUCT'}">Show All</option>
-                <option value="FOOD" th:selected="${category == 'FOOD'}">Food</option>
-                <option value="DRINK" th:selected="${category == 'DRINK'}">Drink</option>
-                <option value="SANITARY" th:selected="${category == 'SANITARY'}">Sanitary</option>
-                <option value="RAILING" th:selected="${category == 'RAILING'}">Railing</option>
-                <option value="ACCESSORIES" th:selected="${category == 'ACCESSORIES'}">Accessories</option>
-                <option value="DECORATION" th:selected="${category == 'DECORATION'}">Decoration</option>
-                <option value="OTHERS" th:selected="${category == 'OTHERS'}">Others</option>
-            </select>
-        </form>
+<div class="container" th:unless="${not #lists.isEmpty(products)}">
+    <div class="row">
+        <div class="col text-center">
+            <p><h4>No results were found for "<span th:text=${searchString}></span>"!</h4></p>
+        </div>
     </div>
+</div>
 
-    <div class="text-center col-4 container flex-grow-1 mt-3 mb-3" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
-        <form th:action="@{/products/sort}" method="get">
-            <select id="sortSelect" class="form-select mr-2" name="sortType" onchange="this.form.action='/products/sort?sortType=' + this.value; this.form.submit();">
-                <option value="" selected disabled>Choose sorting type</option>
-                <option value="byName">Sort by Name</option>
-                <option value="byPrice">Sort by Price</option>
-                <option value="byExpiryDate">Sort by Expiry date</option>
-            </select>
-        </form>
-    </div>
-
+<div class="container" th:if="${not #lists.isEmpty(products)}">
+    <h3>Showing results for: <span th:text=${searchString}></span></h3>
     <div class="row row-cols-1 row-cols-md-4">
+
         <div class="col mb-4" th:each="product : ${products}">
             <div class="card h-100 d-flex flex-column">
 
@@ -56,7 +37,8 @@
                 </div>
 
                 <div class="card-footer">
-                    <a th:href="@{'/user/login'}" sec:authorize="isAnonymous()" class="btn btn-primary">Login to Add to Cart</a>
+                    <a th:href="@{'/user/login'}" sec:authorize="isAnonymous()" class="btn btn-primary">Login to Add to
+                        Cart</a>
                     <div sec:authorize="isAuthenticated()">
                         <!--  TODO: add to basket - quantity 1 ->  /products/add_to_basket -->
                         <a href="#" class="btn btn-primary">Add to cart</a>
@@ -66,7 +48,6 @@
                         <a th:href="@{'/products/delete?id=' + ${product.id}}" class="btn btn-danger">Delete</a>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
