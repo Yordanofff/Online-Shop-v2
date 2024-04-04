@@ -2,10 +2,7 @@ package com.project.Onlineshop.Controller;
 
 import com.project.Onlineshop.Dto.Request.ProductRequestDto;
 import com.project.Onlineshop.Entity.Products.Product;
-import com.project.Onlineshop.Repository.BrandRepository;
-import com.project.Onlineshop.Repository.ColorRepository;
-import com.project.Onlineshop.Repository.MaterialRepository;
-import com.project.Onlineshop.Repository.ProductRepository;
+import com.project.Onlineshop.Repository.*;
 import com.project.Onlineshop.Service.ImageService;
 import com.project.Onlineshop.Service.Implementation.ProductServiceImpl;
 import jakarta.validation.Valid;
@@ -16,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -36,23 +34,15 @@ public class ProductController {
 
     @GetMapping("/show/{id}")
     public String showSingleId(Model model, @PathVariable("id") Long id) {
-        Product product = productRepository.findById(id).orElse(null);
-        if (product != null) {
-            model.addAttribute("product", product);
-            return "product_view";
-        } else {
-            return "404_page_not_found";
-        }
+        return productService.showSingleId(model, id);
     }
 
     @PostMapping("/add_to_basket")
-    public String addToBasket(Model model, @RequestParam("productId") Long productId, @RequestParam("quantity") int quantity) {
-        // TODO: logic here
-        //  addAttribute - successfully added x items
-        //  add button - viewBasket ?
-        System.out.println("Adding " + quantity + " items from " + productRepository.findById(productId).get());
-        // Adding 5 items from Drink(bestBefore=2024-04-01)
-        return "redirect:/products/show/" + productId;
+    public String addToBasket(Model model,
+                              @RequestParam("productId") Long productId,
+                              @RequestParam("quantity") int quantity,
+                              RedirectAttributes redirectAttributes) {
+        return productService.addToBasket(model, productId, quantity, redirectAttributes);
     }
 
     @GetMapping("/show")

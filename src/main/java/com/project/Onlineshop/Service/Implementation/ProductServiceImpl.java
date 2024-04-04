@@ -1,16 +1,27 @@
 package com.project.Onlineshop.Service.Implementation;
 
 import com.project.Onlineshop.Dto.Request.ProductRequestDto;
+import com.project.Onlineshop.Entity.Order;
+import com.project.Onlineshop.Entity.OrderProduct;
+import com.project.Onlineshop.Entity.OrderStatus;
 import com.project.Onlineshop.Entity.Products.*;
+import com.project.Onlineshop.Entity.User;
+import com.project.Onlineshop.Exceptions.ProductStockNotEnoughException;
+import com.project.Onlineshop.Exceptions.ServerErrorException;
 import com.project.Onlineshop.Mapper.ProductMapper;
-import com.project.Onlineshop.Repository.BrandRepository;
-import com.project.Onlineshop.Repository.ColorRepository;
-import com.project.Onlineshop.Repository.MaterialRepository;
-import com.project.Onlineshop.Repository.ProductRepository;
+import com.project.Onlineshop.Repository.*;
+import com.project.Onlineshop.Static.OrderStatusType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +31,9 @@ public class ProductServiceImpl {
     private final MaterialRepository materialRepository;
     private final ColorRepository colorRepository;
     private final BrandRepository brandRepository;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
+    private final OrderProductRepository orderProductRepository;
 
     public Class<? extends Product> getProductClass(String category) {
         return switch (category) {
@@ -35,8 +49,8 @@ public class ProductServiceImpl {
     }
 
     // TODO - method for custom errors msgs
-    public void checkFields(ProductRequestDto productRequestDto, Model model){
-        if(productRequestDto.getName().length()<0){
+    public void checkFields(ProductRequestDto productRequestDto, Model model) {
+        if (productRequestDto.getName().length() < 0) {
             model.addAttribute("name_too_short", "Please enter a valid name!");
         }
     }
@@ -62,7 +76,7 @@ public class ProductServiceImpl {
             //TODO - maybe add custom messages to the attribute?
             // checkFields(productRequestDto, model);
 
-            return "redirect:/products/add?productType="+productType;
+            return "redirect:/products/add?productType=" + productType;
         }
 
         if (productType.equalsIgnoreCase("food")) {
@@ -82,6 +96,105 @@ public class ProductServiceImpl {
         }
         productRepository.save(product);
         return "redirect:/products/show";
+    }
+
+    public String showSingleId(Model model, Long id) {
+        String productAddedMessage = (String) model.getAttribute("product_added");
+        String stockNotEnoughError = (String) model.getAttribute("no_stock");
+
+        Product product = productRepository.findById(id).orElse(null);
+
+        if (product == null) {
+            return "404_page_not_found";
+        }
+
+        model.addAttribute("stockNotEnoughError", stockNotEnoughError);
+        model.addAttribute("productAddedMessage", productAddedMessage);
+        model.addAttribute("product", product);
+        return "product_view";
+    }
+
+    public String addToBasket(Model model, Long productId, int quantity, RedirectAttributes redirectAttributes) {
+        Product product = productRepository.findById(productId).orElseThrow();
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName(); // anonymousUser, user, admin etc.
+        User user;
+        try {
+            user = userRepository.findByUsername(username).orElseThrow(); // if authenticated - user should exist.
+        } catch (NoSuchElementException e) {
+            // TODO: change with redirectAttributes
+            model.addAttribute("users_only_error", "This operation is only available for Users. Please log in.");
+            model.addAttribute("product", product);
+            return "product_view";
+        }
+
+        try {
+            validateProductHasEnoughStock(product, quantity);
+        } catch (ProductStockNotEnoughException e) {
+            redirectAttributes.addFlashAttribute("no_stock", e.getMessage());
+            return "redirect:/products/show/" + productId;
+        }
+
+        // Find orders for that user that have status Basket. If exist - use it. else - create new order basket
+        Order order = getOrCreateBasketOrder(user);
+
+        saveNewItemInOrderProduct(order, product, quantity);
+
+        redirectAttributes.addFlashAttribute("product_added", "Added " + quantity + " items to your basket.");
+
+        // TODO: logic here
+        //  addAttribute - successfully added x items
+        //  add button - viewBasket ?
+        System.out.println("Adding " + quantity + " items from " + productRepository.findById(productId).get());
+        // Adding 5 items from Drink(bestBefore=2024-04-01)
+        return "redirect:/products/show/" + productId;
+    }
+
+    private void saveNewItemInOrderProduct(Order order, Product product, int quantity) {
+        OrderProduct orderProduct = new OrderProduct();
+        orderProduct.setOrder(order);
+        orderProduct.setProduct(product);
+        orderProduct.setQuantity(quantity);
+        orderProductRepository.save(orderProduct);
+    }
+
+    private Order getOrCreateBasketOrder(User user) {
+        OrderStatus basketOrderStatus = OrderStatus.builder()
+                .id(OrderStatusType.BASKET.getId())
+                .name(OrderStatusType.BASKET.name())
+                .build();
+
+        return getOrCreateOrder(user, basketOrderStatus);
+    }
+
+    private Order getOrCreateOrder(User user, OrderStatus orderStatus) {
+        List<Order> orderListStatusBasket = orderRepository.findAllByUser_IdAndStatus_Id(user.getId(), orderStatus.getId());
+
+        if (orderListStatusBasket.size() > 1) {
+            throw new ServerErrorException("Critical server error.More than one basket for user with userID: " + user.getId());
+        }
+
+        if (orderListStatusBasket.size() == 1) {
+            return orderListStatusBasket.getFirst();
+        }
+
+        return createNewOrder(user, orderStatus);
+    }
+
+    private Order createNewOrder(User user, OrderStatus orderStatus) {
+        Order order = new Order();
+        order.setUser(user);
+        order.setOrderDateTime(LocalDateTime.now());
+        order.setStatus(orderStatus);
+        orderRepository.save(order);
+        return order;
+    }
+
+    private void validateProductHasEnoughStock(Product product, int quantityRequired) {
+        if (product.getQuantity() < quantityRequired) {
+            throw new ProductStockNotEnoughException("Not enough stock. Required: " + quantityRequired + " Available: " + product.getQuantity());
+        }
     }
 
 }

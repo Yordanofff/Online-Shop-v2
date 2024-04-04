@@ -77,6 +77,16 @@
                     </div>
                 </div>
 
+                <p class="text-danger" th:text="${users_only_error != null} ? ${users_only_error}"></p>
+
+                <div th:if="${stockNotEnoughError}" class="alert alert-danger">
+                    <p th:text="${stockNotEnoughError}"></p>
+                </div>
+
+                <div th:if="${productAddedMessage}" class="alert alert-success">
+                    <p th:text="${productAddedMessage}"></p>
+                </div>
+
             </form>
         </div>
     </div>
