@@ -34,6 +34,26 @@ public class ProductController {
     private final ColorRepository colorRepository;
     private final BrandRepository brandRepository;
 
+    @GetMapping("/show/{id}")
+    public String showSingleId(Model model, @PathVariable("id") Long id) {
+        Product product = productRepository.findById(id).orElse(null);
+        if (product != null) {
+            model.addAttribute("product", product);
+            return "product_view";
+        } else {
+            return "404_page_not_found";
+        }
+    }
+
+    @PostMapping("/add_to_basket")
+    public String addToBasket(Model model, @RequestParam("productId") Long productId, @RequestParam("quantity") int quantity) {
+        // TODO: logic here
+        //  addAttribute - successfully added x items
+        //  add button - viewBasket ?
+        System.out.println("Adding " + quantity + " items from " + productRepository.findById(productId).get());
+        // Adding 5 items from Drink(bestBefore=2024-04-01)
+        return "redirect:/products/show/" + productId;
+    }
 
     @GetMapping("/show")
     public String showAllProducts(Model model) {
@@ -94,20 +114,20 @@ public class ProductController {
         model.addAttribute("productRequestDto", new ProductRequestDto());
         model.addAttribute("productType", productType);
 
- //       TODO - the ifs below need to be better looking + validations should be added
+        //       TODO - the ifs below need to be better looking + validations should be added
 
-        if (productType.equalsIgnoreCase("Sanitary")||productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Decoration") || productType.equalsIgnoreCase("Others")) {
+        if (productType.equalsIgnoreCase("Sanitary") || productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Decoration") || productType.equalsIgnoreCase("Others")) {
             model.addAttribute("materials", materialRepository.findAll());
         }
-        if(productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Accessory")){
-            model.addAttribute("colors",colorRepository.findAll());
+        if (productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Accessory")) {
+            model.addAttribute("colors", colorRepository.findAll());
             model.addAttribute("brands", brandRepository.findAll());
         }
-        if(productType.equalsIgnoreCase("Decoration")){
+        if (productType.equalsIgnoreCase("Decoration")) {
             model.addAttribute("brands", brandRepository.findAll());
         }
-        if(productType.equalsIgnoreCase("Others")){
-            model.addAttribute("colors",colorRepository.findAll());
+        if (productType.equalsIgnoreCase("Others")) {
+            model.addAttribute("colors", colorRepository.findAll());
         }
         return "product_add"; // Return the view to render the form
     }

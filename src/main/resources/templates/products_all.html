@@ -30,18 +30,24 @@
     <div class="row row-cols-1 row-cols-md-4">
         <div class="col mb-4" th:each="product : ${products}">
             <div class="card h-100 d-flex flex-column">
-                <img th:src="@{'/images/' + ${product.imageLocation}}" th:if="${product.imageLocation != null}"
-                     class="card-img-top img-fluid img-thumbnail"/>
 
-                <div class="card-body flex-grow-1">
-                    <h5 class="card-title" th:text="${product.name}">Product Name</h5>
-                    <p class="card-text" th:text="${'Price: ' + product.price}">Price: $0.00</p>
-                    <p class="card-text" th:text="${'Quantity: ' + product.quantity}">Quantity: 0</p>
+                <a th:href="@{'/products/show/' + ${product.id}}" th:if="${product.imageLocation != null}">
+                    <img th:src="@{'/images/' + ${product.imageLocation}}"
+                         class="card-img-top img-fluid img-thumbnail"/>
+                </a>
+
+                <div class="card-body flex-grow-1 text-center">
+                    <a th:href="@{'/products/show/' + ${product.id}}" th:if="${product.name != null}">
+                        <h5 class="card-title" th:text="${product.name}">Product Name</h5>
+                    </a>
+                    <p class="card-text text-danger" th:text="${product.price +'лв.'}">Price: $0.00</p>
+                    </a>
                 </div>
 
                 <div class="card-footer">
                     <a th:href="@{'/user/login'}" sec:authorize="isAnonymous()" class="btn btn-primary">Login to Add to Cart</a>
                     <div sec:authorize="isAuthenticated()">
+                        <!--  TODO: add to basket - quantity 1 ->  /products/add_to_basket -->
                         <a href="#" class="btn btn-primary">Add to cart</a>
                     </div>
                     <div sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
