@@ -22,6 +22,10 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.quantity > 10")
     List<Product> getAllProductsWithQuantityGreaterThan10();
 
+    List<Product> findByNameContainingIgnoreCase(String keyword);
+
+    List<Food> findAllBy();
+
     @Query("SELECT p FROM Product p WHERE p.quantity > :minQuantity")
     List<Product> getAllProductsWithQuantityGreaterThan(@Param("minQuantity") int minQuantity);
 
@@ -30,6 +34,5 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE TYPE(p) = :entityType")
     <T extends Product> List<T> getAllByEntityType(@Param("entityType") Class<T> entityType);
-
 
 }

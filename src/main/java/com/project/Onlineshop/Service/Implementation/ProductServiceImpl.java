@@ -19,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -48,10 +49,23 @@ public class ProductServiceImpl {
         };
     }
 
-    // TODO - method for custom errors msgs
+    public List<Product> searchProducts(String keyword) {
+        return productRepository.findByNameContainingIgnoreCase(keyword);
+    }
+
     public void checkFields(ProductRequestDto productRequestDto, Model model) {
-        if (productRequestDto.getName().length() < 0) {
+        if (productRequestDto.getName().length() < 3) {
             model.addAttribute("name_too_short", "Please enter a valid name!");
+        }
+        if (productRequestDto.getPrice() != null) {
+            if (productRequestDto.getPrice().compareTo(BigDecimal.valueOf(0)) < 0) {
+                model.addAttribute("price_zero_or_negative", "The price you entered is too small or negative!");
+            }
+        } else {
+            model.addAttribute("price_zero_or_negative", "Please enter price!");
+        }
+        if (productRequestDto.getQuantity() <= 0) {
+            model.addAttribute("quality_zero_or_negative", "You must enter a positive price!");
         }
     }
 
@@ -59,10 +73,7 @@ public class ProductServiceImpl {
                               ProductRequestDto productRequestDto,
                               BindingResult bindingResult,
                               Model model) {
-
-
         Product product = new Product();
-        // TODO - binding results is catching the errors but they are not being displayed.
         if (bindingResult.hasErrors()) {
             model.addAttribute("product", productRequestDto);
             model.addAttribute("product_type", productType);
@@ -75,7 +86,7 @@ public class ProductServiceImpl {
             }
             //TODO - maybe add custom messages to the attribute?
             // checkFields(productRequestDto, model);
-
+            checkFields(productRequestDto,model);
             return "redirect:/products/add?productType=" + productType;
         }
 

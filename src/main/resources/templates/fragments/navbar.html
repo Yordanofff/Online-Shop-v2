@@ -1,4 +1,3 @@
-
 <nav class="navbar navbar-expand-lg bg-success" xmlns:th="http://www.w3.org/1999/xhtml"
      xmlns:sec="http://www.w3.org/1999/xhtml">
     <head>
@@ -41,42 +40,36 @@
                         <li>
                             <a class="dropdown-item" th:href="@{/products/show}">Show all</a>
                         </li>
-                            <li class="dropdown" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
+                        <li class="dropdown" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
 
-                                <a class="dropdown-item" href="#">
-                                    Add new product &raquo;
-                                </a>
+                            <a class="dropdown-item" href="#">
+                                Add new product &raquo;
+                            </a>
+                            <ul class="dropdown-menu dropdown-submenu">
+                                <li><a class="dropdown-item" th:href="@{/products/add?productType=Drink}">Drink</a></li>
+                                <li><a class="dropdown-item" th:href="@{/products/add?productType=Food}">Food</a></li>
+                                <li><a class="dropdown-item"
+                                       th:href="@{/products/add?productType=Sanitary}">Sanitary</a></li>
+                                <li><a class="dropdown-item" th:href="@{/products/add?productType=Railing}">Railing</a>
+                                </li>
+                                <li><a class="dropdown-item"
+                                       th:href="@{/products/add?productType=Accessory}">Accessory</a></li>
+                                <li><a class="dropdown-item" th:href="@{/products/add?productType=Decoration}">Decoration</a>
+                                </li>
+                                <li><a class="dropdown-item" th:href="@{/products/add?productType=Others}">Others</a>
+                                </li>
+                            </ul>
+                        </li>
 
-                                <ul class="dropdown-menu dropdown-submenu">
-                                    <li>
-                                        <a class="dropdown-item" th:href="@{/products/add?productType=Drink}">Drink</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" th:href="@{/products/add?productType=Food}">Food</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" th:href="@{/products/add?productType=Sanitary}">Sanitary</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" th:href="@{/products/add?productType=Railing}">Railing</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" th:href="@{/products/add?productType=Accessory}">Accessory</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" th:href="@{/products/add?productType=Decoration}">Decoration</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" th:href="@{/products/add?productType=Others}">Others</a>
-                                    </li>
-                                </ul>
-                            </li>
                     </ul>
                 </li>
             </ul>
-
             <ul class="navbar-nav">
-
+                <form class="d-flex" role="search" th:action="@{/products/search}">
+                    <input class="form-control me-2" type="search" placeholder="Search for products.."
+                           aria-label="Search" name="searchString">
+                    <button class="btn btn-dark mр-3" type="submit" style="margin-right: 20px;">Search</button>
+                </form>
                 <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
                     <a class="nav-link text-white" th:inline="text"> Hello <span th:remove="tag"
                                                                                  sec:authentication="name">!</span></a>

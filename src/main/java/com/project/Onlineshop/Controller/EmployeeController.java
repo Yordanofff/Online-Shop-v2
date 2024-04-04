@@ -1,7 +1,6 @@
 package com.project.Onlineshop.Controller;
 
 import com.project.Onlineshop.Dto.Request.EmployeeRequestDto;
-import com.project.Onlineshop.Dto.Request.UserRequestDto;
 import com.project.Onlineshop.Service.EmployeeService;
 import com.project.Onlineshop.Service.Implementation.EmployeeServiceImpl;
 import jakarta.validation.Valid;

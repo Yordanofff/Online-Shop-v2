@@ -2,7 +2,6 @@ package com.project.Onlineshop.Entity.Products;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
