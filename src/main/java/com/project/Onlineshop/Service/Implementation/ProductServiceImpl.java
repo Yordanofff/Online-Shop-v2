@@ -101,6 +101,7 @@ public class ProductServiceImpl {
     public String showSingleId(Model model, Long id) {
         String productAddedMessage = (String) model.getAttribute("product_added");
         String stockNotEnoughError = (String) model.getAttribute("no_stock");
+        String usersOnlyError = (String) model.getAttribute("users_only_error");
 
         Product product = productRepository.findById(id).orElse(null);
 
@@ -110,6 +111,7 @@ public class ProductServiceImpl {
 
         model.addAttribute("stockNotEnoughError", stockNotEnoughError);
         model.addAttribute("productAddedMessage", productAddedMessage);
+        model.addAttribute("usersOnlyError", usersOnlyError);
         model.addAttribute("product", product);
         return "product_view";
     }
@@ -123,10 +125,8 @@ public class ProductServiceImpl {
         try {
             user = userRepository.findByUsername(username).orElseThrow(); // if authenticated - user should exist.
         } catch (NoSuchElementException e) {
-            // TODO: change with redirectAttributes
-            model.addAttribute("users_only_error", "This operation is only available for Users. Please log in.");
-            model.addAttribute("product", product);
-            return "product_view";
+            redirectAttributes.addFlashAttribute("users_only_error", "This operation is only available for Users. Please log in.");
+            return "redirect:/products/show/" + productId;
         }
 
         try {
@@ -143,10 +143,8 @@ public class ProductServiceImpl {
 
         redirectAttributes.addFlashAttribute("product_added", "Added " + quantity + " items to your basket.");
 
-        // TODO: logic here
-        //  addAttribute - successfully added x items
-        //  add button - viewBasket ?
-        System.out.println("Adding " + quantity + " items from " + productRepository.findById(productId).get());
+        //  TODO: add button - viewBasket ?
+        //  System.out.println("Adding " + quantity + " items from " + productRepository.findById(productId).get());
         // Adding 5 items from Drink(bestBefore=2024-04-01)
         return "redirect:/products/show/" + productId;
     }
