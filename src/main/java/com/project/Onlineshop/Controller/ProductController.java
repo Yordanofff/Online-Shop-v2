@@ -44,11 +44,9 @@ public class ProductController {
     }
 
     @PostMapping("/add_to_basket")
-    public String addToBasket(Model model,
-                              @RequestParam("productId") Long productId,
-                              @RequestParam("quantity") int quantity,
+    public String addToBasket(@RequestParam("productId") Long productId, @RequestParam("quantity") int quantity,
                               RedirectAttributes redirectAttributes) {
-        return productService.addToBasket(model, productId, quantity, redirectAttributes);
+        return productService.addToBasket(productId, quantity, redirectAttributes);
     }
 
     @GetMapping("/show")

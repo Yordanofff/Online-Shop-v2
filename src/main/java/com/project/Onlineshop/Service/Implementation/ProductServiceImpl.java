@@ -118,7 +118,7 @@ public class ProductServiceImpl {
         return "product_view";
     }
 
-    public String addToBasket(Model model, Long productId, int quantity, RedirectAttributes redirectAttributes) {
+    public String addToBasket(Long productId, int quantity, RedirectAttributes redirectAttributes) {
         Product product = productRepository.findById(productId).orElseThrow();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
