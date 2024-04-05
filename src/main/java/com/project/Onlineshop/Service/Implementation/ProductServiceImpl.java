@@ -77,8 +77,8 @@ public class ProductServiceImpl {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.productRequestDto", bindingResult);
             redirectAttributes.addFlashAttribute("productRequestDto", productRequestDto);
             redirectAttributes.addFlashAttribute("productType", productType);
-//            redirectAttributes.addAttribute("productType", productType);
-            return "redirect:/products/add?productType=" + productType ;
+            redirectAttributes.addAttribute("productType", productType); // this row adds -> ?productType=" + productType
+            return "redirect:/products/add";
         }
 
         if (productType.equalsIgnoreCase("food")) {
