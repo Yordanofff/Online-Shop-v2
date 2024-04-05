@@ -53,6 +53,13 @@ public class ProductServiceImpl {
     }
 
     public String addNewProduct(String productType, Model model) {
+
+        //Return 404 if productType is not a class.
+        Class<? extends Product> productClass = getProductClass(productType.toUpperCase());
+        if (productClass == null) {
+            return "404_page_not_found";
+        }
+
         if (!model.containsAttribute("productRequestDto")) {
             model.addAttribute("productRequestDto", new ProductRequestDto());
         }
