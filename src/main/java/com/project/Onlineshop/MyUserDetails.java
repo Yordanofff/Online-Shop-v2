@@ -24,7 +24,7 @@ public class MyUserDetails implements UserDetails {
         this.isEmployee = true;
     }
 
-    private User getUser() {
+    public User getUser() {
         if (isEmployee) {
             return null;
         }
@@ -60,6 +60,24 @@ public class MyUserDetails implements UserDetails {
             return getEmployee().getUsername();
         }
         return getUser().getUsername();
+    }
+    public String getFirstName() {
+        if (isEmployee) {
+            return getEmployee().getFirstName();
+        }
+        return getUser().getFirstName();
+    }
+    public String getLastName() {
+        if (isEmployee) {
+            return getEmployee().getLastName();
+        }
+        return getUser().getLastName();
+    }
+    public String getEmail() {
+        if (isEmployee) {
+            return getEmployee().getEmail();
+        }
+        return getUser().getEmail();
     }
 
     @Override

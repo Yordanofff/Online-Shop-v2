@@ -1,9 +1,12 @@
 package com.project.Onlineshop.Controller;
 
 import com.project.Onlineshop.Dto.Request.UserRequestDto;
+import com.project.Onlineshop.Entity.User;
+import com.project.Onlineshop.MyUserDetails;
 import com.project.Onlineshop.Service.Implementation.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -30,5 +33,10 @@ public class UserController {
     @PostMapping("/register")
     String registerNewUser(@ModelAttribute @Valid UserRequestDto userRequestDto, BindingResult bindingResult, Model model){
         return userService.registerNewUser(userRequestDto, bindingResult, model);
+    }
+
+    @GetMapping("/user/profile")
+    String showProfile(Model model, Authentication authentication){
+        return userService.showProfile(model, authentication);
     }
 }
