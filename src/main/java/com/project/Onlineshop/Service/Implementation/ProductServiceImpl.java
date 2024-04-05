@@ -19,7 +19,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -53,41 +52,26 @@ public class ProductServiceImpl {
         return productRepository.findByNameContainingIgnoreCase(keyword);
     }
 
-    public void checkFields(ProductRequestDto productRequestDto, Model model) {
-        if (productRequestDto.getName().length() < 3) {
-            model.addAttribute("name_too_short", "Please enter a valid name!");
+    public String addNewProduct(String productType, Model model) {
+        if (!model.containsAttribute("productRequestDto")) {
+            model.addAttribute("productRequestDto", new ProductRequestDto());
         }
-        if (productRequestDto.getPrice() != null) {
-            if (productRequestDto.getPrice().compareTo(BigDecimal.valueOf(0)) < 0) {
-                model.addAttribute("price_zero_or_negative", "The price you entered is too small or negative!");
-            }
-        } else {
-            model.addAttribute("price_zero_or_negative", "Please enter price!");
-        }
-        if (productRequestDto.getQuantity() <= 0) {
-            model.addAttribute("quality_zero_or_negative", "You must enter a positive price!");
-        }
+        model.addAttribute("productType", productType);
+        addModelAttributesDependingOnProductType(productType, model);
+        return "product_add";
     }
 
-    public String saveProduct(String productType,
-                              ProductRequestDto productRequestDto,
-                              BindingResult bindingResult,
-                              Model model) {
+    public String saveProduct(String productType, ProductRequestDto productRequestDto,
+                              BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+
         Product product = new Product();
+
         if (bindingResult.hasErrors()) {
-            model.addAttribute("product", productRequestDto);
-            model.addAttribute("product_type", productType);
-            if (productType.equals("Sanitary") || productType.equals("Railing")) {
-                model.addAttribute("materials", materialRepository.findAll());
-            }
-            if (productType.equals("Railing")) {
-                model.addAttribute("colors", colorRepository.findAll());
-                model.addAttribute("brands", brandRepository.findAll());
-            }
-            //TODO - maybe add custom messages to the attribute?
-            // checkFields(productRequestDto, model);
-            checkFields(productRequestDto,model);
-            return "redirect:/products/add?productType=" + productType;
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.productRequestDto", bindingResult);
+            redirectAttributes.addFlashAttribute("productRequestDto", productRequestDto);
+            redirectAttributes.addFlashAttribute("productType", productType);
+//            redirectAttributes.addAttribute("productType", productType);
+            return "redirect:/products/add?productType=" + productType ;
         }
 
         if (productType.equalsIgnoreCase("food")) {
@@ -158,6 +142,23 @@ public class ProductServiceImpl {
         //  System.out.println("Adding " + quantity + " items from " + productRepository.findById(productId).get());
         // Adding 5 items from Drink(bestBefore=2024-04-01)
         return "redirect:/products/show/" + productId;
+    }
+
+    private void addModelAttributesDependingOnProductType(String productType, Model model) {
+        //       TODO - the ifs below need to be better looking + validations should be added. Better?
+        if (productType.equalsIgnoreCase("Sanitary") || productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Decoration") || productType.equalsIgnoreCase("Others")) {
+            model.addAttribute("materials", materialRepository.findAll());
+        }
+        if (productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Accessory")) {
+            model.addAttribute("colors", colorRepository.findAll());
+            model.addAttribute("brands", brandRepository.findAll());
+        }
+        if (productType.equalsIgnoreCase("Decoration")) {
+            model.addAttribute("brands", brandRepository.findAll());
+        }
+        if (productType.equalsIgnoreCase("Others")) {
+            model.addAttribute("colors", colorRepository.findAll());
+        }
     }
 
     private void saveNewItemInOrderProduct(Order order, Product product, int quantity) {

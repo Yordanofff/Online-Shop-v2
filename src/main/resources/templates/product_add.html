@@ -12,7 +12,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <h2 class="mb-4 text-center">Add new <span th:text="${param.productType}"></span></h2>
-            <form action="#" name="productType" th:action="@{/products/add}" th:object="${productRequestDto}"
+            <form action="#" name="productType" th:action="@{/products/save}" th:object="${productRequestDto}"
                   method="post" enctype="multipart/form-data">
                 <input type="hidden" name="productType" th:value="${param.productType}">
                 <div class="form-group">
@@ -20,49 +20,35 @@
                     <input type="text" th:field="*{name}" class="form-control" id="name"
                            placeholder="Enter product name">
                     <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
-                    <span class="text-danger" th:if="${name_too_short}" th:text="${name_too_short}"></span>
                 </div>
                 <div class="form-group">
                     <label for="price">Price:</label>
-                    <input type="number" th:field="*{price}" class="form-control" id="price" placeholder="Enter price">
+                    <input type="number" th:field="*{price}" class="form-control" id="price" placeholder="Enter price"
+                           step="0.01">
                     <span class="text-danger" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
-                    <span class="text-danger" th:if="${price_zero_or_negative}" th:text="${price_zero_or_negative}"></span>
                 </div>
                 <div class="form-group">
                     <label for="quantity">Quantity:</label>
                     <input type="number" th:field="*{quantity}" class="form-control" id="quantity"
                            placeholder="Enter quantity">
                     <span class="text-danger" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></span>
-                    <span class="text-danger" th:if="${quality_zero_or_negative}" th:text="${quality_zero_or_negative}"></span>
                 </div>
 
-                <br>
-                <h6>Upload Image</h6>
-                <p th:text="${message}" th:if="${message ne null}" class="alert alert-primary"></p>
-                <div class="form-group">
-                    <input type="file" id="imageInput" name="image" accept="image/*" class="form-control-file">
+                <div class="form-group mt-3 mb-3">
+                    <label>Upload Image</label>
+                    <p th:text="${message}" th:if="${message ne null}" class="alert alert-primary"></p>
+                    <div class="form-group">
+                        <input type="file" id="imageInput" name="image" accept="image/*" class="form-control-file">
+                    </div>
+                    <button type="button" id="uploadButton" class="btn btn-primary mt-3 mb-3">Upload image</button>
+                    <input type="hidden" id="imageFileName" th:field="*{imageLocation}" name="imageLocation">
+                    <img th:if="${imageLocation == null}" src="/images/no_img.png" alt="No Image Available"
+                         class="img-thumbnail" style="max-width: 400px; max-height: 400px;"/>
+                    <img th:if="${imageLocation != null}" th:src="'/images/' + ${imageLocation}" alt="Product picture"
+                         class="img-thumbnail" style="max-width: 400px; max-height: 400px;">
                 </div>
-                <button type="button" id="uploadButton" class="btn btn-primary mt-3 mb-3">Upload image</button>
-                <input type="hidden" id="imageFileName" th:field="*{imageLocation}" name="imageLocation">
-
-                <!--  th:if is not working for some reason and I can't figure it out. Will be using NO_IMG -->
-                <!--  <img th:src="@{'/images/' + ${imageLocation}}" th:if="${imageLocation != null}" />-->
-                <!--  <img th:src="@{'/images/' + ${imageLocation}}"/>-->
-
-                <img th:if="${imageLocation == null}" src="/images/no_img.png" alt="No Image Available" class="img-thumbnail" style="max-width: 400px; max-height: 400px;"/>
-
-
-                <script>
-                    // Assuming you already have AJAX/JavaScript code here to handle file upload
-                    // After the upload is successful, add this function to copy the filename to imageLocation
-                    function updateImageLocation() {
-                        var imageFileName = document.getElementById("imageFileName").value;
-                        document.getElementById("imageLocation").value = imageFileName;
-                        // Refresh the image to display the newly uploaded one
-                        document.querySelector('img').src = '/images/' + imageFileName;
-                    }
-                </script>
-
+                    <span class="text-danger" th:if="${#fields.hasErrors('imageLocation')}"
+                          th:errors="*{imageLocation}"></span>
 
                 <div class="form-group" th:if="${productType == 'Drink'}">
                     <label for="bestBefore">Best before:</label>
@@ -181,8 +167,8 @@
                         </select>
                     </div>
                 </div>
-                <div class="text-center">
-                    <button type="submit" class="btn btn-secondary btn-lg">Add</button>
+                <div class="text-center mt-5">
+                    <button type="submit" class="btn btn-primary btn-lg">Add</button>
                 </div>
             </form>
         </div>
@@ -199,6 +185,13 @@
 
 <script th:inline="javascript">
     $(document).ready(function () {
+        // When binding error - load the img tag with the src of the image
+        var imageLocation = /*[[*{productRequestDto.imageLocation}]]*/ null; // Fetching imageLocation from the Thymeleaf model
+        if (imageLocation) {
+            console.log('not null:', imageLocation);
+            $('img').attr('src', '/images/' + imageLocation);
+        }
+
         $('#uploadButton').click(function () {
             var formData = new FormData();
             var fileInput = document.getElementById('imageInput').files[0];

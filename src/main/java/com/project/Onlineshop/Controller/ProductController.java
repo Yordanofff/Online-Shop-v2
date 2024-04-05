@@ -107,25 +107,7 @@ public class ProductController {
 
     @GetMapping("/add")
     public String addNewProduct(@RequestParam("productType") String productType, Model model) {
-        model.addAttribute("productRequestDto", new ProductRequestDto());
-        model.addAttribute("productType", productType);
-
-        //       TODO - the ifs below need to be better looking + validations should be added
-
-        if (productType.equalsIgnoreCase("Sanitary") || productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Decoration") || productType.equalsIgnoreCase("Others")) {
-            model.addAttribute("materials", materialRepository.findAll());
-        }
-        if (productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Accessory")) {
-            model.addAttribute("colors", colorRepository.findAll());
-            model.addAttribute("brands", brandRepository.findAll());
-        }
-        if (productType.equalsIgnoreCase("Decoration")) {
-            model.addAttribute("brands", brandRepository.findAll());
-        }
-        if (productType.equalsIgnoreCase("Others")) {
-            model.addAttribute("colors", colorRepository.findAll());
-        }
-        return "product_add"; // Return the view to render the form
+        return productService.addNewProduct(productType, model);
     }
 
 // TODO - do we need this?
@@ -154,12 +136,12 @@ public class ProductController {
 //        }
 //    }
 
-    @PostMapping("/add")
+    @PostMapping("/save")
     public String saveProduct(@RequestParam("productType") String productType,
-                              @Valid @ModelAttribute ProductRequestDto productRequestDto,
-                              BindingResult bindingResult,
-                              Model model) {
-        return productService.saveProduct(productType, productRequestDto, bindingResult, model);
+                                @Valid @ModelAttribute("productRequestDto") ProductRequestDto productRequestDto,
+                                BindingResult bindingResult,
+                                RedirectAttributes redirectAttributes) {
+        return productService.saveProduct(productType, productRequestDto, bindingResult, redirectAttributes);
     }
 
 
@@ -191,18 +173,18 @@ public class ProductController {
 
     //TODO - Filtering by expiryDate & Show all products right after does not load the products, just the Foods.
     @GetMapping("/sort")
-    public String showSortedProducts(@RequestParam String sortType, Model model){
-        if(sortType.equalsIgnoreCase("byName")){
+    public String showSortedProducts(@RequestParam String sortType, Model model) {
+        if (sortType.equalsIgnoreCase("byName")) {
             List<Product> products = (List<Product>) productRepository.findAll();
             products.sort(Comparator.comparing(Product::getName));
             model.addAttribute("products", products);
         }
-        if(sortType.equalsIgnoreCase("byPrice")){
+        if (sortType.equalsIgnoreCase("byPrice")) {
             List<Product> products = (List<Product>) productRepository.findAll();
             products.sort(Comparator.comparing(Product::getPrice));
             model.addAttribute("products", products);
         }
-        if(sortType.equalsIgnoreCase("byExpiryDate")){
+        if (sortType.equalsIgnoreCase("byExpiryDate")) {
             List<Food> foods = productRepository.findAllBy();
             foods.sort(Comparator.comparing(Food::getExpiryDate));
             model.addAttribute("products", foods);
