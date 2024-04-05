@@ -39,25 +39,27 @@
                 </div>
             </div>
             <div class="mt-4"></div>
-            <h2>
-                <p class="fw-bold"><span class="text-success"
-                                         th:text="${userDetails.username}"></span>'s orders:</p></h2>
-            <hr/>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item" th:each="order : ${orders}">
-                    <span>Order ID: <span th:text="${order.id}"></span></span><br>
-                    <span>Order Date: <span th:text="${order.orderDateTime}"></span></span><br>
-                    <span>Status: <span th:text="${order.status.name}"></span></span><br>
-                    <span>Total Price: <span th:text="${order.price}"></span></span><br>
-                    <span>Ordered Products:</span>
-                    <ul>
-                        <li th:each="orderedProduct : ${orderedProducts}"
-                            th:if="${orderedProduct.order.id == order.id}">
-                            <span th:text="${orderedProduct.product.name}"></span>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+            <div th:if="${not #lists.isEmpty(orders)}">
+                <h2>
+                    <p class="fw-bold"><span class="text-success"
+                                             th:text="${userDetails.username}"></span>'s orders:</p></h2>
+                <hr/>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="order : ${orders}">
+                        <span>Order ID: <span th:text="${order.id}"></span></span><br>
+                        <span>Order Date: <span th:text="${order.orderDateTime}"></span></span><br>
+                        <span>Status: <span th:text="${order.status.name}"></span></span><br>
+                        <span>Total Price: <span th:text="${order.price}"></span></span><br>
+                        <span>Ordered Products:</span>
+                        <ul>
+                            <li th:each="orderedProduct : ${orderedProducts}"
+                                th:if="${orderedProduct.order.id == order.id}">
+                                <span th:text="${orderedProduct.product.name}"></span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
