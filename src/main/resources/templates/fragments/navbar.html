@@ -71,10 +71,10 @@
                     <button class="btn btn-dark mр-3" type="submit" style="margin-right: 20px;">Search</button>
                 </form>
                 <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
-                    <a class="nav-link text-white" th:inline="text"> Hello <span th:remove="tag"
-                                                                                 sec:authentication="name">!</span></a>
+                    <a class="nav-link text-white" th:inline="text" style="display: inline-block;">Hello
+                        <a th:href="@{/user/profile}" th:inline="text" th:text="${#authentication.name}" class="text-white" style="display: inline;"></a>
+                    </a>
                 </li>
-
                 <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
                     <form th:action="@{/logout}" method="post">
                         <button type="submit" class="nav-link text-white">Logout</button>
