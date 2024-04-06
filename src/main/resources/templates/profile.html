@@ -32,7 +32,7 @@
                                                                       th:text="${#lists.size(orders)}"></span>
                     </p>
                     <p class="fw-normal lead">
-                        <a href="/your_cart" class="text-primary">Your cart</a> | <a href="/change_password"
+                        <a th:href="@{/products/show_basket}" class="text-primary">Your basket</a> | <a href="/change_password"
                                                                                      class="text-primary">Change
                         password</a>
                     </p>

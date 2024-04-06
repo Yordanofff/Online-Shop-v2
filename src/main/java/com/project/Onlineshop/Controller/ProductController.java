@@ -1,17 +1,20 @@
 package com.project.Onlineshop.Controller;
 
 import com.project.Onlineshop.Dto.Request.ProductRequestDto;
+import com.project.Onlineshop.Entity.Order;
 import com.project.Onlineshop.Entity.Products.Food;
 import com.project.Onlineshop.Entity.Products.Product;
-import com.project.Onlineshop.Repository.BrandRepository;
-import com.project.Onlineshop.Repository.ColorRepository;
-import com.project.Onlineshop.Repository.MaterialRepository;
-import com.project.Onlineshop.Repository.ProductRepository;
+import com.project.Onlineshop.Entity.User;
+import com.project.Onlineshop.MyUserDetails;
+import com.project.Onlineshop.Repository.*;
 import com.project.Onlineshop.Service.ImageService;
+import com.project.Onlineshop.Service.Implementation.OrderServiceImpl;
 import com.project.Onlineshop.Service.Implementation.ProductServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -37,6 +40,9 @@ public class ProductController {
     private final MaterialRepository materialRepository;
     private final ColorRepository colorRepository;
     private final BrandRepository brandRepository;
+    private final OrderRepository orderRepository;
+    private final OrderProductRepository orderProductRepository;
+    private final OrderServiceImpl orderService;
 
     @GetMapping("/show/{id}")
     public String showSingleId(Model model, @PathVariable("id") Long id) {
@@ -47,6 +53,19 @@ public class ProductController {
     public String addToBasket(@RequestParam("productId") Long productId, @RequestParam("quantity") int quantity,
                               RedirectAttributes redirectAttributes) {
         return productService.addToBasket(productId, quantity, redirectAttributes);
+    }
+
+    @GetMapping("/show_basket")
+    public String showBasket(Model model, Authentication authentication){
+        MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        List<Order> orderList = orderRepository.findByUserIdAndStatusName(user.getId(), "BASKET");
+        model.addAttribute("userDetails", userDetails);
+        model.addAttribute("orderList", orderList);
+        model.addAttribute("orderedProducts", orderProductRepository.findAll());
+        model.addAttribute("products", productRepository.findAll());
+        //TODO - method that calculates the total price of products in the basket
+        return "basket";
     }
 
     @GetMapping("/show")
