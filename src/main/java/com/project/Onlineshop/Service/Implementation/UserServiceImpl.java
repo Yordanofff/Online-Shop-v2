@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
         return "profile";
     }
 
-    public boolean checkPassword(User user, String password){
+    public boolean isPasswordTheSame(User user, String password){
         return bCryptPasswordEncoder.matches(password, user.getPassword());
     }
 
