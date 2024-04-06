@@ -2,6 +2,7 @@ package com.project.Onlineshop.Controller;
 
 import com.project.Onlineshop.Dto.Request.ProductRequestDto;
 import com.project.Onlineshop.Entity.Order;
+import com.project.Onlineshop.Entity.OrderProduct;
 import com.project.Onlineshop.Entity.Products.Food;
 import com.project.Onlineshop.Entity.Products.Product;
 import com.project.Onlineshop.Entity.User;
@@ -12,7 +13,6 @@ import com.project.Onlineshop.Service.Implementation.OrderServiceImpl;
 import com.project.Onlineshop.Service.Implementation.ProductServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -56,16 +57,29 @@ public class ProductController {
     }
 
     @GetMapping("/show_basket")
-    public String showBasket(Model model, Authentication authentication){
+    public String showBasket(Model model, Authentication authentication) {
         MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
-        List<Order> orderList = orderRepository.findByUserIdAndStatusName(user.getId(), "BASKET");
+
+        Order basketOrder = productService.getBasketOrder(user);
         model.addAttribute("userDetails", userDetails);
-        model.addAttribute("orderList", orderList);
-        model.addAttribute("orderedProducts", orderProductRepository.findAll());
-        model.addAttribute("products", productRepository.findAll());
-        //TODO - method that calculates the total price of products in the basket
+        if (basketOrder != null) {
+            model.addAttribute("orderedProducts", orderProductRepository.findAllByOrderId(basketOrder.getId()));
+            model.addAttribute("totalPrice", calculateOrderPrice(basketOrder.getId()));
+        }
+        model.addAttribute("noProductsInBasket", "");
         return "basket";
+    }
+
+    private BigDecimal calculateOrderPrice(Long orderId) {
+        List<OrderProduct> allProducts = orderProductRepository.findAllByOrderId(orderId);
+        BigDecimal totalPrice = BigDecimal.valueOf(0);
+        for (OrderProduct op : allProducts) {
+            BigDecimal productPrice = op.getProduct().getPrice();
+            BigDecimal quantity = BigDecimal.valueOf(op.getQuantity());
+            totalPrice = totalPrice.add(productPrice.multiply(quantity));
+        }
+        return totalPrice;
     }
 
     @GetMapping("/show")
@@ -155,9 +169,9 @@ public class ProductController {
 
     @PostMapping("/save")
     public String saveProduct(@RequestParam("productType") String productType,
-                                @Valid @ModelAttribute("productRequestDto") ProductRequestDto productRequestDto,
-                                BindingResult bindingResult,
-                                RedirectAttributes redirectAttributes) {
+                              @Valid @ModelAttribute("productRequestDto") ProductRequestDto productRequestDto,
+                              BindingResult bindingResult,
+                              RedirectAttributes redirectAttributes) {
         return productService.saveProduct(productType, productRequestDto, bindingResult, redirectAttributes);
     }
 
@@ -181,7 +195,7 @@ public class ProductController {
 
     @GetMapping("/search")
     public String searchForProduct(@RequestParam String searchString, Model model) {
-        if(!searchString.isEmpty()) {
+        if (!searchString.isEmpty()) {
             model.addAttribute("products", productService.searchProducts(searchString));
         }
         model.addAttribute("searchString", searchString);
