@@ -177,26 +177,41 @@ public class ProductServiceImpl {
     }
 
     public Order getOrCreateBasketOrder(User user) {
+        Order order = getBasketOrder(user);
+
+        if (order != null) {
+            return order;
+        }
+
+        OrderStatus basketOrderStatus = OrderStatus.builder()
+                .id(OrderStatusType.BASKET.getId())
+                .name(OrderStatusType.BASKET.name())
+                .build();
+        return createNewOrder(user, basketOrderStatus);
+    }
+
+    public Order getBasketOrder(User user) {
         OrderStatus basketOrderStatus = OrderStatus.builder()
                 .id(OrderStatusType.BASKET.getId())
                 .name(OrderStatusType.BASKET.name())
                 .build();
 
-        return getOrCreateOrder(user, basketOrderStatus);
-    }
+        List<Order> basket_orders = getUserOrdersByOrderStatus(user, basketOrderStatus);
 
-    private Order getOrCreateOrder(User user, OrderStatus orderStatus) {
-        List<Order> orderListStatusBasket = orderRepository.findAllByUser_IdAndStatus_Id(user.getId(), orderStatus.getId());
-
-        if (orderListStatusBasket.size() > 1) {
+        if (basket_orders.size() > 1) {
             throw new ServerErrorException("Critical server error.More than one basket for user with userID: " + user.getId());
         }
 
-        if (orderListStatusBasket.size() == 1) {
-            return orderListStatusBasket.getFirst();
+        if (basket_orders.size() == 1) {
+            return basket_orders.getFirst();
         }
 
-        return createNewOrder(user, orderStatus);
+        return null;
+    }
+
+
+    private List<Order> getUserOrdersByOrderStatus(User user, OrderStatus orderStatus) {
+        return orderRepository.findAllByUser_IdAndStatus_Id(user.getId(), orderStatus.getId());
     }
 
     private Order createNewOrder(User user, OrderStatus orderStatus) {
