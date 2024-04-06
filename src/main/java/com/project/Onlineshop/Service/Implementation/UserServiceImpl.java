@@ -34,6 +34,7 @@ public class UserServiceImpl implements UserService {
     private final OrderStatusRepository orderStatusRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public UserResponseDto addUser(UserRequestDto userRequestDto) {
@@ -105,6 +106,15 @@ public class UserServiceImpl implements UserService {
         model.addAttribute("orders",orderList);
         model.addAttribute("products", productRepository.findAll());
         return "profile";
+    }
+
+    public boolean checkPassword(User user, String password){
+        return bCryptPasswordEncoder.matches(password, user.getPassword());
+    }
+
+    public void updatePassword(User user, String newPassword){
+        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
 }
