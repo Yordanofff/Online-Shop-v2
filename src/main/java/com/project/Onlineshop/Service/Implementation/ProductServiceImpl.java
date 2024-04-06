@@ -176,7 +176,7 @@ public class ProductServiceImpl {
         orderProductRepository.save(orderProduct);
     }
 
-    private Order getOrCreateBasketOrder(User user) {
+    public Order getOrCreateBasketOrder(User user) {
         OrderStatus basketOrderStatus = OrderStatus.builder()
                 .id(OrderStatusType.BASKET.getId())
                 .name(OrderStatusType.BASKET.name())

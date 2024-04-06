@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head th:replace="~{fragments/head.html(title='Basket')}"></head>
+<nav th:insert="~{fragments/navbar.html}"></nav>
+
+<body class="d-flex flex-column min-vh-100">
+<div class="col-6 container flex-grow-1 mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div th:if="${not #lists.isEmpty(orderList)}">
+            <h2>
+                <p class="fw-bold"><span class="text-success"
+                                         th:text="${userDetails.username}"></span>'s basket:</p></h2>
+            <hr/>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item" th:each="order : ${orderList}">
+                    <span>Products:</span>
+                    <ul>
+                        <li th:each="orderedProduct : ${orderedProducts}"
+                            th:if="${orderedProduct.order.id == order.id}">
+                            <span th:text="${orderedProduct.quantity+'x'}"></span>
+                            <span th:text="${orderedProduct.product.name}"></span>
+                            <span th:text="${'('+orderedProduct.product.price+')'}"></span>
+                        </li>
+                    </ul>
+                    <li>
+                        <span>Total Price: <span th:text="${totalPrice}"></span></span><br>
+                    </li>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>
