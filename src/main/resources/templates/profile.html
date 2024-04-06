@@ -32,17 +32,17 @@
                                                                       th:text="${#lists.size(orders)}"></span>
                     </p>
                     <p class="fw-normal lead">
-                        <a th:href="@{/products/show_basket}" class="text-primary">Your basket</a> | <a href="/change_password"
-                                                                                     class="text-primary">Change
-                        password</a>
+                        <a th:href="@{/user/show_basket}" class="text-primary">Your basket</a> |
+                        <a href="/change_password" class="text-primary">Change password</a>
                     </p>
                 </div>
             </div>
             <div class="mt-4"></div>
             <div th:if="${not #lists.isEmpty(orders)}">
                 <h2>
-                    <p class="fw-bold"><span class="text-success"
-                                             th:text="${userDetails.username}"></span>'s orders:</p></h2>
+                    <span class="fw-bold text-success" th:text="${userDetails.username}"></span>'s orders:
+                </h2>
+
                 <hr/>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item" th:each="order : ${orders}">

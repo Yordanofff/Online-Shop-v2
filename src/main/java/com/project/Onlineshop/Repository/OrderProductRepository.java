@@ -14,4 +14,6 @@ public interface OrderProductRepository extends JpaRepository<OrderProduct, Long
     //[OrderProduct(id=null, order=null, product=Product(id=1, name=name1, price=2.10, quantity=0, imageLocation=null), quantity=3),
     // OrderProduct(id=null, order=null, product=Product(id=2, name=name2, price=2.20, quantity=0, imageLocation=null), quantity=1)]
 
+    OrderProduct findByOrderIdAndProductId(Long orderId, Long productId);
+
 }

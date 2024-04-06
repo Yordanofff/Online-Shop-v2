@@ -56,32 +56,6 @@ public class ProductController {
         return productService.addToBasket(productId, quantity, redirectAttributes);
     }
 
-    @GetMapping("/show_basket")
-    public String showBasket(Model model, Authentication authentication) {
-        MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
-        User user = userDetails.getUser();
-
-        Order basketOrder = productService.getBasketOrder(user);
-        model.addAttribute("userDetails", userDetails);
-        if (basketOrder != null) {
-            model.addAttribute("orderedProducts", orderProductRepository.findAllByOrderId(basketOrder.getId()));
-            model.addAttribute("totalPrice", calculateOrderPrice(basketOrder.getId()));
-        }
-        model.addAttribute("noProductsInBasket", "");
-        return "basket";
-    }
-
-    private BigDecimal calculateOrderPrice(Long orderId) {
-        List<OrderProduct> allProducts = orderProductRepository.findAllByOrderId(orderId);
-        BigDecimal totalPrice = BigDecimal.valueOf(0);
-        for (OrderProduct op : allProducts) {
-            BigDecimal productPrice = op.getProduct().getPrice();
-            BigDecimal quantity = BigDecimal.valueOf(op.getQuantity());
-            totalPrice = totalPrice.add(productPrice.multiply(quantity));
-        }
-        return totalPrice;
-    }
-
     @GetMapping("/show")
     public String showAllProducts(Model model) {
         model.addAttribute("products", productRepository.findAll());

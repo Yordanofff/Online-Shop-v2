@@ -3,6 +3,7 @@ package com.project.Onlineshop.Service.Implementation;
 import com.project.Onlineshop.Dto.Request.UserRequestDto;
 import com.project.Onlineshop.Dto.Response.UserResponseDto;
 import com.project.Onlineshop.Entity.Order;
+import com.project.Onlineshop.Entity.OrderProduct;
 import com.project.Onlineshop.Entity.Role;
 import com.project.Onlineshop.Entity.User;
 import com.project.Onlineshop.Exceptions.EmailInUseException;
@@ -21,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final OrderStatusRepository orderStatusRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final ProductServiceImpl productService;
 
     @Override
     public UserResponseDto addUser(UserRequestDto userRequestDto) {
@@ -95,16 +99,81 @@ public class UserServiceImpl implements UserService {
         return "redirect:/";
     }
 
-    public String showProfile(Model model, Authentication authentication){
+    public String showProfile(Model model, Authentication authentication) {
         MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
         List<Order> orderList = orderRepository.findByUserIdAndStatusName(user.getId(), "DELIVERED");
-        model.addAttribute("userDetails",userDetails);
+        model.addAttribute("userDetails", userDetails);
         model.addAttribute("orderedProducts", orderProductRepository.findAll());
         model.addAttribute("orderStatuses", orderStatusRepository.findAll());
-        model.addAttribute("orders",orderList);
+        model.addAttribute("orders", orderList);
         model.addAttribute("products", productRepository.findAll());
         return "profile";
     }
 
+    public String showBasket(Model model, Authentication authentication) {
+        MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
+
+        Order basketOrder = productService.getBasketOrder(user);
+        model.addAttribute("userDetails", userDetails);
+        if (basketOrder != null) {
+            model.addAttribute("order_id", basketOrder.getId());
+            model.addAttribute("orderedProducts", orderProductRepository.findAllByOrderId(basketOrder.getId()));
+            model.addAttribute("totalPrice", calculateOrderPrice(basketOrder.getId()));
+        }
+        model.addAttribute("noProductsInBasket", "");
+        return "basket";
+    }
+
+    public String updateQuantity(Long productId, Long orderId, int quantity, Model model) {
+        updateProductQuantity(orderId, productId, quantity);
+
+        List<OrderProduct> updatedOrderedProducts = orderProductRepository.findAllByOrderId(orderId);
+
+        // Calculate the new total price of the order if needed (assuming calculateOrderPrice is a method that calculates the total price)
+        BigDecimal totalPrice = calculateOrderPrice(orderId);
+
+        // Add the updated data to the model
+        model.addAttribute("order_id", orderId);
+        model.addAttribute("orderedProducts", updatedOrderedProducts);
+        model.addAttribute("totalPrice", totalPrice);
+
+        return "redirect:/user/show_basket";
+    }
+
+    private BigDecimal calculateOrderPrice(Long orderId) {
+        List<OrderProduct> allProducts = orderProductRepository.findAllByOrderId(orderId);
+        BigDecimal totalPrice = BigDecimal.valueOf(0);
+        for (OrderProduct op : allProducts) {
+            BigDecimal productPrice = op.getProduct().getPrice();
+            BigDecimal quantity = BigDecimal.valueOf(op.getQuantity());
+            totalPrice = totalPrice.add(productPrice.multiply(quantity));
+        }
+        return totalPrice;
+    }
+
+    private void updateProductQuantity(Long orderId, Long productId, int newQuantity) {
+
+        if (newQuantity < 0) {
+            newQuantity = 0;
+        }
+        Order order = orderRepository.findById(orderId).get();
+        List<OrderProduct> currentProducts = orderProductRepository.findAllByOrderId(orderId);
+        for (OrderProduct op : currentProducts) {
+            if (Objects.equals(op.getProduct().getId(), productId)) {
+                Long currentOrderProductId = orderProductRepository.findByOrderIdAndProductId(orderId, productId).getId();
+                if (newQuantity == 0) {
+                    orderProductRepository.deleteById(currentOrderProductId);
+                } else {
+                    op.setId(currentOrderProductId);
+                    op.setQuantity(newQuantity);
+                    op.setOrder(order);
+                    orderProductRepository.save(op);
+                }
+                return;
+            }
+        }
+
+    }
 }
