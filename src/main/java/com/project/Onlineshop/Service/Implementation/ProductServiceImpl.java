@@ -141,7 +141,7 @@ public class ProductServiceImpl {
         // Find orders for that user that have status Basket. If exist - use it. else - create new order basket
         Order order = getOrCreateBasketOrder(user);
 
-        saveNewItemInOrderProduct(order, product, quantity);
+        addNewItemInOrderProductOrAppendToAnExisting(order, product, quantity);
 
         redirectAttributes.addFlashAttribute("product_added", "Added " + quantity + " items to your basket.");
 
@@ -168,12 +168,20 @@ public class ProductServiceImpl {
         }
     }
 
-    private void saveNewItemInOrderProduct(Order order, Product product, int quantity) {
-        OrderProduct orderProduct = new OrderProduct();
-        orderProduct.setOrder(order);
-        orderProduct.setProduct(product);
-        orderProduct.setQuantity(quantity);
-        orderProductRepository.save(orderProduct);
+    private void addNewItemInOrderProductOrAppendToAnExisting(Order order, Product product, int quantity) {
+        // Check if product is already in the basket
+        OrderProduct currentOrderProduct = orderProductRepository.findByOrderIdAndProductId (order.getId(), product.getId());
+        if (currentOrderProduct == null) {
+            OrderProduct orderProduct = new OrderProduct();
+            orderProduct.setOrder(order);
+            orderProduct.setProduct(product);
+            orderProduct.setQuantity(quantity);
+            orderProductRepository.save(orderProduct);
+        } else {
+            int numberOfThatProductAlreadyInBasket = currentOrderProduct.getQuantity();
+            currentOrderProduct.setQuantity(quantity + numberOfThatProductAlreadyInBasket);
+            orderProductRepository.save(currentOrderProduct);
+        }
     }
 
     public Order getOrCreateBasketOrder(User user) {
