@@ -60,6 +60,18 @@
                                 </li>
                             </ul>
                         </li>
+
+                        <li class="dropdown" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
+
+                            <a class="dropdown-item" href="#">
+                                Search products &raquo;
+                            </a>
+                            <ul class="dropdown-menu dropdown-submenu">
+                                <li><a class="dropdown-item" th:href="@{/products/searchByPrice}">By price</a></li>
+                                <li><a class="dropdown-item" th:href="@{/products/searchByQuantity}">By quantity</a></li>
+                            </ul>
+                        </li>
+
                     </ul>
                 </li>
                 <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
