@@ -114,14 +114,7 @@ public class UserServiceImpl implements UserService {
         return "profile";
     }
 
-    public boolean isPasswordTheSame(User user, String password) {
-        return bCryptPasswordEncoder.matches(password, user.getPassword());
-    }
 
-    public void updatePassword(User user, String newPassword) {
-        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
-        userRepository.save(user);
-    }
 
     public String showBasket(Model model, Authentication authentication) {
         MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();

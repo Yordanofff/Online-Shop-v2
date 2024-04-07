@@ -31,7 +31,7 @@ public class MyUserDetails implements UserDetails {
         return (User) principal;
     }
 
-    private Employee getEmployee() {
+    public Employee getEmployee() {
         if (isEmployee) {
             return (Employee) principal;
         }
