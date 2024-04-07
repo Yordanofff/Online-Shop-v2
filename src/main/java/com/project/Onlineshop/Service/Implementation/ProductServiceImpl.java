@@ -87,7 +87,7 @@ public class ProductServiceImpl {
             product = productMapper.toFood(productRequestDto);
         } else if (productType.equalsIgnoreCase("drink")) {
             product = productMapper.toDrink(productRequestDto);
-        } else if (productType.equalsIgnoreCase("accessory")) {
+        } else if (productType.equalsIgnoreCase("accessories")) {
             product = productMapper.toAccessories(productRequestDto);
         } else if (productType.equalsIgnoreCase("sanitary")) {
             product = productMapper.toSanitary(productRequestDto);
@@ -154,11 +154,11 @@ public class ProductServiceImpl {
     }
 
     private void addModelAttributesDependingOnProductType(String productType, Model model) {
-        //       TODO - the ifs below need to be better looking + validations should be added. Better?
+        //       TODO - the ifs below need to be better looking + validations should be added. Better? Yep!
         if (productType.equalsIgnoreCase("Sanitary") || productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Decoration") || productType.equalsIgnoreCase("Others")) {
             model.addAttribute("materials", materialRepository.findAll());
         }
-        if (productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Accessory")) {
+        if (productType.equalsIgnoreCase("Railing") || productType.equalsIgnoreCase("Accessories")) {
             model.addAttribute("colors", colorRepository.findAll());
             model.addAttribute("brands", brandRepository.findAll());
         }
