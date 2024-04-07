@@ -8,23 +8,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/user")
 public class UserController {
     private final UserServiceImpl userService;
 
-    @GetMapping("/user/login")
+    @GetMapping("/login")
     String userLogin() {
         return "login_user";
     }
 
-    @GetMapping("/user/register")
+    @GetMapping("/register")
     String register(Model model) {
         model.addAttribute("userRequestDto", new UserRequestDto());
         return "register_user";
@@ -35,22 +33,22 @@ public class UserController {
         return userService.registerNewUser(userRequestDto, bindingResult, model);
     }
 
-    @GetMapping("/user/profile")
+    @GetMapping("/profile")
     String showProfile(Model model, Authentication authentication) {
         return userService.showProfile(model, authentication);
     }
 
-    @GetMapping("/user/basket/show")
+    @GetMapping("/basket/show")
     public String showBasket(Model model, Authentication authentication) {
         return userService.showBasket(model, authentication);
     }
 
-    @PostMapping("/user/basket/buy")
+    @PostMapping("/basket/buy")
     public String buyNow(Model model, Authentication authentication, RedirectAttributes redirectAttributes){
         return userService.buyNow(model, authentication, redirectAttributes);
     }
 
-    @PostMapping("/user/updateQuantity")
+    @PostMapping("/updateQuantity")
     public String updateQuantity(@RequestParam("productId") Long productId,
                                  @RequestParam("orderId") Long orderId,
                                  @RequestParam("quantity") int quantity,
