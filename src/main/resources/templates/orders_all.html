@@ -27,7 +27,7 @@
             </div>
             <tbody>
             <tr th:each="order : ${orders}">
-                <span th:if="${order.status.name == 'PENDING'}">
+                <span th:unless="${order.status.name == 'BASKET'}">
                 <td th:text="${order.id}"></td>
                 <td th:text="${order.user.username} + '(' + ${order.user.id} +')'"></td>
                 <td th:text="${order.orderDateTime}"></td>
@@ -42,12 +42,13 @@
                     <form th:action="@{/orders/changeStatus}" method="post">
                         <input type="hidden" name="orderId" th:value="${order.id}">
                 <td>
-                        <select class="form-select" name="statusId">
-                            <option th:each="status : ${statuses}"
-                                    th:text="${status.name}"
-                                    th:value="${status.id}"
-                                    th:selected="${status.id == order.status.id}"></option>
-                        </select>
+                    <select class="form-select" name="statusId">
+                        <option th:each="status : ${statuses}"
+                            th:if="${status.name != 'BASKET'}"
+                            th:text="${status.name}"
+                            th:value="${status.id}"
+                            th:selected="${status.id == order.status.id}"></option>
+                </select>
                 </td>
                 <td>
                    <button type="submit" class="btn btn-primary">Save status</button>

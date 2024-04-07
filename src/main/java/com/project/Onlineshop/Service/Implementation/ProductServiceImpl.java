@@ -19,7 +19,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -168,9 +170,20 @@ public class ProductServiceImpl {
         }
     }
 
+    public List<Product> findAllProductsBetweenTwoPrices(BigDecimal minPrice, BigDecimal maxPrice) {
+        List<Product> products = (List<Product>) productRepository.findAll();
+        List<Product> resultList = new ArrayList<>();
+        for (Product p : products) {
+            BigDecimal price = p.getPrice();
+            if (price.compareTo(minPrice) >= 0 && price.compareTo(maxPrice) <= 0)
+                resultList.add(p);
+        }
+        return resultList;
+    }
+
     private void addNewItemInOrderProductOrAppendToAnExisting(Order order, Product product, int quantity) {
         // Check if product is already in the basket
-        OrderProduct currentOrderProduct = orderProductRepository.findByOrderIdAndProductId (order.getId(), product.getId());
+        OrderProduct currentOrderProduct = orderProductRepository.findByOrderIdAndProductId(order.getId(), product.getId());
         if (currentOrderProduct == null) {
             OrderProduct orderProduct = new OrderProduct();
             orderProduct.setOrder(order);

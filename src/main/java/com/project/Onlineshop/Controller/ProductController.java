@@ -196,4 +196,45 @@ public class ProductController {
         }
         return "products_all";
     }
+
+    @GetMapping("/searchByPrice")
+    public String searchProductsByPriceForm(Model model) {
+        BigDecimal minPrice = null;
+        BigDecimal maxPrice = null;
+        List<Product> products = (List<Product>) productRepository.findAll();
+        for (Product p : products) {
+            BigDecimal price = p.getPrice();
+            if (minPrice == null || price.compareTo(minPrice) < 0) {
+                minPrice = price;
+            }
+            if (maxPrice == null || price.compareTo(maxPrice) > 0) {
+                maxPrice = price;
+            }
+        }
+        model.addAttribute("minPrice", minPrice.toString());
+        model.addAttribute("maxPrice", maxPrice.toString());
+        return "search_by_price";
+    }
+
+    @PostMapping("/searchByPrice")
+    public String showProductsByPrice(@RequestParam("minPrice") String minPrice,
+                                      @RequestParam("maxPrice") String maxPrice,
+                                      @RequestParam(name = "minPriceChanged", defaultValue = "false") boolean minPriceChanged,
+                                      @RequestParam(name = "maxPriceChanged", defaultValue = "false") boolean maxPriceChanged,
+                                      RedirectAttributes redirectAttributes,
+                                      Model model){
+        if(!minPriceChanged || !maxPriceChanged){
+            //TODO - add the message below to the form ?
+            redirectAttributes.addAttribute("error","You must choose both min and max values!");
+            model.addAttribute("minPrice", minPrice.toString());
+            model.addAttribute("maxPrice", maxPrice.toString());
+            return "redirect:/products/searchByPrice";
+        }
+        BigDecimal minPriceDecimal = new BigDecimal(minPrice);
+        BigDecimal maxPriceDecimal = new BigDecimal(maxPrice);
+        model.addAttribute("products", productService.findAllProductsBetweenTwoPrices(minPriceDecimal, maxPriceDecimal));
+        model.addAttribute("search_by_price_results", "(Showing products having a price between "+minPriceDecimal+" лв. and "+maxPriceDecimal+" лв.)");
+        return "products_all";
+    }
 }
+
