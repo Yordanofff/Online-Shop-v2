@@ -28,17 +28,17 @@
                     <p class="fw-normal lead">E-mail: <span class="text-success"
                                                             th:text="${userDetails.email}"></span>
                     </p>
-                    <p class="fw-normal lead">Delivered orders: <span class="text-success"
+                    <p class="fw-normal lead" sec:authorize="hasRole('ROLE_USER')">Delivered orders: <span class="text-success"
                                                                       th:text="${#lists.size(orders)}"></span>
                     </p>
-                    <p class="fw-normal lead">
+                    <p class="fw-normal lead" sec:authorize="hasRole('ROLE_USER')">
                         <a th:href="@{/user/show_basket}" class="text-primary">Your basket</a> |
                         <a href="/change_password" class="text-primary">Change password</a>
                     </p>
                 </div>
             </div>
             <div class="mt-4"></div>
-            <div th:if="${not #lists.isEmpty(orders)}">
+            <div th:if="${not #lists.isEmpty(orders)}" sec:authorize="hasRole('ROLE_USER')">
                 <h2>
                     <span class="fw-bold text-success" th:text="${userDetails.username}"></span>'s orders:
                 </h2>
