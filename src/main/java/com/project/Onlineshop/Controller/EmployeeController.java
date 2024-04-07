@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
@@ -43,8 +44,8 @@ public class EmployeeController {
     }
 
     @PostMapping("/register")
-    String registerNewEmployee(@ModelAttribute @Valid EmployeeRequestDto employeeRequestDto, BindingResult bindingResult, Model model){
-        return employeeServiceImpl.registerNewEmployee(employeeRequestDto, bindingResult, model);
+    String registerNewEmployee(@ModelAttribute @Valid EmployeeRequestDto employeeRequestDto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes){
+        return employeeServiceImpl.registerNewEmployee(employeeRequestDto, bindingResult, model, redirectAttributes);
     }
 
     @GetMapping("/profile")

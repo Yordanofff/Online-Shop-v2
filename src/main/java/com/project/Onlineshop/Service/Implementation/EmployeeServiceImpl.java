@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -160,7 +161,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.findByPhoneNumber(phoneNumber).isPresent();
     }
 
-    public String registerNewEmployee(EmployeeRequestDto employeeRequestDto, BindingResult bindingResult, Model model) {
+    public String registerNewEmployee(EmployeeRequestDto employeeRequestDto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("employeeRequestDto", employeeRequestDto);
             return "register_employee";
@@ -184,7 +185,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             model.addAttribute("phone_error", e.getMessage());
             return "register_employee";
         }
-        return "redirect:/";
+        redirectAttributes.addFlashAttribute("success", "Account created successfully!");
+        return "redirect:/employee/register";
     }
 
     public String showProfile(Model model, Authentication authentication) {
