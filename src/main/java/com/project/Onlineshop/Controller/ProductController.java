@@ -225,13 +225,17 @@ public class ProductController {
                                       Model model){
         if(!minPriceChanged || !maxPriceChanged){
             //TODO - add the message below to the form ?
-            redirectAttributes.addAttribute("error","You must choose both min and max values!");
+            redirectAttributes.addFlashAttribute("error","You must choose both min and max values!");
             model.addAttribute("minPrice", minPrice.toString());
             model.addAttribute("maxPrice", maxPrice.toString());
             return "redirect:/products/searchByPrice";
         }
         BigDecimal minPriceDecimal = new BigDecimal(minPrice);
         BigDecimal maxPriceDecimal = new BigDecimal(maxPrice);
+        if(minPriceDecimal.compareTo(maxPriceDecimal) > 0){
+            redirectAttributes.addFlashAttribute("error","The price selected as the minimum should be smaller than the maximum!");
+            return "redirect:/products/searchByPrice";
+        }
         model.addAttribute("products", productService.findAllProductsBetweenTwoPrices(minPriceDecimal, maxPriceDecimal));
         model.addAttribute("search_by_price_results", "(Showing products having a price between "+minPriceDecimal+" лв. and "+maxPriceDecimal+" лв.)");
         return "products_all";
