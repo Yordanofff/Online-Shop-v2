@@ -24,7 +24,10 @@
 
                 <p class="fw-normal lead">Price: <span class="text-primary" th:text="${product.price + ' лв.'}"></span>
                 </p>
-                <p class="fw-normal lead">Stock: <span class="text-success" th:text="${product.quantity}"></span></p>
+                <p class="fw-normal lead">
+                    <span th:if="${product.quantity == 0}" class="text-danger">OUT OF STOCK</span>
+                    <span th:unless="${product.quantity == 0}" class="text-success" th:text="${product.quantity}"></span>
+                </p>
 
                 <div class="form-group" th:if="${product.class.simpleName  == 'Food'}">
                     <p class="fw-normal lead">Expiry date: <span th:text="${product.expiryDate}"></span></p>
@@ -72,9 +75,12 @@
                             <input type="number" class="form-control" id="quantity" name="quantity" min="1" th:attr="max=${product.quantity}" value="1">
                         </div>
                     </div>
+
                     <div class="col-sm-4">
-                        <button class="btn btn-primary btn-block mt-4" type="submit">Add to Basket</button>
+                        <button th:if="${product.quantity > 0}" class="btn btn-primary btn-block mt-4" type="submit">Add to Basket</button>
+                        <button th:unless="${product.quantity > 0}" class="btn btn-primary btn-block mt-4" type="submit" disabled>Add to Basket</button>
                     </div>
+
                 </div>
 
                 <div th:if="${stockNotEnoughError}" class="alert alert-danger">
