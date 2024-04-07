@@ -2,10 +2,8 @@ package com.project.Onlineshop.Service.Implementation;
 
 import com.project.Onlineshop.Dto.Request.UserRequestDto;
 import com.project.Onlineshop.Dto.Response.UserResponseDto;
-import com.project.Onlineshop.Entity.Order;
-import com.project.Onlineshop.Entity.OrderProduct;
-import com.project.Onlineshop.Entity.Role;
-import com.project.Onlineshop.Entity.User;
+import com.project.Onlineshop.Entity.*;
+import com.project.Onlineshop.Entity.Products.Product;
 import com.project.Onlineshop.Exceptions.EmailInUseException;
 import com.project.Onlineshop.Exceptions.PasswordsNotMatchingException;
 import com.project.Onlineshop.Exceptions.ServerErrorException;
@@ -14,6 +12,7 @@ import com.project.Onlineshop.Mapper.UserMapper;
 import com.project.Onlineshop.MyUserDetails;
 import com.project.Onlineshop.Repository.*;
 import com.project.Onlineshop.Service.UserService;
+import com.project.Onlineshop.Static.OrderStatusType;
 import com.project.Onlineshop.Static.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -21,8 +20,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -112,11 +113,11 @@ public class UserServiceImpl implements UserService {
         return "profile";
     }
 
-    public boolean isPasswordTheSame(User user, String password){
+    public boolean isPasswordTheSame(User user, String password) {
         return bCryptPasswordEncoder.matches(password, user.getPassword());
     }
 
-    public void updatePassword(User user, String newPassword){
+    public void updatePassword(User user, String newPassword) {
         user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         userRepository.save(user);
     }
@@ -149,8 +150,59 @@ public class UserServiceImpl implements UserService {
         model.addAttribute("orderedProducts", updatedOrderedProducts);
         model.addAttribute("totalPrice", totalPrice);
 
-        return "redirect:/user/show_basket";
+        return "redirect:/user/basket/show";
     }
+
+    public String buyNow(Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
+        MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
+
+        Order basketOrder = productService.getBasketOrder(user);
+
+        Long orderId = basketOrder.getId();
+        BigDecimal totalPrice = calculateOrderPrice(orderId);
+
+        basketOrder.setPrice(calculateOrderPrice(basketOrder.getId()));
+
+        List<OrderProduct> orderProducts = orderProductRepository.findAllByOrderId(basketOrder.getId());
+
+
+        List<String> errors = new ArrayList<>();
+        for (OrderProduct op : orderProducts) {
+            Product productInStock = productRepository.findById(op.getProduct().getId()).get();
+            if (productInStock.getQuantity() < op.getQuantity()) {
+                String errorMessage = op.getProduct().getName() + " (Available: " + productInStock.getQuantity() + ")";  // brackets used in thymeleaf to find the value.
+                errors.add(op.getProduct().getId() + "-" + errorMessage);
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            redirectAttributes.addFlashAttribute("productsNotFound", errors);
+            model.addAttribute("order_id", orderId);
+            model.addAttribute("orderedProducts", orderProducts);
+            model.addAttribute("totalPrice", totalPrice);
+            return "redirect:/user/basket/show";
+        }
+
+        // BELOW - IF ALL STOCK AVAILABLE:
+
+        // Reduce the quantity in the DB
+        for (OrderProduct op : orderProducts) {
+            Product productInStock = productRepository.findById(op.getProduct().getId()).get();
+            productInStock.setQuantity(productInStock.getQuantity() - op.getQuantity());
+            productRepository.save(productInStock);
+        }
+
+        // Change the order status to "Pending"
+        OrderStatus pending = new OrderStatus(OrderStatusType.PENDING.getId(), OrderStatusType.PENDING.name());
+        basketOrder.setStatus(pending);
+        orderRepository.save(basketOrder);
+
+        redirectAttributes.addFlashAttribute("success", "Order added successfully.");
+//        model.addAttribute("success", "Order added successfully.");  // this not working so using flashAttribute instead.
+        return "redirect:/user/basket/show";
+    }
+
 
     public BigDecimal calculateOrderPrice(Long orderId) {
         List<OrderProduct> allProducts = orderProductRepository.findAllByOrderId(orderId);

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
@@ -39,9 +40,14 @@ public class UserController {
         return userService.showProfile(model, authentication);
     }
 
-    @GetMapping("/user/show_basket")
+    @GetMapping("/user/basket/show")
     public String showBasket(Model model, Authentication authentication) {
         return userService.showBasket(model, authentication);
+    }
+
+    @PostMapping("/user/basket/buy")
+    public String buyNow(Model model, Authentication authentication, RedirectAttributes redirectAttributes){
+        return userService.buyNow(model, authentication, redirectAttributes);
     }
 
     @PostMapping("/user/updateQuantity")
