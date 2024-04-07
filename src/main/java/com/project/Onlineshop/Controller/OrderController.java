@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -43,16 +44,6 @@ public class OrderController {
 
     @GetMapping("/show")
     public String showOrders(Model model){
-        List<Order> orders = orderRepository.findAll();
-        //TODO - when 'Buy now' is pressed in basket page, the price will be calculated
-        //the method below won't be needed
-        OrderStatus pendingStatus = orderStatusRepository.findByName("PENDING").get();
-        for (Order order : orders) {
-            if (order.getStatus().equals(pendingStatus)) {
-                BigDecimal totalPrice = userService.calculateOrderPrice(order.getId());
-                order.setPrice(totalPrice);
-            }
-        }
         model.addAttribute("orders", orderRepository.findAll());
         model.addAttribute("orderProducts", orderProductRepository.findAll());
         model.addAttribute("products", productRepository.findAll());
@@ -62,7 +53,7 @@ public class OrderController {
     }
 
     @PostMapping("/changeStatus")
-    public String changeOrderStatus(@RequestParam Long orderId, @RequestParam Long statusId){
+    public String changeOrderStatus(@RequestParam Long orderId, @RequestParam Long statusId, RedirectAttributes redirectAttributes, Model model){
         if(orderRepository.findById(orderId).isPresent()){
             Order order = orderRepository.findById(orderId).get();
             if(orderStatusRepository.findById(statusId).isPresent()){
@@ -71,6 +62,7 @@ public class OrderController {
                 orderRepository.save(order);
             }
         }
+        redirectAttributes.addFlashAttribute("success", "Order status changed successfully for order ID "+orderId+"!");
         return "redirect:/orders/show";
     }
 }
