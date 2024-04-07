@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public String registerNewUser(UserRequestDto userRequestDto, BindingResult bindingResult, Model model) {
+    public String registerNewUser(UserRequestDto userRequestDto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("userRequestDto", userRequestDto);
             return "register_user";
@@ -98,7 +98,8 @@ public class UserServiceImpl implements UserService {
             model.addAttribute("password_error", e.getMessage());
             return "register_user";
         }
-        return "redirect:/";
+        redirectAttributes.addFlashAttribute("success", "Account created successfully!");
+        return "redirect:/user/register";
     }
 
     public String showProfile(Model model, Authentication authentication) {

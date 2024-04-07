@@ -29,8 +29,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    String registerNewUser(@ModelAttribute @Valid UserRequestDto userRequestDto, BindingResult bindingResult, Model model) {
-        return userService.registerNewUser(userRequestDto, bindingResult, model);
+    String registerNewUser(@ModelAttribute @Valid UserRequestDto userRequestDto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+        return userService.registerNewUser(userRequestDto, bindingResult, model, redirectAttributes);
     }
 
     @GetMapping("/profile")
