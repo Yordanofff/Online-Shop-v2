@@ -60,8 +60,10 @@
                                 </li>
                             </ul>
                         </li>
-
                     </ul>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
+                    <a class="nav-link" th:href="@{/orders/show}">Orders</a>
                 </li>
             </ul>
             <ul class="navbar-nav">
@@ -71,8 +73,11 @@
                     <button class="btn btn-dark mр-3" type="submit" style="margin-right: 20px;">Search</button>
                 </form>
                 <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
-                    <a class="nav-link text-white" th:inline="text" style="display: inline-block;">Hello
+                    <a class="nav-link text-white" th:inline="text" style="display: inline-block;" sec:authorize="hasRole('ROLE_USER')">Hello
                         <a th:href="@{/user/profile}" th:inline="text" th:text="${#authentication.name}" class="text-white" style="display: inline;"></a>
+                    </a>
+                    <a class="nav-link text-white" th:inline="text" style="display: inline-block;" sec:authorize="hasRole('ROLE_EMPLOYEE')">Hello
+                        <a th:href="@{/employee/profile}" th:inline="text" th:text="${#authentication.name}" class="text-white" style="display: inline;"></a>
                     </a>
                 </li>
                 <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">

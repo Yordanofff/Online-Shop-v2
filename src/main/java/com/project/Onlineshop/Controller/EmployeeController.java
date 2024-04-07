@@ -6,6 +6,7 @@ import com.project.Onlineshop.Service.Implementation.EmployeeServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -44,6 +45,11 @@ public class EmployeeController {
     @PostMapping("/register")
     String registerNewEmployee(@ModelAttribute @Valid EmployeeRequestDto employeeRequestDto, BindingResult bindingResult, Model model){
         return employeeServiceImpl.registerNewEmployee(employeeRequestDto, bindingResult, model);
+    }
+
+    @GetMapping("/profile")
+    String showProfile(Model model, Authentication authentication){
+        return employeeServiceImpl.showProfile(model, authentication);
     }
 
 }

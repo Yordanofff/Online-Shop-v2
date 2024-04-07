@@ -152,7 +152,7 @@ public class UserServiceImpl implements UserService {
         return "redirect:/user/show_basket";
     }
 
-    private BigDecimal calculateOrderPrice(Long orderId) {
+    public BigDecimal calculateOrderPrice(Long orderId) {
         List<OrderProduct> allProducts = orderProductRepository.findAllByOrderId(orderId);
         BigDecimal totalPrice = BigDecimal.valueOf(0);
         for (OrderProduct op : allProducts) {

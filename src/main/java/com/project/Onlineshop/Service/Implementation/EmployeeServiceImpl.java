@@ -3,14 +3,18 @@ package com.project.Onlineshop.Service.Implementation;
 import com.project.Onlineshop.Dto.Request.EmployeeRequestDto;
 import com.project.Onlineshop.Dto.Response.EmployeeResponseDto;
 import com.project.Onlineshop.Entity.Employee;
+import com.project.Onlineshop.Entity.Order;
 import com.project.Onlineshop.Entity.Role;
+import com.project.Onlineshop.Entity.User;
 import com.project.Onlineshop.Exceptions.*;
 import com.project.Onlineshop.Mapper.EmployeeMapper;
+import com.project.Onlineshop.MyUserDetails;
 import com.project.Onlineshop.Repository.EmployeeRepository;
 import com.project.Onlineshop.Repository.RoleRepository;
 import com.project.Onlineshop.Service.EmployeeService;
 import com.project.Onlineshop.Static.RoleType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -181,6 +185,13 @@ public class EmployeeServiceImpl implements EmployeeService {
             return "register_employee";
         }
         return "redirect:/";
+    }
+
+    public String showProfile(Model model, Authentication authentication) {
+        MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        model.addAttribute("userDetails", userDetails);
+        return "profile";
     }
 
 }
