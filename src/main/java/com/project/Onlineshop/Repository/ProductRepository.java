@@ -25,7 +25,7 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
     List<Product> findByNameContainingIgnoreCase(String keyword);
 
     List<Food> findAllBy();
-
+    List<Product> findProductsByQuantityBetween(int minQuantity, int maxQuantity);
     @Query("SELECT p FROM Product p WHERE p.quantity > :minQuantity")
     List<Product> getAllProductsWithQuantityGreaterThan(@Param("minQuantity") int minQuantity);
 

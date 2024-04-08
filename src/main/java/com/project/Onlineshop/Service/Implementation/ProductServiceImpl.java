@@ -100,7 +100,7 @@ public class ProductServiceImpl {
         return "redirect:/products/show";
     }
 
-    public String filterProductsByChosenCategory(String category, Model model){
+    public String filterProductsByChosenCategory(String category, Model model) {
         if (Objects.equals(category, "PRODUCT")) {
             model.addAttribute("products", productRepository.findAll());
             model.addAttribute("category", category);
@@ -116,24 +116,24 @@ public class ProductServiceImpl {
         return "products_all";
     }
 
-    private boolean validateEditedProduct(Product product, Model model){
-        if(product.getName().length()<3){
-            model.addAttribute("name_too_short","You must enter a longer name!");
+    private boolean validateEditedProduct(Product product, Model model) {
+        if (product.getName().length() < 3) {
+            model.addAttribute("name_too_short", "You must enter a longer name!");
             return true;
         }
-        if(product.getPrice().compareTo(BigDecimal.ZERO) <=0 ){
+        if (product.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             model.addAttribute("price_too_low", "You must enter a positive price!");
             return true;
         }
-        if(product.getQuantity()<=0){
+        if (product.getQuantity() <= 0) {
             model.addAttribute("quantity_too_low", "You must enter a positive quantity!");
             return true;
         }
         return false;
     }
 
-    public String saveEditedProduct(Product product, Model model){
-        if(validateEditedProduct(product, model)){
+    public String saveEditedProduct(Product product, Model model) {
+        if (validateEditedProduct(product, model)) {
             model.addAttribute("product", product);
             return "product_edit";
         }
@@ -298,4 +298,85 @@ public class ProductServiceImpl {
         }
     }
 
+    public String showSearchByPriceResults(Model model) {
+        BigDecimal minPrice = null;
+        BigDecimal maxPrice = null;
+        List<Product> products = (List<Product>) productRepository.findAll();
+        for (Product p : products) {
+            BigDecimal price = p.getPrice();
+            if (minPrice == null || price.compareTo(minPrice) < 0) {
+                minPrice = price;
+            }
+            if (maxPrice == null || price.compareTo(maxPrice) > 0) {
+                maxPrice = price;
+            }
+        }
+        model.addAttribute("minPrice", minPrice.toString());
+        model.addAttribute("maxPrice", maxPrice.toString());
+        return "search_by_price";
+    }
+
+    public String showSearchByQuantityResults(int minQuantity, int maxQuantity, Model model) {
+        if (minQuantity < 0 || maxQuantity < 0) {
+            model.addAttribute("incorrect_quantity", "You must enter positive quantity values!");
+            return "search_by_quantity";
+        }
+        if (maxQuantity < minQuantity) {
+            model.addAttribute("min_bigger_than_max", "You must enter a larger number for the minimum quantity than for the maximum quantity!");
+            return "search_by_quantity";
+        }
+        List<Product> result = productRepository.findProductsByQuantityBetween(minQuantity, maxQuantity);
+        if (result.isEmpty()) {
+            model.addAttribute("list_empty", "No match was found for your search!");
+        } else {
+            model.addAttribute("search_by_quantity_results", "Showing products having quantity between " + minQuantity + "-" + maxQuantity);
+        }
+        model.addAttribute("products", result);
+        return "products_all";
+    }
+
+    public String showSortedProductsBySortType(String sortType, Model model) {
+        if (sortType.equalsIgnoreCase("byName")) {
+            List<Product> products = (List<Product>) productRepository.findAll();
+            products.sort(Comparator.comparing(Product::getName));
+            model.addAttribute("products", products);
+        }
+        if (sortType.equalsIgnoreCase("byPrice")) {
+            List<Product> products = (List<Product>) productRepository.findAll();
+            products.sort(Comparator.comparing(Product::getPrice));
+            model.addAttribute("products", products);
+        }
+        if (sortType.equalsIgnoreCase("byExpiryDate")) {
+            List<Food> foods = productRepository.findAllBy();
+            foods.sort(Comparator.comparing(Food::getExpiryDate));
+            model.addAttribute("products", foods);
+        }
+        return "products_all";
+    }
+
+    public String searchProductByName(String searchString, Model model) {
+        if (!searchString.isEmpty()) {
+            model.addAttribute("products", searchProducts(searchString));
+        }
+        model.addAttribute("searchString", searchString);
+        return "products_found";
+    }
+
+    public String showProductsForChosenPrice(String minPrice, String maxPrice, boolean minPriceChanged, boolean maxPriceChanged, RedirectAttributes redirectAttributes, Model model) {
+        if (!minPriceChanged || !maxPriceChanged) {
+            redirectAttributes.addFlashAttribute("error", "You must choose both min and max values!");
+            model.addAttribute("minPrice", minPrice.toString());
+            model.addAttribute("maxPrice", maxPrice.toString());
+            return "redirect:/products/searchByPrice";
+        }
+        BigDecimal minPriceDecimal = new BigDecimal(minPrice);
+        BigDecimal maxPriceDecimal = new BigDecimal(maxPrice);
+        if (minPriceDecimal.compareTo(maxPriceDecimal) > 0) {
+            redirectAttributes.addFlashAttribute("error", "The price selected as the minimum should be smaller than the maximum!");
+            return "redirect:/products/searchByPrice";
+        }
+        model.addAttribute("products", findAllProductsBetweenTwoPrices(minPriceDecimal, maxPriceDecimal));
+        model.addAttribute("search_by_price_results", "(Showing products having a price between " + minPriceDecimal + " лв. and " + maxPriceDecimal + " лв.)");
+        return "products_all";
+    }
 }
