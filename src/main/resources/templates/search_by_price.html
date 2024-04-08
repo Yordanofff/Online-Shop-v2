@@ -16,7 +16,7 @@
                     <div class="form-group">
                         <h3> Search products by price </h3>
                         <hr/>
-                        <label for="minPriceRange">Min. price:</label>
+                        <label for="minPriceRange">Enter price range (any order):</label>
 
                         <input type="range" class="form-range" id="minPriceRange" name="minPrice" th:min="${minPrice}" th:max="${maxPrice}" oninput="updateMinValue(this.value)">
 
@@ -24,7 +24,7 @@
                         <output id="minPriceOutput"></output>
                     </div>
                     <div class="form-group">
-                        <label for="maxPriceRange">Max. price:</label>
+                        <label for="maxPriceRange">Enter price range (any order):</label>
 
                         <input type="range" class="form-range" id="maxPriceRange" name="maxPrice" th:min="${minPrice}" th:max="${maxPrice}" oninput="updateMaxValue(this.value)">
 

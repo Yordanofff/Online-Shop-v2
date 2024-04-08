@@ -36,6 +36,12 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE TYPE(p) = :entityType")
     <T extends Product> List<T> getAllByEntityType(@Param("entityType") Class<T> entityType);
 
+    @Query("SELECT p FROM Product p WHERE p.price = (SELECT MIN(p2.price) FROM Product p2)")
+    Optional<Product> findProductWithLowestPrice();
+
+    @Query("SELECT p FROM Product p WHERE p.price = (SELECT MAX(p2.price) FROM Product p2)")
+    Optional<Product> findProductWithHighestPrice();
+
     @Query("SELECT p FROM Product p WHERE p.quantity = (SELECT MIN(p2.quantity) FROM Product p2)")
     Optional<Product> findProductWithLowestQuantity();
 

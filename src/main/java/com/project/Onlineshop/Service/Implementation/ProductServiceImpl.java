@@ -11,6 +11,7 @@ import com.project.Onlineshop.Exceptions.ServerErrorException;
 import com.project.Onlineshop.Mapper.ProductMapper;
 import com.project.Onlineshop.Repository.*;
 import com.project.Onlineshop.Static.OrderStatusType;
+import com.project.Onlineshop.Utility.PriceRange;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -218,9 +219,14 @@ public class ProductServiceImpl {
         }
     }
 
-    public List<Product> findAllProductsBetweenTwoPrices(BigDecimal minPrice, BigDecimal maxPrice) {
+    private List<Product> findAllProductsBetweenTwoPrices(BigDecimal p1, BigDecimal p2) {
         List<Product> products = (List<Product>) productRepository.findAll();
         List<Product> resultList = new ArrayList<>();
+
+        PriceRange priceRange = PriceRange.getMinMaxNumber(p1, p2);
+        BigDecimal minPrice = priceRange.getMin();
+        BigDecimal maxPrice = priceRange.getMax();
+
         for (Product p : products) {
             BigDecimal price = p.getPrice();
             if (price.compareTo(minPrice) >= 0 && price.compareTo(maxPrice) <= 0)
@@ -299,18 +305,9 @@ public class ProductServiceImpl {
     }
 
     public String showSearchByPriceResults(Model model) {
-        BigDecimal minPrice = null;
-        BigDecimal maxPrice = null;
-        List<Product> products = (List<Product>) productRepository.findAll();
-        for (Product p : products) {
-            BigDecimal price = p.getPrice();
-            if (minPrice == null || price.compareTo(minPrice) < 0) {
-                minPrice = price;
-            }
-            if (maxPrice == null || price.compareTo(maxPrice) > 0) {
-                maxPrice = price;
-            }
-        }
+        BigDecimal minPrice = productRepository.findProductWithLowestPrice().get().getPrice();
+        BigDecimal maxPrice = productRepository.findProductWithHighestPrice().get().getPrice();
+
         model.addAttribute("minPrice", minPrice.toString());
         model.addAttribute("maxPrice", maxPrice.toString());
         return "search_by_price";
@@ -371,12 +368,13 @@ public class ProductServiceImpl {
         }
         BigDecimal minPriceDecimal = new BigDecimal(minPrice);
         BigDecimal maxPriceDecimal = new BigDecimal(maxPrice);
-        if (minPriceDecimal.compareTo(maxPriceDecimal) > 0) {
-            redirectAttributes.addFlashAttribute("error", "The price selected as the minimum should be smaller than the maximum!");
-            return "redirect:/products/searchByPrice";
-        }
+
+        PriceRange priceRange = PriceRange.getMinMaxNumber(minPriceDecimal, maxPriceDecimal);
+        BigDecimal actualMinPrice = priceRange.getMin();
+        BigDecimal actualMaxPrice = priceRange.getMax();
+
         model.addAttribute("products", findAllProductsBetweenTwoPrices(minPriceDecimal, maxPriceDecimal));
-        model.addAttribute("search_by_price_results", "(Showing products having a price between " + minPriceDecimal + " лв. and " + maxPriceDecimal + " лв.)");
+        model.addAttribute("search_by_price_results", "(Showing products having a price between " + actualMinPrice + " лв. and " + actualMaxPrice + " лв.)");
         return "products_all";
     }
 }
