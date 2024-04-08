@@ -158,7 +158,11 @@ public class ProductController {
     }
 
     @GetMapping("/searchByQuantity")
-    public String searchProductsByQuantity(){
+    public String searchProductsByQuantity(Model model){
+        int minQuantity = productRepository.findProductWithLowestQuantity().get().getQuantity();
+        int maxQuantity = productRepository.findProductWithHighestQuantity().get().getQuantity();
+        model.addAttribute("minQuantity", minQuantity);
+        model.addAttribute("maxQuantity", maxQuantity);
         return "search_by_quantity";
     }
 

@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends CrudRepository<Product, Long> {
@@ -35,4 +36,9 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE TYPE(p) = :entityType")
     <T extends Product> List<T> getAllByEntityType(@Param("entityType") Class<T> entityType);
 
+    @Query("SELECT p FROM Product p WHERE p.quantity = (SELECT MIN(p2.quantity) FROM Product p2)")
+    Optional<Product> findProductWithLowestQuantity();
+
+    @Query("SELECT p FROM Product p WHERE p.quantity = (SELECT MAX(p2.quantity) FROM Product p2)")
+    Optional<Product> findProductWithHighestQuantity();
 }
