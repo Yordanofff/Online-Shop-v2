@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/password")
 @RequiredArgsConstructor
+
 public class PasswordController {
     private final PasswordServiceImpl passwordService;
 
@@ -28,10 +29,12 @@ public class PasswordController {
                                  @RequestParam("confirmPassword") String repeatPassword,
                                  Model model, Authentication authentication) {
         MyUserDetails myUserDetails = (MyUserDetails) authentication.getPrincipal();
-        passwordService.checkCurrentPassword(myUserDetails, currentPassword, model);
-        passwordService.validatePassword(newPassword, repeatPassword, model);
-        passwordService.updatePassword(myUserDetails, newPassword);
-        model.addAttribute("success", "Password was updated successfully!");
+        boolean r1 = passwordService.isCurrentPasswordCorrect(myUserDetails, currentPassword, model);
+        boolean r2 = passwordService.isNewPasswordMatching(newPassword, repeatPassword, model);
+        if (r1 && r2) {
+            passwordService.updatePassword(myUserDetails, newPassword);
+            model.addAttribute("success", "Password was updated successfully!");
+        }
         return "change_password";
     }
 }

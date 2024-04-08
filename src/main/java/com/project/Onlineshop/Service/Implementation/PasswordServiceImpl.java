@@ -41,30 +41,35 @@ public class PasswordServiceImpl {
         }
     }
 
-    public void validatePassword(String newPassword, String repeatPassword, Model model){
+    public boolean isNewPasswordMatching(String newPassword, String repeatPassword, Model model){
         if (!newPassword.equals(repeatPassword)) {
             model.addAttribute("not_matching_passwords", "New password and confirm password do not match!");
-            return;
+            return false;
         }
         if (newPassword.isEmpty() || newPassword.isBlank()) {
             model.addAttribute("not_matching_passwords", "The new password cannot be empty!");
-            return;
+            return false;
         }
         if (newPassword.length() < 3) {
             model.addAttribute("not_matching_passwords", "The new password cannot be less than 3 symbols long!");
+            return false;
         }
+        return true;
     }
-    public void checkCurrentPassword(MyUserDetails myUserDetails, String currentPassword, Model model){
+    public boolean isCurrentPasswordCorrect(MyUserDetails myUserDetails, String currentPassword, Model model){
         if (myUserDetails.getUser() != null) {
             User user = myUserDetails.getUser();
             if (!isPasswordTheSame(user, currentPassword)) {
                 model.addAttribute("wrong_password", "Incorrect current password!");
+                return false;
             }
         } else {
             Employee employee = myUserDetails.getEmployee();
             if (!isPasswordTheSame(employee, currentPassword)) {
                 model.addAttribute("wrong_password", "Incorrect current password!");
+                return false;
             }
         }
+        return true;
     }
 }
