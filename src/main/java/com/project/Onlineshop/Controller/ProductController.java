@@ -63,20 +63,8 @@ public class ProductController {
     }
 
     @GetMapping("/filter")
-    public String sortProducts(@RequestParam String category, Model model) {
-        if (Objects.equals(category, "PRODUCT")) {
-            model.addAttribute("products", productRepository.findAll());
-            model.addAttribute("category", category);
-        } else {
-            Class<? extends Product> productClass = productService.getProductClass(category);
-            if (productClass != null) {
-                model.addAttribute("products", productRepository.getAllByEntityType(productClass));
-                model.addAttribute("category", category);
-            } else {
-                throw new NullPointerException("The product category was not found!");
-            }
-        }
-        return "products_all";
+    public String filterProducts(@RequestParam String category, Model model) {
+        return productService.filterProductsByChosenCategory(category, model);
     }
 
     @GetMapping("/edit")
@@ -89,18 +77,8 @@ public class ProductController {
     }
 
     @PostMapping("/edit")
-    public String editProduct(@ModelAttribute Product product) {
-        Optional<Product> optionalProduct = productRepository.findById(product.getId());
-        if (optionalProduct.isPresent()) {
-            Product existingProduct = optionalProduct.get();
-            existingProduct.setName(product.getName());
-            existingProduct.setPrice(product.getPrice());
-            existingProduct.setQuantity(product.getQuantity());
-            productRepository.save(existingProduct);
-            return "redirect:/products/show";
-        } else {
-            throw new IllegalArgumentException("Product with this ID was not found");
-        }
+    public String editProduct(@ModelAttribute @Valid Product product, Model model, BindingResult bindingResult) {
+        return productService.saveEditedProduct(product, model);
     }
 
     @GetMapping("/delete")

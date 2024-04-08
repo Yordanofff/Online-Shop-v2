@@ -21,9 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -100,6 +98,56 @@ public class ProductServiceImpl {
         }
         productRepository.save(product);
         return "redirect:/products/show";
+    }
+
+    public String filterProductsByChosenCategory(String category, Model model){
+        if (Objects.equals(category, "PRODUCT")) {
+            model.addAttribute("products", productRepository.findAll());
+            model.addAttribute("category", category);
+        } else {
+            Class<? extends Product> productClass = getProductClass(category);
+            if (productClass != null) {
+                model.addAttribute("products", productRepository.getAllByEntityType(productClass));
+                model.addAttribute("category", category);
+            } else {
+                throw new NullPointerException("The product category was not found!");
+            }
+        }
+        return "products_all";
+    }
+
+    private boolean validateEditedProduct(Product product, Model model){
+        if(product.getName().length()<3){
+            model.addAttribute("name_too_short","You must enter a longer name!");
+            return true;
+        }
+        if(product.getPrice().compareTo(BigDecimal.ZERO) <=0 ){
+            model.addAttribute("price_too_low", "You must enter a positive price!");
+            return true;
+        }
+        if(product.getQuantity()<=0){
+            model.addAttribute("quantity_too_low", "You must enter a positive quantity!");
+            return true;
+        }
+        return false;
+    }
+
+    public String saveEditedProduct(Product product, Model model){
+        if(validateEditedProduct(product, model)){
+            model.addAttribute("product", product);
+            return "product_edit";
+        }
+        Optional<Product> optionalProduct = productRepository.findById(product.getId());
+        if (optionalProduct.isPresent()) {
+            Product existingProduct = optionalProduct.get();
+            existingProduct.setName(product.getName());
+            existingProduct.setPrice(product.getPrice());
+            existingProduct.setQuantity(product.getQuantity());
+            productRepository.save(existingProduct);
+            return "redirect:/products/show";
+        } else {
+            throw new IllegalArgumentException("Product with this ID was not found");
+        }
     }
 
     public String showSingleId(Model model, Long id) {
