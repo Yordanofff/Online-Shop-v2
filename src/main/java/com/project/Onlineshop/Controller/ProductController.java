@@ -166,9 +166,11 @@ public class ProductController {
     public String showResultProductsByQuantity(@RequestParam(value = "minQuantity", required = false) Integer minQuantity,
                                                @RequestParam(value = "maxQuantity", required = false) Integer maxQuantity,
                                                Model model){
-        if(minQuantity == null || maxQuantity == null){
-            model.addAttribute("blank_field","You should enter both min. and max. quantities!");
-            return "search_by_quantity";
+        if (minQuantity == null) {
+            minQuantity = 0;
+        }
+        if (maxQuantity == null){
+            maxQuantity = Integer.MAX_VALUE;
         }
         return productService.showSearchByQuantityResults(minQuantity, maxQuantity, model);
     }
