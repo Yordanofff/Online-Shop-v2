@@ -36,9 +36,12 @@ public class WebSecurityConfig {
                 .formLogin((form) -> form
                         .loginPage("/login")
                         .usernameParameter("emailOrUsername")  // this is needed in the html form.
+                        .failureUrl("/login?error=true")
+                        .defaultSuccessUrl("/products/show")
                         .permitAll()
                 )
-                .logout((logout) -> logout.permitAll());
+                .logout((logout) -> logout.permitAll()
+                        .logoutSuccessUrl("/login?loggedOut=true"));
 
         return http.build();
     }

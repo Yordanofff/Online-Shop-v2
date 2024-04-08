@@ -9,6 +9,13 @@
 <body class="d-flex flex-column min-vh-100">
 
 <div class="col-6 container flex-grow-1 mt-5 mb-5">
+    <div th:if="${param.error}">
+        <p class="alert alert-danger text-center">Invalid username or password.</p>
+    </div>
+
+    <div th:if="${param.loggedOut}">
+        <p class="alert alert-success text-center">You have logged out successfully.</p>
+    </div>
 
     <div class="row justify-content-center">
         <div class="col-md-6">

@@ -12,12 +12,6 @@
 
     <h1>User login</h1>
     <a href="/user/register" class="text-primary">Don't have an account? Sign up here</a>
-    <div th:if="${param.error}">
-        Invalid username and password.
-    </div>
-    <div th:if="${param.logout}">
-        You have been logged out.
-    </div>
 
     <form th:action="@{/login}" method="post" class="mt-5 mb-5">
         <input type="hidden" name="loginType" value="user">
