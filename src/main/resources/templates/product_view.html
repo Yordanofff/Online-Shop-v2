@@ -26,7 +26,8 @@
                 </p>
                 <p class="fw-normal lead">
                     <span th:if="${product.quantity == 0}" class="text-danger">OUT OF STOCK</span>
-                    <span th:unless="${product.quantity == 0}" class="text-success" th:text="${product.quantity}"></span>
+                <p th:unless="${product.quantity == 0}"  class="fw-normal lead">Stock: <span class="text-success" th:text="${product.quantity}"></span></p>
+
                 </p>
 
                 <div class="form-group" th:if="${product.class.simpleName  == 'Food'}">
