@@ -138,8 +138,8 @@ public class ProductController {
 
     //TODO - Filtering by expiryDate & Show all products right after does not load the products, just the Foods.
     @GetMapping("/sort")
-    public String showSortedProducts(@RequestParam String sortType, Model model) {
-        return productService.showSortedProductsBySortType(sortType, model);
+    public String showSortedProducts(@RequestParam String sortType, boolean ascending, Model model) {
+        return productService.showSortedProductsBySortType(sortType, ascending, model);
     }
 
     @GetMapping("/searchByPrice")

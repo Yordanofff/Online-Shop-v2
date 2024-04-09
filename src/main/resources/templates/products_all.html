@@ -33,15 +33,32 @@
 
     <div class="text-center col-4 container flex-grow-1 mt-3 mb-3"
          sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
-        <form th:action="@{/products/sort}" method="get">
-            <select id="sortSelect" class="form-select mr-2" name="sortType"
-                    onchange="this.form.action='/products/sort?sortType=' + this.value; this.form.submit();">
-                <option value="" selected disabled>Choose sorting type</option>
-                <option value="byName">Sort by Name</option>
-                <option value="byPrice">Sort by Price</option>
-                <option value="byExpiryDate">Sort by Expiry date</option>
-            </select>
+
+        <form th:action="@{/products/sort}" method="get" id="sortForm">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <select id="sortSelect" class="form-select mr-2" name="sortType"
+                            onchange="this.form.action='/products/sort?sortType=' + this.value; this.form.submit();">
+                        <option th:selected="${sortType == null}" disabled>Choose sorting type</option>
+                        <option th:selected="${sortType == 'byName'}" th:value="byName">Sort by Name</option>
+                        <option th:selected="${sortType == 'byPrice'}" th:value="byPrice">Sort by Price</option>
+                        <option th:selected="${sortType == 'byExpiryDate'}" th:value="byExpiryDate">Sort by Expiry
+                            date
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="mySwitch" name="ascending" value="yes"
+                               th:checked="${param.ascending == 'yes'}">
+                        <label class="form-check-label" for="mySwitch">Ascending</label>
+                    </div>
+                </div>
+            </div>
         </form>
+
+
     </div>
 
     <div class="row row-cols-1 row-cols-md-4">
@@ -80,9 +97,36 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
-</body>
+        crossorigin="anonymous">
+</script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mySwitch = document.getElementById('mySwitch');
+        const sortSelect = document.getElementById('sortSelect');
+        const ascendingParam = new URLSearchParams(window.location.search).get('ascending');
+
+        // Set the initial state of the switch based on the ascending parameter
+        if (mySwitch) {
+            mySwitch.checked = ascendingParam === 'yes';
+
+            // Add event listener to the switch
+            mySwitch.addEventListener('change', function() {
+                // Update form action URL with sort type and ascending parameter
+                const sortType = sortSelect.value;
+                const ascending = this.checked ? 'yes' : 'no';
+                const form = document.getElementById('sortForm');
+                form.action = '/products/sort?sortType=' + sortType + '&ascending=' + ascending;
+
+                // Submit the form
+                form.submit();
+            });
+        }
+    });
+</script>
+
+
+</body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <div th:replace="~{fragments/footer.html}"></div>

@@ -332,24 +332,42 @@ public class ProductServiceImpl {
         return "products_all";
     }
 
-    public String showSortedProductsBySortType(String sortType, Model model) {
+    public String showSortedProductsBySortType(String sortType, boolean ascending, Model model) {
+        model.addAttribute("sortType", sortType);
+
         if (sortType.equalsIgnoreCase("byName")) {
             List<Product> products = (List<Product>) productRepository.findAll();
-            products.sort(Comparator.comparing(Product::getName));
+            if (ascending) {
+                products.sort(Comparator.comparing(Product::getName));
+            } else {
+                products.sort(Comparator.comparing(Product::getName).reversed());
+            }
             model.addAttribute("products", products);
         }
+
         if (sortType.equalsIgnoreCase("byPrice")) {
             List<Product> products = (List<Product>) productRepository.findAll();
-            products.sort(Comparator.comparing(Product::getPrice));
+            if (ascending) {
+                products.sort(Comparator.comparing(Product::getPrice));
+            } else {
+                products.sort(Comparator.comparing(Product::getPrice).reversed());
+            }
             model.addAttribute("products", products);
         }
+
         if (sortType.equalsIgnoreCase("byExpiryDate")) {
             List<Food> foods = productRepository.findAllBy();
-            foods.sort(Comparator.comparing(Food::getExpiryDate));
+            if (ascending) {
+                foods.sort(Comparator.comparing(Food::getExpiryDate));
+            } else {
+                foods.sort(Comparator.comparing(Food::getExpiryDate).reversed());
+            }
             model.addAttribute("products", foods);
         }
+
         return "products_all";
     }
+
 
     public String searchProductByName(String searchString, Model model) {
         if (!searchString.isEmpty()) {
