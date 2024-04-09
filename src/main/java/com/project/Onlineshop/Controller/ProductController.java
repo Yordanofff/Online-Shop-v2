@@ -48,7 +48,7 @@ public class ProductController {
         return "products_all";
     }
 
-    @GetMapping("/filter")
+    @GetMapping("/show/filter")
     public String filterProducts(@RequestParam String category, Model model) {
         return productService.filterProductsByChosenCategory(category, model);
     }

@@ -15,9 +15,9 @@
         <h4><span th:text="${search_by_price_results != null} ? ${search_by_price_results}"></span></h4>
         <h4><span th:text="${search_by_quantity_results != null} ? ${search_by_quantity_results}"></span></h4>
         <h4><span th:text="${list_empty != null} ? ${list_empty}"></span></h4>
-        <form th:action="@{/products/filter}" method="get">
+        <form th:action="@{/products/show/filter}" method="get">
             <select id="categorySelect" class="form-select mr-2" name="category"
-                    onchange="this.form.action='/products/filter?category=' + this.value; this.form.submit();"
+                    onchange="this.form.action='/products/show/filter?category=' + this.value; this.form.submit();"
                     style="margin-bottom: 10px; margin-top: 10px;">
                 <option value="PRODUCT" th:selected="${category == null || category == 'PRODUCT'}">Show All</option>
                 <option value="FOOD" th:selected="${category == 'FOOD'}">Food</option>
