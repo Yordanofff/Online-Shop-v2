@@ -58,10 +58,10 @@ public class ProductController {
         // TODO: Food not tested. Category Selection not working for standard user or guest.
     }
 
-    @GetMapping("/show/filter")
-    public String filterProducts(@RequestParam String category, Model model) {
-        return productService.filterProductsByChosenCategory(category, model);
-    }
+//    @GetMapping("/show/filter")
+//    public String filterProducts(@RequestParam String category, Model model) {
+//        return productService.filterProductsByChosenCategory(category, model);
+//    }
 
     @GetMapping("/edit")
     public String editProductForm(@RequestParam Long id, Model model) {
