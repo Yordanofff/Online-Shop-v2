@@ -34,11 +34,11 @@
     <div class="text-center col-4 container flex-grow-1 mt-3 mb-3"
          sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
 
-        <form th:action="@{/products/sort}" method="get" id="sortForm">
+        <form th:action="@{/products/show/sort}" method="get" id="sortForm">
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <select id="sortSelect" class="form-select mr-2" name="sortType"
-                            onchange="this.form.action='/products/sort?sortType=' + this.value; this.form.submit();">
+                            onchange="this.form.action='/products/show/sort?sortType=' + this.value; this.form.submit();">
                         <option th:selected="${sortType == null}" disabled>Choose sorting type</option>
                         <option th:selected="${sortType == 'byName'}" th:value="byName">Sort by Name</option>
                         <option th:selected="${sortType == 'byPrice'}" th:value="byPrice">Sort by Price</option>
@@ -116,7 +116,7 @@
                 const sortType = sortSelect.value;
                 const ascending = this.checked ? 'yes' : 'no';
                 const form = document.getElementById('sortForm');
-                form.action = '/products/sort?sortType=' + sortType + '&ascending=' + ascending;
+                form.action = '/products/show/sort?sortType=' + sortType + '&ascending=' + ascending;
 
                 // Submit the form
                 form.submit();
