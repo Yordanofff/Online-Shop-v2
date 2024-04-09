@@ -101,21 +101,21 @@ public class ProductServiceImpl {
         return "redirect:/products/show";
     }
 
-    public String filterProductsByChosenCategory(String category, Model model) {
-        if (Objects.equals(category, "PRODUCT")) {
-            model.addAttribute("products", productRepository.findAll());
-            model.addAttribute("category", category);
-        } else {
-            Class<? extends Product> productClass = getProductClass(category);
-            if (productClass != null) {
-                model.addAttribute("products", productRepository.getAllByEntityType(productClass));
-                model.addAttribute("category", category);
-            } else {
-                throw new NullPointerException("The product category was not found!");
-            }
-        }
-        return "products_all";
-    }
+//    public String filterProductsByChosenCategory(String category, Model model) {
+//        if (Objects.equals(category, "PRODUCT")) {
+//            model.addAttribute("products", productRepository.findAll());
+//            model.addAttribute("category", category);
+//        } else {
+//            Class<? extends Product> productClass = getProductClass(category);
+//            if (productClass != null) {
+//                model.addAttribute("products", productRepository.getAllByEntityType(productClass));
+//                model.addAttribute("category", category);
+//            } else {
+//                throw new NullPointerException("The product category was not found!");
+//            }
+//        }
+//        return "products_all";
+//    }
 
     public List<Product> getTheProductsToShow(String category) {
         if (Objects.equals(category, "PRODUCT")) {
