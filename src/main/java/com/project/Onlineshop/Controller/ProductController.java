@@ -43,8 +43,13 @@ public class ProductController {
     }
 
     @GetMapping("/show")
-    public String showAllProducts(Model model) {
+    public String showAllProducts(@RequestParam(required = false) String sortType, boolean ascending, Model model) {
         model.addAttribute("products", productRepository.findAll());
+        if (sortType != null){
+            //TODO - Filtering by expiryDate & Show all products right after does not load the products, just the Foods.
+            return productService.showSortedProductsBySortType(sortType, ascending, model);
+        }
+
         return "products_all";
     }
 
@@ -134,12 +139,6 @@ public class ProductController {
     @GetMapping("/search")
     public String searchForProduct(@RequestParam String searchString, Model model) {
         return productService.searchProductByName(searchString, model);
-    }
-
-    //TODO - Filtering by expiryDate & Show all products right after does not load the products, just the Foods.
-    @GetMapping("/show/sort")
-    public String showSortedProducts(@RequestParam String sortType, boolean ascending, Model model) {
-        return productService.showSortedProductsBySortType(sortType, ascending, model);
     }
 
     @GetMapping("/searchByPrice")
