@@ -1,11 +1,9 @@
 package com.project.Onlineshop.Controller;
 
 import com.project.Onlineshop.Dto.Request.ProductRequestDto;
-import com.project.Onlineshop.Entity.Products.Food;
 import com.project.Onlineshop.Entity.Products.Product;
-import com.project.Onlineshop.Repository.*;
+import com.project.Onlineshop.Repository.ProductRepository;
 import com.project.Onlineshop.Service.ImageService;
-import com.project.Onlineshop.Service.Implementation.OrderServiceImpl;
 import com.project.Onlineshop.Service.Implementation.ProductServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.List;
 
 
@@ -43,14 +40,22 @@ public class ProductController {
     }
 
     @GetMapping("/show")
-    public String showAllProducts(@RequestParam(required = false) String sortType, boolean ascending, Model model) {
-        model.addAttribute("products", productRepository.findAll());
+    public String showAllProducts(@RequestParam(required = false) String sortType,
+                                  @RequestParam(required = false) String category,
+                                  @RequestParam(required = false) boolean ascending, Model model) {
+        List<Product> products = (List<Product>) productRepository.findAll(); // Default - show all
+        if (category != null) {
+            model.addAttribute("category", category);
+            products = productService.getTheProductsToShow(category);  // if category is selected - update the list
+        }
         if (sortType != null){
             //TODO - Filtering by expiryDate & Show all products right after does not load the products, just the Foods.
-            return productService.showSortedProductsBySortType(sortType, ascending, model);
+            return productService.showSortedProductsBySortType(sortType, ascending, model, products);
         }
 
+        model.addAttribute("products", products); // if no sorting is selected
         return "products_all";
+        // TODO: Food not tested. Category Selection not working for standard user or guest.
     }
 
     @GetMapping("/show/filter")

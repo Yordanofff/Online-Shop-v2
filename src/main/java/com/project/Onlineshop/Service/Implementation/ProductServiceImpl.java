@@ -117,6 +117,19 @@ public class ProductServiceImpl {
         return "products_all";
     }
 
+    public List<Product> getTheProductsToShow(String category) {
+        if (Objects.equals(category, "PRODUCT")) {
+            return (List<Product>) productRepository.findAll();
+        } else {
+            Class<? extends Product> productClass = getProductClass(category);
+            if (productClass != null) {
+                return (List<Product>) productRepository.getAllByEntityType(productClass);
+            } else {
+                throw new NullPointerException("The product category " + category + " was not found!");
+            }
+        }
+    }
+
     private boolean validateEditedProduct(Product product, Model model) {
         if (product.getName().length() < 3) {
             model.addAttribute("name_too_short", "You must enter a longer name!");
@@ -332,11 +345,10 @@ public class ProductServiceImpl {
         return "products_all";
     }
 
-    public String showSortedProductsBySortType(String sortType, boolean ascending, Model model) {
+    public String showSortedProductsBySortType(String sortType, boolean ascending, Model model, List<Product> products) {
         model.addAttribute("sortType", sortType);
 
         if (sortType.equalsIgnoreCase("byName")) {
-            List<Product> products = (List<Product>) productRepository.findAll();
             if (ascending) {
                 products.sort(Comparator.comparing(Product::getName));
             } else {
@@ -346,7 +358,6 @@ public class ProductServiceImpl {
         }
 
         if (sortType.equalsIgnoreCase("byPrice")) {
-            List<Product> products = (List<Product>) productRepository.findAll();
             if (ascending) {
                 products.sort(Comparator.comparing(Product::getPrice));
             } else {
@@ -354,16 +365,16 @@ public class ProductServiceImpl {
             }
             model.addAttribute("products", products);
         }
-
-        if (sortType.equalsIgnoreCase("byExpiryDate")) {
-            List<Food> foods = productRepository.findAllBy();
-            if (ascending) {
-                foods.sort(Comparator.comparing(Food::getExpiryDate));
-            } else {
-                foods.sort(Comparator.comparing(Food::getExpiryDate).reversed());
-            }
-            model.addAttribute("products", foods);
-        }
+        // TODO - to be done
+//        if (sortType.equalsIgnoreCase("byExpiryDate")) {
+//            List<Food> foods = productRepository.findAllBy();
+//            if (ascending) {
+//                foods.sort(Comparator.comparing(Food::getExpiryDate));
+//            } else {
+//                foods.sort(Comparator.comparing(Food::getExpiryDate).reversed());
+//            }
+//            model.addAttribute("products", foods);
+//        }
 
         return "products_all";
     }
