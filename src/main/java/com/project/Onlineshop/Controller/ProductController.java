@@ -5,6 +5,7 @@ import com.project.Onlineshop.Entity.Products.Product;
 import com.project.Onlineshop.Repository.ProductRepository;
 import com.project.Onlineshop.Service.ImageService;
 import com.project.Onlineshop.Service.Implementation.ProductServiceImpl;
+import com.project.Onlineshop.Utility.PriceRange;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -42,19 +45,118 @@ public class ProductController {
     @GetMapping("/show")
     public String showAllProducts(@RequestParam(required = false) String sortType,
                                   @RequestParam(required = false) String category,
-                                  @RequestParam(required = false) boolean ascending, Model model) {
+                                  @RequestParam(required = false) boolean ascending,
+                                  @RequestParam(value = "minPrice", required = false) String minPrice,
+                                  @RequestParam(value = "maxPrice", required = false) String maxPrice,
+
+                                  Model model) {
         List<Product> products = (List<Product>) productRepository.findAll(); // Default - show all
         if (category != null) {
             model.addAttribute("category", category);
             products = productService.getTheProductsToShow(category);  // if category is selected - update the list
         }
-        if (sortType != null){
+
+        // Show the min max price range - on the sliders.
+        BigDecimal minPriceRange = getMinPriceOfSelectedProducts(products);
+        BigDecimal maxPriceRange = getMaxPriceOfSelectedProducts(products);
+        model.addAttribute("minPriceR", minPriceRange.toString());
+        model.addAttribute("maxPriceR", maxPriceRange.toString());
+
+        if (minPrice == null) {
+            model.addAttribute("minPrice", minPriceRange);
+            minPrice = minPriceRange.toString();
+        } else {
+            BigDecimal minPriceDecimalSelected = new BigDecimal(minPrice);
+            if (minPriceDecimalSelected.compareTo(minPriceRange) < 0) {
+                model.addAttribute("minPrice", minPriceRange);
+                minPrice = minPriceRange.toString();
+            } else if (minPriceDecimalSelected.compareTo(maxPriceRange) > 0) {
+                model.addAttribute("minPrice", minPriceRange);
+                minPrice = minPriceRange.toString();
+            }
+        }
+
+        // If maxPrice not set or
+        // maxPrice is bigger than the biggest price in the list of products or
+        // maxPrice is smaller than the cheapest product in the list - set it to default
+        if (maxPrice == null) {
+            model.addAttribute("maxPrice", maxPriceRange);
+            maxPrice = maxPriceRange.toString();
+        } else {
+            BigDecimal maxPriceDecimalSelected = new BigDecimal(maxPrice);
+            if (maxPriceDecimalSelected.compareTo(maxPriceRange) > 0) {
+                model.addAttribute("maxPrice", maxPriceRange);
+                maxPrice = maxPriceRange.toString();
+            } else if (maxPriceDecimalSelected.compareTo(minPriceRange) < 0) {
+                model.addAttribute("maxPrice", maxPriceRange);
+                maxPrice = maxPriceRange.toString();
+            }
+        }
+
+
+        if (minPrice != null && maxPrice != null) {
+            BigDecimal minPriceDecimalSelected = new BigDecimal(minPrice);
+            BigDecimal maxPriceDecimalSelected = new BigDecimal(maxPrice);
+            PriceRange priceRange = PriceRange.getMinMaxNumber(minPriceDecimalSelected, maxPriceDecimalSelected);
+            BigDecimal actualMinPrice = priceRange.getMin();
+            BigDecimal actualMaxPrice = priceRange.getMax();
+            products = getAllProductsInPriceRange(actualMinPrice, actualMaxPrice, products);  // apply the new filter
+        }
+        //TODO: This is almost working - needs more tweaking for sure.
+
+        if (sortType != null) {
             return productService.showSortedProductsBySortType(sortType, ascending, model, products);
         }
 
         model.addAttribute("products", products); // if no sorting is selected
         return "products_all";
-        // TODO: Category Selection not working for standard user or guest.
+    }
+
+    private List<Product> getAllProductsInPriceRange(BigDecimal min, BigDecimal max, List<Product> products) {
+        List<Product> productsInPriceRange = new ArrayList<>();
+
+        if (products != null) {
+            for (Product product : products) {
+                BigDecimal price = product.getPrice();
+                if (price != null && price.compareTo(min) >= 0 && price.compareTo(max) <= 0) {
+                    productsInPriceRange.add(product);
+                }
+            }
+        }
+
+        return productsInPriceRange;
+    }
+
+    private BigDecimal getMinPriceOfSelectedProducts(List<Product> products) {
+        if (products != null && !products.isEmpty()) {
+            BigDecimal minPrice = products.getFirst().getPrice();
+
+            for (int i = 1; i < products.size(); i++) {
+                BigDecimal currentPrice = products.get(i).getPrice();
+                if (currentPrice != null && currentPrice.compareTo(minPrice) < 0) {
+                    minPrice = currentPrice;
+                }
+            }
+            return minPrice;
+        } else {
+            return null;
+        }
+    }
+
+    public BigDecimal getMaxPriceOfSelectedProducts(List<Product> products) {
+        if (products != null && !products.isEmpty()) {
+            BigDecimal maxPrice = products.get(0).getPrice();
+
+            for (int i = 1; i < products.size(); i++) {
+                BigDecimal currentPrice = products.get(i).getPrice();
+                if (currentPrice != null && currentPrice.compareTo(maxPrice) > 0) {
+                    maxPrice = currentPrice;
+                }
+            }
+            return maxPrice;
+        } else {
+            return null;
+        }
     }
 
 //    @GetMapping("/show/filter")
@@ -152,16 +254,16 @@ public class ProductController {
 
     @PostMapping("/searchByPrice")
     public String showResultProductsByPrice(@RequestParam("minPrice") String minPrice,
-                                      @RequestParam("maxPrice") String maxPrice,
-                                      @RequestParam(name = "minPriceChanged", defaultValue = "false") boolean minPriceChanged,
-                                      @RequestParam(name = "maxPriceChanged", defaultValue = "false") boolean maxPriceChanged,
-                                      RedirectAttributes redirectAttributes,
-                                      Model model){
+                                            @RequestParam("maxPrice") String maxPrice,
+                                            @RequestParam(name = "minPriceChanged", defaultValue = "false") boolean minPriceChanged,
+                                            @RequestParam(name = "maxPriceChanged", defaultValue = "false") boolean maxPriceChanged,
+                                            RedirectAttributes redirectAttributes,
+                                            Model model) {
         return productService.showProductsForChosenPrice(minPrice, maxPrice, minPriceChanged, maxPriceChanged, redirectAttributes, model);
     }
 
     @GetMapping("/searchByQuantity")
-    public String searchProductsByQuantity(Model model){
+    public String searchProductsByQuantity(Model model) {
         int minQuantity = productRepository.findProductWithLowestQuantity().get().getQuantity();
         int maxQuantity = productRepository.findProductWithHighestQuantity().get().getQuantity();
         model.addAttribute("minQuantity", minQuantity);
@@ -172,11 +274,11 @@ public class ProductController {
     @PostMapping("/searchByQuantity")
     public String showResultProductsByQuantity(@RequestParam(value = "minQuantity", required = false) Integer minQuantity,
                                                @RequestParam(value = "maxQuantity", required = false) Integer maxQuantity,
-                                               Model model){
+                                               Model model) {
         if (minQuantity == null) {
             minQuantity = 0;
         }
-        if (maxQuantity == null){
+        if (maxQuantity == null) {
             maxQuantity = Integer.MAX_VALUE;
         }
         return productService.showSearchByQuantityResults(minQuantity, maxQuantity, model);

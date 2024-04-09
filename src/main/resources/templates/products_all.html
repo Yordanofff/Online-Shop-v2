@@ -16,7 +16,8 @@
         <h4><span th:text="${search_by_quantity_results != null} ? ${search_by_quantity_results}"></span></h4>
         <h4><span th:text="${list_empty != null} ? ${list_empty}"></span></h4>
         <form method="get">
-            <select id="categorySelect" class="form-select mr-2" name="category" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
+            <select id="categorySelect" class="form-select mr-2" name="category"
+                    sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
                 <option value="PRODUCT" th:selected="${category == null || category == 'PRODUCT'}">Show All</option>
                 <option value="FOOD" th:selected="${category == 'FOOD'}">Food</option>
                 <option value="DRINK" th:selected="${category == 'DRINK'}">Drink</option>
@@ -27,8 +28,10 @@
                 <option value="OTHERS" th:selected="${category == 'OTHERS'}">Others</option>
             </select>
             <!-- I know that this is not pretty and there should be a better way, but everything I tried with Javascript fails -->
-            <select id="categorySelect2" class="form-select mr-2" name="category" onchange="this.form.action='/products/show?category=' + this.value; this.form.submit();"
-                    style="margin-bottom: 10px; margin-top: 10px;" sec:authorize="hasRole('ROLE_USER') or hasRole('???guest???')">
+            <select id="categorySelect2" class="form-select mr-2" name="category"
+                    onchange="this.form.action='/products/show?category=' + this.value; this.form.submit();"
+                    style="margin-bottom: 10px; margin-top: 10px;"
+                    sec:authorize="hasRole('ROLE_USER') or hasRole('???guest???')">
                 <option value="PRODUCT" th:selected="${category == null || category == 'PRODUCT'}">Show All</option>
                 <option value="FOOD" th:selected="${category == 'FOOD'}">Food</option>
                 <option value="DRINK" th:selected="${category == 'DRINK'}">Drink</option>
@@ -66,9 +69,29 @@
                 </div>
             </div>
         </form>
-
-
     </div>
+
+    <div class="row justify-content-center" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
+        <form method="get" id="priceRangeForm">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Search products by price</h3>
+                    <hr/>
+                    <div class="form-group">
+                        <label for="minPriceRange">Enter minimum price:</label>
+                        <input type="range" class="form-range" id="minPriceRange" name="minPrice" th:min="${minPriceR}" th:max="${maxPriceR}" th:value="${minPrice}" oninput="updatePriceRange()">
+                        <output id="minPriceOutput"></output>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxPriceRange">Enter maximum price:</label>
+                        <input type="range" class="form-range" id="maxPriceRange" name="maxPrice" th:min="${minPriceR}" th:max="${maxPriceR}" th:value="${maxPrice}" oninput="updatePriceRange()">
+                        <output id="maxPriceOutput"></output>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
 
     <div class="row row-cols-1 row-cols-md-4">
         <div class="col mb-4" th:each="product : ${products}">
@@ -116,7 +139,24 @@
     const categorySelect = document.getElementById('categorySelect');
     const form = document.getElementById('sortForm');
 
+    //const minPriceRange = document.getElementById('minPriceRange');
+    //const maxPriceRange = document.getElementById('maxPriceRange');
+    const urlParams = new URLSearchParams(window.location.search);
+    const minPriceParam = urlParams.get('minPrice');
+    const maxPriceParam = urlParams.get('maxPrice');
+
+
+    if (minPriceParam !== null) {
+        minPriceRange.value = minPriceParam;
+        minPriceOutput.innerHTML = minPriceParam;
+    }
+    if (maxPriceParam !== null) {
+        maxPriceRange.value = maxPriceParam;
+        maxPriceOutput.innerHTML = maxPriceParam;
+    }
+
     const ascendingParam = new URLSearchParams(window.location.search).get('ascending');
+    console.log(minPriceRange)
     if (mySwitch) {
         mySwitch.checked = ascendingParam === 'yes';
     }
@@ -148,10 +188,20 @@
         });
     }
 
+    minPriceRange.addEventListener('input', function() {
+        updateFormAction();
+    });
+
+    maxPriceRange.addEventListener('input', function() {
+        updateFormAction();
+    });
+
     function updateFormAction() {
         const sortType = sortSelect.value;
         const ascending = mySwitch.checked ? 'yes' : 'no';
         const category = categorySelect.value;
+        const minPrice = minPriceRange.value;
+        const maxPrice = maxPriceRange.value;
 
         let actionUrl = '/products/show';
 
@@ -161,6 +211,13 @@
 
         if (sortType !== 'Choose sorting type') {
             actionUrl += '&sortType=' + sortType + '&ascending=' + ascending;
+        }
+
+        if (!isNaN(minPrice)) {
+            actionUrl += '&minPrice=' + minPrice;
+        }
+        if (!isNaN(maxPrice)) {
+            actionUrl += '&maxPrice=' + maxPrice;
         }
 
         window.location.href = actionUrl;
