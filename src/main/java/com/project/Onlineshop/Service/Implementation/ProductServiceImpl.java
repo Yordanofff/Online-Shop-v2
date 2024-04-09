@@ -365,16 +365,17 @@ public class ProductServiceImpl {
             }
             model.addAttribute("products", products);
         }
-        // TODO - to be done
-//        if (sortType.equalsIgnoreCase("byExpiryDate")) {
-//            List<Food> foods = productRepository.findAllBy();
-//            if (ascending) {
-//                foods.sort(Comparator.comparing(Food::getExpiryDate));
-//            } else {
-//                foods.sort(Comparator.comparing(Food::getExpiryDate).reversed());
-//            }
-//            model.addAttribute("products", foods);
-//        }
+
+        if (sortType.equalsIgnoreCase("byExpiryDate")) {
+            List<Food> foods = productRepository.findAllBy();
+            if (ascending) {
+                foods.sort(Comparator.comparing(Food::getExpiryDate));
+            } else {
+                foods.sort(Comparator.comparing(Food::getExpiryDate).reversed());
+            }
+            model.addAttribute("products", foods);
+            model.addAttribute("category", "FOOD"); // set the category too.
+        }
 
         return "products_all";
     }

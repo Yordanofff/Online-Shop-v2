@@ -49,13 +49,12 @@ public class ProductController {
             products = productService.getTheProductsToShow(category);  // if category is selected - update the list
         }
         if (sortType != null){
-            //TODO - Filtering by expiryDate & Show all products right after does not load the products, just the Foods.
             return productService.showSortedProductsBySortType(sortType, ascending, model, products);
         }
 
         model.addAttribute("products", products); // if no sorting is selected
         return "products_all";
-        // TODO: Food not tested. Category Selection not working for standard user or guest.
+        // TODO: Category Selection not working for standard user or guest.
     }
 
 //    @GetMapping("/show/filter")
