@@ -127,26 +127,26 @@ public class DataInit implements ApplicationRunner {
     }
 
     private void initializeProducts() {
-        List<Food> foodList = productRepository.getAllByEntityType(Food.class);
+        List<Food> foodList = productRepository.getAllByEntityTypeIncludingDeletedForDataInit(Food.class);
         if (foodList.isEmpty()) {
             productRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1), "banica.jpg"));
         }
 
-        List<Accessories> accessoriesList = productRepository.getAllByEntityType(Accessories.class);
+        List<Accessories> accessoriesList = productRepository.getAllByEntityTypeIncludingDeletedForDataInit(Accessories.class);
         if (accessoriesList.isEmpty()) {
             Color black = colorRepository.findByName("Black").orElseThrow();
             Brand brand = brandRepository.findByName("Elektroresurs").orElseThrow();
             productRepository.save(new Accessories("Cable", BigDecimal.valueOf(2.20), 15, black, brand, "cable.jpg"));
         }
 
-        List<Drink> drinkList = productRepository.getAllByEntityType(Drink.class);
+        List<Drink> drinkList = productRepository.getAllByEntityTypeIncludingDeletedForDataInit(Drink.class);
         if (drinkList.isEmpty()) {
             productRepository.save(new Drink("Ayran", BigDecimal.valueOf(0.80), 30, LocalDate.of(2024, 4, 10), "ayran.png"));
             productRepository.save(new Drink("Soda", BigDecimal.valueOf(1), 100, LocalDate.of(2025, 5, 1), "soda.jpg"));
             productRepository.save(new Drink("Fanta", BigDecimal.valueOf(1.40), 85, LocalDate.of(2024, 4, 1), "fanta.jpg"));
         }
 
-        List<Railing> railingList = productRepository.getAllByEntityType(Railing.class);
+        List<Railing> railingList = productRepository.getAllByEntityTypeIncludingDeletedForDataInit(Railing.class);
         if (railingList.isEmpty()) {
             Material metal = materialRepository.findByName("Metal").orElseThrow();
             Color red = colorRepository.findByName("Red").orElseThrow();
@@ -164,13 +164,13 @@ public class DataInit implements ApplicationRunner {
                     .build());
         }
 
-        List<Sanitary> sanitaryList = productRepository.getAllByEntityType(Sanitary.class);
+        List<Sanitary> sanitaryList = productRepository.getAllByEntityTypeIncludingDeletedForDataInit(Sanitary.class);
         if (sanitaryList.isEmpty()) {
             Material cotton = materialRepository.findByName("Cotton").orElseThrow();
             productRepository.save(new Sanitary("Bodyform Ultra Goodnight Sanitary Towels", BigDecimal.valueOf(11.50), 1000, true, false, cotton, "bodyfoam.jpg"));
         }
 
-        List<Decoration> decorations = productRepository.getAllByEntityType(Decoration.class);
+        List<Decoration> decorations = productRepository.getAllByEntityTypeIncludingDeletedForDataInit(Decoration.class);
         if (decorations.isEmpty()) {
             Material wood = materialRepository.findByName("wood").orElseThrow();
             Brand decoration = brandRepository.findByName("TheDecorationBrand").orElseThrow();

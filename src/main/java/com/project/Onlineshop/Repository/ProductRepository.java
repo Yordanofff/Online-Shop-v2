@@ -24,6 +24,9 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.quantity > :minQuantity AND p.isDeleted = FALSE")
     List<Product> getAllProductsWithQuantityGreaterThan(@Param("minQuantity") int minQuantity);
 
+    @Query("SELECT p FROM Product p WHERE TYPE(p) = :entityType")
+    <T extends Product> List<T> getAllByEntityTypeIncludingDeletedForDataInit(@Param("entityType") Class<T> entityType);
+
     @Query("SELECT p FROM Product p WHERE TYPE(p) = :entityType AND p.isDeleted = FALSE")
     <T extends Product> List<T> getAllByEntityType(@Param("entityType") Class<T> entityType);
 
