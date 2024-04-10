@@ -88,7 +88,7 @@
                 </div>
 
                 <div sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
-                    <a th:href="@{'/products/edit?id=' + ${product.id}}" class="btn btn-warning">Edit</a>
+                    <a th:href="@{'/products/edit/' + ${product.id}}" class="btn btn-warning">Edit</a>
                     <a th:href="@{'/products/delete?id=' + ${product.id}}" class="btn btn-danger">Delete</a>
                 </div>
 

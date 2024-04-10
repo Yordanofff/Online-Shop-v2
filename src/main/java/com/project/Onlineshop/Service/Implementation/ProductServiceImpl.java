@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
@@ -116,35 +115,35 @@ public class ProductServiceImpl {
         }
     }
 
-    private boolean validateEditedProduct(Product product, Model model) {
+    private boolean validateEditedProduct(Product product, Model model, int quantityChange, RedirectAttributes redirectAttributes) {
         if (product.getName().length() < 3) {
-            model.addAttribute("name_too_short", "You must enter a longer name!");
+            redirectAttributes.addFlashAttribute("name_too_short", "You must enter a longer name!");
             return true;
         }
         if (product.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            model.addAttribute("price_too_low", "You must enter a positive price!");
+            redirectAttributes.addFlashAttribute("price_too_low", "You must enter a positive price!");
             return true;
         }
-        if (product.getQuantity() <= 0) {
-            model.addAttribute("quantity_too_low", "You must enter a positive quantity!");
+        if (product.getQuantity() + quantityChange < 0) {
+            redirectAttributes.addFlashAttribute("quantity_too_low", "You must enter a quantity so that the stock is at least 0!");
             return true;
         }
         return false;
     }
 
-    public String saveEditedProduct(Product product, Model model) {
-        if (validateEditedProduct(product, model)) {
-            model.addAttribute("product", product);
-            return "product_edit";
+    public String saveEditedProduct(Product product, Model model, int quantityChange, RedirectAttributes redirectAttributes) {
+        if (validateEditedProduct(product, model, quantityChange, redirectAttributes)) {
+            return "redirect:/products/edit/" + product.getId();
         }
         Optional<Product> optionalProduct = productRepository.findByIdNotDeleted(product.getId());
         if (optionalProduct.isPresent()) {
             Product existingProduct = optionalProduct.get();
             existingProduct.setName(product.getName());
             existingProduct.setPrice(product.getPrice());
-            existingProduct.setQuantity(product.getQuantity());
+            existingProduct.setQuantity(existingProduct.getQuantity() + quantityChange);  // positive or negative
             productRepository.save(existingProduct);
-            return "redirect:/products/show";
+            redirectAttributes.addFlashAttribute("success", "Stock updated successfully!");
+            return "redirect:/products/edit/" + product.getId();
         } else {
             throw new IllegalArgumentException("Product with this ID was not found");
         }
@@ -437,13 +436,13 @@ public class ProductServiceImpl {
         return "redirect:/products/show/deleted";
     }
 
-    public String showAllDeletedProducts(Model model){
+    public String showAllDeletedProducts(Model model) {
         List<Product> deletedProducts = productRepository.findByIsDeletedTrue();
         model.addAttribute("products", deletedProducts);
         return "products_enable_deleted";
     }
 
-    public String showSingleIdIncludingDeleted(Model model, Long id){
+    public String showSingleIdIncludingDeleted(Model model, Long id) {
         Product product = productRepository.findById(id).orElse(null);
 
         if (product == null) {

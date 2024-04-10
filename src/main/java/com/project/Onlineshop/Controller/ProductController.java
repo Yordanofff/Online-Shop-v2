@@ -46,14 +46,15 @@ public class ProductController {
         return productService.showAllProducts(sortType, category, ascending, minPrice, maxPrice, model);
     }
 
-    @GetMapping("/edit")
-    public String editProductForm(@RequestParam Long id, Model model) {
+    @GetMapping("/edit/{id}")
+    public String editProductForm(@PathVariable("id") Long id, Model model) {
         return productService.editProductForm(id, model);
     }
 
     @PostMapping("/edit")
-    public String editProduct(@ModelAttribute @Valid Product product, Model model, BindingResult bindingResult) {
-        return productService.saveEditedProduct(product, model);
+    public String editProduct(@ModelAttribute @Valid Product product, @RequestParam("quantityChange") int quantityChange,
+                              Model model, RedirectAttributes redirectAttributes) {
+        return productService.saveEditedProduct(product, model, quantityChange, redirectAttributes);
     }
 
     @GetMapping("/delete")
