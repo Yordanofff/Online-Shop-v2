@@ -133,96 +133,114 @@
 </script>
 
 <script>
+    function updatePriceRange() {
+        var minPriceRange = document.getElementById("minPriceRange");
+        var minPriceOutput = document.getElementById("minPriceOutput");
+        minPriceOutput.innerHTML = minPriceRange.value;
+
+        var maxPriceRange = document.getElementById("maxPriceRange");
+        var maxPriceOutput = document.getElementById("maxPriceOutput");
+        maxPriceOutput.innerHTML = maxPriceRange.value;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-    const mySwitch = document.getElementById('mySwitch');
-    const sortSelect = document.getElementById('sortSelect');
-    const categorySelect = document.getElementById('categorySelect');
-    const form = document.getElementById('sortForm');
-
-    //const minPriceRange = document.getElementById('minPriceRange');
-    //const maxPriceRange = document.getElementById('maxPriceRange');
-    const urlParams = new URLSearchParams(window.location.search);
-    const minPriceParam = urlParams.get('minPrice');
-    const maxPriceParam = urlParams.get('maxPrice');
-
-
-    if (minPriceParam !== null) {
-        minPriceRange.value = minPriceParam;
-        minPriceOutput.innerHTML = minPriceParam;
-    }
-    if (maxPriceParam !== null) {
-        maxPriceRange.value = maxPriceParam;
-        maxPriceOutput.innerHTML = maxPriceParam;
-    }
-
-    const ascendingParam = new URLSearchParams(window.location.search).get('ascending');
-    console.log(minPriceRange)
-    if (mySwitch) {
-        mySwitch.checked = ascendingParam === 'yes';
-    }
-
-    categorySelect.addEventListener('change', function() {
-        console.log('Category changed:', this.value);
-        updateFormAction();
+        updatePriceRange(); // Call the function to initialize the output elements with current values
     });
+</script>
 
-    sortSelect.addEventListener('change', function() {
-        updateFormAction();
-    });
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mySwitch = document.getElementById('mySwitch');
+        const sortSelect = document.getElementById('sortSelect');
+        const categorySelect = document.getElementById('categorySelect');
+        const form = document.getElementById('sortForm');
 
-    if (mySwitch) {
-        mySwitch.addEventListener('change', function(event) {
+        const minPriceRange = document.getElementById('minPriceRange');
+        const maxPriceRange = document.getElementById('maxPriceRange');
+        const urlParams = new URLSearchParams(window.location.search);
+        const minPriceParam = urlParams.get('minPrice');
+        const maxPriceParam = urlParams.get('maxPrice');
 
-            if (event.target.checked) {
-                console.log('Switch toggled On.');
-            } else {
-                console.log('Switch toggled Off.');
-            }
 
-            const sortType = sortSelect.value;
+        if (minPriceParam !== null) {
+            minPriceRange.value = minPriceParam;
+            minPriceOutput.innerHTML = minPriceParam;
+        }
+        if (maxPriceParam !== null) {
+            maxPriceRange.value = maxPriceParam;
+            maxPriceOutput.innerHTML = maxPriceParam;
+        }
 
-            // Only apply the filter if a sortType is selected.
-            if (sortType !== 'Choose sorting type') {
-                updateFormAction();
-            }
+        const ascendingParam = new URLSearchParams(window.location.search).get('ascending');
+        console.log(minPriceRange)
+        if (mySwitch) {
+            mySwitch.checked = ascendingParam === 'yes';
+        }
+
+        categorySelect.addEventListener('change', function() {
+            console.log('Category changed:', this.value);
+            updateFormAction();
         });
-    }
 
-    minPriceRange.addEventListener('input', function() {
-        updateFormAction();
-    });
+        sortSelect.addEventListener('change', function() {
+            updateFormAction();
+        });
 
-    maxPriceRange.addEventListener('input', function() {
-        updateFormAction();
-    });
+        if (mySwitch) {
+            mySwitch.addEventListener('change', function(event) {
 
-    function updateFormAction() {
-        const sortType = sortSelect.value;
-        const ascending = mySwitch.checked ? 'yes' : 'no';
-        const category = categorySelect.value;
-        const minPrice = minPriceRange.value;
-        const maxPrice = maxPriceRange.value;
+                if (event.target.checked) {
+                    console.log('Switch toggled On.');
+                } else {
+                    console.log('Switch toggled Off.');
+                }
 
-        let actionUrl = '/products/show';
+                const sortType = sortSelect.value;
 
-        if (category) {
-            actionUrl += '?category=' + category;
+                // Only apply the filter if a sortType is selected.
+                if (sortType !== 'Choose sorting type') {
+                    updateFormAction();
+                }
+            });
         }
 
-        if (sortType !== 'Choose sorting type') {
-            actionUrl += '&sortType=' + sortType + '&ascending=' + ascending;
-        }
 
-        if (!isNaN(minPrice)) {
-            actionUrl += '&minPrice=' + minPrice;
-        }
-        if (!isNaN(maxPrice)) {
-            actionUrl += '&maxPrice=' + maxPrice;
-        }
+        minPriceRange.addEventListener('mouseup', function() {
+            updatePriceRange();
+            updateFormAction();
+        });
+        maxPriceRange.addEventListener('mouseup', function() {
+            updatePriceRange();
+            updateFormAction();
+        });
 
-        window.location.href = actionUrl;
-    }
-    });
+        function updateFormAction() {
+            const sortType = sortSelect.value;
+            const ascending = mySwitch.checked ? 'yes' : 'no';
+            const category = categorySelect.value;
+            const minPrice = minPriceRange.value;
+            const maxPrice = maxPriceRange.value;
+
+            let actionUrl = '/products/show';
+
+            if (category) {
+                actionUrl += '?category=' + category;
+            }
+
+            if (sortType !== 'Choose sorting type') {
+                actionUrl += '&sortType=' + sortType + '&ascending=' + ascending;
+            }
+
+            if (!isNaN(minPrice)) {
+                actionUrl += '&minPrice=' + minPrice;
+            }
+            if (!isNaN(maxPrice)) {
+                actionUrl += '&maxPrice=' + maxPrice;
+            }
+
+            window.location.href = actionUrl;
+        }
+        });
 
 </script>
 
