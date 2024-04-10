@@ -423,6 +423,19 @@ public class ProductServiceImpl {
         return "redirect:/products/show";
     }
 
+    public String undeleteProduct(Long id) {
+        Optional<Product> optionalProduct = productRepository.findById(id);  // DELETED product
+        if (optionalProduct.isEmpty()) {
+            return "404_page_not_found";
+        }
+        Product product = optionalProduct.get();
+        if (product.isDeleted()) {
+            product.setDeleted(false);
+            productRepository.save(product);
+        }
+        return "redirect:/products/show/deleted";
+    }
+
     public String showAllProducts(String sortType, String category, boolean ascending,
                                   String minPrice, String maxPrice, Model model) {
         List<Product> products = productRepository.findByIsDeletedFalse(); // Default - show all (enabled only)

@@ -2,6 +2,7 @@ package com.project.Onlineshop.Controller;
 
 import com.project.Onlineshop.Dto.Request.ProductRequestDto;
 import com.project.Onlineshop.Entity.Products.Product;
+import com.project.Onlineshop.Repository.ProductRepository;
 import com.project.Onlineshop.Service.ImageService;
 import com.project.Onlineshop.Service.Implementation.ProductServiceImpl;
 import jakarta.validation.Valid;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @Controller
@@ -24,6 +26,7 @@ public class ProductController {
 
     private final ProductServiceImpl productService;
     private final ImageService imageService;
+    private final ProductRepository productRepository;
 
     @GetMapping("/show/{id}")
     public String showSingleId(Model model, @PathVariable("id") Long id) {
@@ -59,6 +62,30 @@ public class ProductController {
     @GetMapping("/delete")
     public String deleteProduct(@RequestParam Long id) {
         return productService.deleteProduct(id);
+    }
+
+    @GetMapping("/undelete")
+    public String undeleteProduct(@RequestParam Long id) {
+        return productService.undeleteProduct(id);
+    }
+
+    @GetMapping("/show/deleted")
+    public String showAllProducts(Model model){
+        List<Product> deletedProducts = productRepository.findByIsDeletedTrue();
+        model.addAttribute("products", deletedProducts);
+        return "products_enable_deleted";
+    }
+
+    @GetMapping("/show/deleted/{id}")
+    public String showAllProducts(Model model, @PathVariable("id") Long id){
+        Product product = productRepository.findById(id).orElse(null);
+
+        if (product == null) {
+            return "404_page_not_found";
+        }
+
+        model.addAttribute("product", product);
+        return "product_view";
     }
 
     @GetMapping("/add")
