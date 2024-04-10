@@ -136,7 +136,7 @@ public class ProductServiceImpl {
             model.addAttribute("product", product);
             return "product_edit";
         }
-        Optional<Product> optionalProduct = productRepository.findById(product.getId());
+        Optional<Product> optionalProduct = productRepository.findByIdNotDeleted(product.getId());
         if (optionalProduct.isPresent()) {
             Product existingProduct = optionalProduct.get();
             existingProduct.setName(product.getName());
@@ -154,7 +154,7 @@ public class ProductServiceImpl {
         String stockNotEnoughError = (String) model.getAttribute("no_stock");
         String usersOnlyError = (String) model.getAttribute("users_only_error");
 
-        Product product = productRepository.findById(id).orElse(null);
+        Product product = productRepository.findByIdNotDeleted(id).orElse(null);
 
         if (product == null) {
             return "404_page_not_found";
@@ -168,7 +168,7 @@ public class ProductServiceImpl {
     }
 
     public String addToBasket(Long productId, int quantity, RedirectAttributes redirectAttributes) {
-        Product product = productRepository.findById(productId).orElseThrow();
+        Product product = productRepository.findByIdNotDeleted(productId).orElseThrow();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName(); // anonymousUser, user, admin etc.
@@ -195,8 +195,6 @@ public class ProductServiceImpl {
         redirectAttributes.addFlashAttribute("product_added", "Added " + quantity + " items to your basket.");
 
         //  TODO: add button - viewBasket ?
-        //  System.out.println("Adding " + quantity + " items from " + productRepository.findById(productId).get());
-        // Adding 5 items from Drink(bestBefore=2024-04-01)
         return "redirect:/products/show/" + productId;
     }
 
@@ -402,15 +400,16 @@ public class ProductServiceImpl {
     }
 
     public String editProductForm(Long id, Model model) {
-        if (productRepository.findById(id).isPresent()) {
-            model.addAttribute("product", productRepository.findById(id).get());
+        Optional<Product> product = productRepository.findByIdNotDeleted(id);
+        if (product.isPresent()) {
+            model.addAttribute("product", product.get());
             return "product_edit";
         }
-        throw new NullPointerException("Product with this ID was not found");
+        return "404_page_not_found";
     }
 
     public String deleteProduct(Long id) {
-        Optional<Product> optionalProduct = productRepository.findById(id);
+        Optional<Product> optionalProduct = productRepository.findByIdNotDeleted(id);
         if (optionalProduct.isEmpty()) {
             return "404_page_not_found";
         }

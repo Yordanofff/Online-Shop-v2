@@ -61,12 +61,12 @@ public class OrderServiceImpl implements OrderService {
         validateProductIsInDB(product.getId());
 
         // Will exist at this point.
-        return productRepository.findById(product.getId()).get().getQuantity();
+        return productRepository.findByIdNotDeleted(product.getId()).get().getQuantity();
     }
 
 
     private void validateProductIsInDB(Long id) {
-        Optional<Product> optionalProduct = productRepository.findById(id);
+        Optional<Product> optionalProduct = productRepository.findByIdNotDeleted(id);
         if (optionalProduct.isEmpty()) {
             throw new ProductNotFoundException("Product with ID: " + id + " not found in the DB.");
         }

@@ -163,7 +163,7 @@ public class UserServiceImpl implements UserService {
 
         List<String> errors = new ArrayList<>();
         for (OrderProduct op : orderProducts) {
-            Product productInStock = productRepository.findById(op.getProduct().getId()).get();
+            Product productInStock = productRepository.findByIdNotDeleted(op.getProduct().getId()).get();
             if (productInStock.getQuantity() < op.getQuantity()) {
                 String errorMessage = op.getProduct().getName() + " (Available: " + productInStock.getQuantity() + ")";  // brackets used in thymeleaf to find the value.
                 errors.add(op.getProduct().getId() + "-" + errorMessage);
@@ -182,7 +182,7 @@ public class UserServiceImpl implements UserService {
 
         // Reduce the quantity in the DB
         for (OrderProduct op : orderProducts) {
-            Product productInStock = productRepository.findById(op.getProduct().getId()).get();
+            Product productInStock = productRepository.findByIdNotDeleted(op.getProduct().getId()).get();
             productInStock.setQuantity(productInStock.getQuantity() - op.getQuantity());
             productRepository.save(productInStock);
         }
