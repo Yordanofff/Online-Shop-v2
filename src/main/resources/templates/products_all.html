@@ -79,12 +79,12 @@
                     <hr/>
                     <div class="form-group">
                         <label for="minPriceRange">Enter minimum price:</label>
-                        <input type="range" class="form-range" id="minPriceRange" name="minPrice" th:min="${minPriceR}" th:max="${maxPriceR}" th:value="${minPrice}" oninput="updatePriceRange()">
+                        <input type="range" class="form-range" id="minPriceRange" name="minPrice" th:min="${minPriceR}" th:max="${maxPriceR}" th:value="${minPrice}" oninput="updatePriceRange()" step="0.01">
                         <output id="minPriceOutput"></output>
                     </div>
                     <div class="form-group">
                         <label for="maxPriceRange">Enter maximum price:</label>
-                        <input type="range" class="form-range" id="maxPriceRange" name="maxPrice" th:min="${minPriceR}" th:max="${maxPriceR}" th:value="${maxPrice}" oninput="updatePriceRange()">
+                        <input type="range" class="form-range" id="maxPriceRange" name="maxPrice" th:min="${minPriceR}" th:max="${maxPriceR}" th:value="${maxPrice}" oninput="updatePriceRange()" step="0.01">
                         <output id="maxPriceOutput"></output>
                     </div>
                 </div>
