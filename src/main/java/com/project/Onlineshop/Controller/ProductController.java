@@ -49,60 +49,37 @@ public class ProductController {
                                   @RequestParam(required = false) boolean ascending,
                                   @RequestParam(value = "minPrice", required = false) String minPrice,
                                   @RequestParam(value = "maxPrice", required = false) String maxPrice,
-
                                   Model model) {
         List<Product> products = productRepository.findByIsDeletedFalse(); // Default - show all (enabled only)
-        if (category != null) {
-            model.addAttribute("category", category);
-            products = productService.getTheProductsToShow(category);  // if category is selected - update the list
-        }
 
-        // Show the min max price range - on the sliders.
+        // Show the min max price range - on the sliders. Will keep the same range for all items for now. Keep it simple.
         BigDecimal minPriceRange = getMinPriceOfSelectedProducts(products);
         BigDecimal maxPriceRange = getMaxPriceOfSelectedProducts(products);
         model.addAttribute("minPriceR", minPriceRange.toString());
         model.addAttribute("maxPriceR", maxPriceRange.toString());
 
-        if (minPrice == null) {
-            model.addAttribute("minPrice", minPriceRange);
-            minPrice = minPriceRange.toString();
-        } else {
-            BigDecimal minPriceDecimalSelected = new BigDecimal(minPrice);
-            if (minPriceDecimalSelected.compareTo(minPriceRange) < 0) {
-                model.addAttribute("minPrice", minPriceRange);
-                minPrice = minPriceRange.toString();
-            } else if (minPriceDecimalSelected.compareTo(maxPriceRange) > 0) {
-                model.addAttribute("minPrice", minPriceRange);
-                minPrice = minPriceRange.toString();
-            }
+        if (category != null) {
+            model.addAttribute("category", category);
+            products = productService.getTheProductsToShow(category);  // if category is selected - update the list
         }
 
-        // If maxPrice not set or
-        // maxPrice is bigger than the biggest price in the list of products or
-        // maxPrice is smaller than the cheapest product in the list - set it to default
+        if (minPrice == null) {
+            model.addAttribute("minPrice", minPriceRange); // if null - set it to the minimum to show all products.
+            minPrice = minPriceRange.toString();
+        }
         if (maxPrice == null) {
             model.addAttribute("maxPrice", maxPriceRange);
             maxPrice = maxPriceRange.toString();
-        } else {
-            BigDecimal maxPriceDecimalSelected = new BigDecimal(maxPrice);
-            if (maxPriceDecimalSelected.compareTo(maxPriceRange) > 0) {
-                model.addAttribute("maxPrice", maxPriceRange);
-                maxPrice = maxPriceRange.toString();
-            } else if (maxPriceDecimalSelected.compareTo(minPriceRange) < 0) {
-                model.addAttribute("maxPrice", maxPriceRange);
-                maxPrice = maxPriceRange.toString();
-            }
         }
 
-        if (minPrice != null && maxPrice != null) {
-            BigDecimal minPriceDecimalSelected = new BigDecimal(minPrice);
-            BigDecimal maxPriceDecimalSelected = new BigDecimal(maxPrice);
-            PriceRange priceRange = PriceRange.getMinMaxNumber(minPriceDecimalSelected, maxPriceDecimalSelected);
-            BigDecimal actualMinPrice = priceRange.getMin();
-            BigDecimal actualMaxPrice = priceRange.getMax();
-            products = getAllProductsInPriceRange(actualMinPrice, actualMaxPrice, products);  // apply the new filter
-        }
-        //TODO: This is almost working - needs more tweaking for sure.
+        // At this point we always have minPrice and MaxPrice as Strings.
+
+        BigDecimal minPriceDecimalSelected = new BigDecimal(minPrice);
+        BigDecimal maxPriceDecimalSelected = new BigDecimal(maxPrice);
+        PriceRange priceRange = PriceRange.getMinMaxNumber(minPriceDecimalSelected, maxPriceDecimalSelected);
+        BigDecimal actualMinPrice = priceRange.getMin();
+        BigDecimal actualMaxPrice = priceRange.getMax();
+        products = getAllProductsInPriceRange(actualMinPrice, actualMaxPrice, products);  // apply the new filter
 
         if (sortType != null) {
             return productService.showSortedProductsBySortType(sortType, ascending, model, products);
@@ -186,8 +163,11 @@ public class ProductController {
         }
         // Not  deleting the item - just changing the flag.
         Product product = optionalProduct.get();
-        product.setDeleted(true);
-        productRepository.save(product);
+        // Less DB operations - if someone else just did that.
+        if (!product.isDeleted()) {
+            product.setDeleted(true);
+            productRepository.save(product);
+        }
         return "redirect:/products/show";
     }
 
