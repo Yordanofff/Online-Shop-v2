@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
@@ -434,6 +435,23 @@ public class ProductServiceImpl {
             productRepository.save(product);
         }
         return "redirect:/products/show/deleted";
+    }
+
+    public String showAllDeletedProducts(Model model){
+        List<Product> deletedProducts = productRepository.findByIsDeletedTrue();
+        model.addAttribute("products", deletedProducts);
+        return "products_enable_deleted";
+    }
+
+    public String showSingleIdIncludingDeleted(Model model, Long id){
+        Product product = productRepository.findById(id).orElse(null);
+
+        if (product == null) {
+            return "404_page_not_found";
+        }
+
+        model.addAttribute("product", product);
+        return "product_view";
     }
 
     public String showAllProducts(String sortType, String category, boolean ascending,
