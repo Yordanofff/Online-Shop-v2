@@ -69,7 +69,9 @@
 
                 <hr class="my-4">
 
-                <div class="row">
+                <a th:href="@{'/user/login'}" sec:authorize="isAnonymous()" class="btn btn-primary">Login to Add to Cart</a>
+
+                <div class="row" sec:authorize="hasRole('ROLE_USER')">
                     <div class="col-sm-8">
                         <div class="form-group">
                             <label for="quantity">Quantity:</label>
@@ -78,10 +80,16 @@
                     </div>
 
                     <div class="col-sm-4">
-                        <button th:if="${product.quantity > 0}" class="btn btn-primary btn-block mt-4" type="submit">Add to Basket</button>
-                        <button th:unless="${product.quantity > 0}" class="btn btn-primary btn-block mt-4" type="submit" disabled>Add to Basket</button>
+                        <button th:if="${product.quantity > 0}" class="btn btn-primary btn-block mt-4" type="submit">Add to Basket
+                        </button>
+                        <button th:unless="${product.quantity > 0}" class="btn btn-primary btn-block mt-4" type="submit" disabled>Add to Basket
+                        </button>
                     </div>
+                </div>
 
+                <div sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
+                    <a th:href="@{'/products/edit?id=' + ${product.id}}" class="btn btn-warning">Edit</a>
+                    <a th:href="@{'/products/delete?id=' + ${product.id}}" class="btn btn-danger">Delete</a>
                 </div>
 
                 <div th:if="${stockNotEnoughError}" class="alert alert-danger">
