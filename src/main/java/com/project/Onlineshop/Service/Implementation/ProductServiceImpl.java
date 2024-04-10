@@ -50,6 +50,7 @@ public class ProductServiceImpl {
     }
 
     public List<Product> searchProducts(String keyword) {
+        keyword = keyword.toLowerCase();
         return productRepository.findByNameContainingIgnoreCase(keyword);
     }
 
@@ -103,7 +104,7 @@ public class ProductServiceImpl {
 
 //    public String filterProductsByChosenCategory(String category, Model model) {
 //        if (Objects.equals(category, "PRODUCT")) {
-//            model.addAttribute("products", productRepository.findAll());
+//            model.addAttribute("products", productRepository.findByIsDeletedFalse());
 //            model.addAttribute("category", category);
 //        } else {
 //            Class<? extends Product> productClass = getProductClass(category);
@@ -119,7 +120,7 @@ public class ProductServiceImpl {
 
     public List<Product> getTheProductsToShow(String category) {
         if (Objects.equals(category, "PRODUCT")) {
-            return (List<Product>) productRepository.findAll();
+            return productRepository.findByIsDeletedFalse();
         } else {
             Class<? extends Product> productClass = getProductClass(category);
             if (productClass != null) {
@@ -233,7 +234,7 @@ public class ProductServiceImpl {
     }
 
     private List<Product> findAllProductsBetweenTwoPrices(BigDecimal p1, BigDecimal p2) {
-        List<Product> products = (List<Product>) productRepository.findAll();
+        List<Product> products = (List<Product>) productRepository.findByIsDeletedFalse();
         List<Product> resultList = new ArrayList<>();
 
         PriceRange priceRange = PriceRange.getMinMaxNumber(p1, p2);
@@ -367,7 +368,7 @@ public class ProductServiceImpl {
         }
 
         if (sortType.equalsIgnoreCase("byExpiryDate")) {
-            List<Food> foods = productRepository.findAllBy();
+            List<Food> foods = productRepository.getAllByEntityType(Food.class);
             if (ascending) {
                 foods.sort(Comparator.comparing(Food::getExpiryDate));
             } else {

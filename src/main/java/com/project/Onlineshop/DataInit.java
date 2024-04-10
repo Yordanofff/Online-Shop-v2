@@ -127,12 +127,12 @@ public class DataInit implements ApplicationRunner {
     }
 
     private void initializeProducts() {
-        List<Food> foodList = productRepository.getAllFood();
+        List<Food> foodList = productRepository.getAllByEntityType(Food.class);
         if (foodList.isEmpty()) {
             productRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1), "banica.jpg"));
         }
 
-        List<Accessories> accessoriesList = productRepository.getAllAccessories();
+        List<Accessories> accessoriesList = productRepository.getAllByEntityType(Accessories.class);
         if (accessoriesList.isEmpty()) {
             Color black = colorRepository.findByName("Black").orElseThrow();
             Brand brand = brandRepository.findByName("Elektroresurs").orElseThrow();

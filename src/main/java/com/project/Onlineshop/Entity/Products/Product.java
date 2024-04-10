@@ -24,6 +24,7 @@ public class Product {
     protected int quantity;
 
     protected String imageLocation;  // TODO: Rename to imageName?
+    protected boolean isDeleted;
 
     public Product() {
     }
@@ -33,6 +34,7 @@ public class Product {
         this.price = price;
         this.quantity = quantity;
         this.imageLocation = imageLocation;
+        this.isDeleted = false;
     }
 
     public void setImageLocation(String imageLocation) {

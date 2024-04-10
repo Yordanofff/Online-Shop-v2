@@ -1,6 +1,5 @@
 package com.project.Onlineshop.Controller;
 
-import ch.qos.logback.core.status.Status;
 import com.project.Onlineshop.Entity.Order;
 import com.project.Onlineshop.Entity.OrderStatus;
 import com.project.Onlineshop.Repository.*;
@@ -12,11 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/orders")
@@ -46,7 +40,7 @@ public class OrderController {
     public String showOrders(Model model){
         model.addAttribute("orders", orderRepository.findAll());
         model.addAttribute("orderProducts", orderProductRepository.findAll());
-        model.addAttribute("products", productRepository.findAll());
+        model.addAttribute("products", productRepository.findByIsDeletedFalse());
         model.addAttribute("users", userRepository.findAll());
         model.addAttribute("statuses",orderStatusRepository.findAll());
         return "orders_all";

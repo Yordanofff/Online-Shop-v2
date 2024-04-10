@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Controller
@@ -50,7 +51,7 @@ public class ProductController {
                                   @RequestParam(value = "maxPrice", required = false) String maxPrice,
 
                                   Model model) {
-        List<Product> products = (List<Product>) productRepository.findAll(); // Default - show all
+        List<Product> products = productRepository.findByIsDeletedFalse(); // Default - show all (enabled only)
         if (category != null) {
             model.addAttribute("category", category);
             products = productService.getTheProductsToShow(category);  // if category is selected - update the list
@@ -92,7 +93,6 @@ public class ProductController {
                 maxPrice = maxPriceRange.toString();
             }
         }
-
 
         if (minPrice != null && maxPrice != null) {
             BigDecimal minPriceDecimalSelected = new BigDecimal(minPrice);
@@ -180,7 +180,14 @@ public class ProductController {
 
     @GetMapping("/delete")
     public String deleteProduct(@RequestParam Long id) {
-        productRepository.deleteById(id);
+        Optional<Product> optionalProduct = productRepository.findById(id);
+        if (optionalProduct.isEmpty()) {
+            return "404_page_not_found";
+        }
+        // Not  deleting the item - just changing the flag.
+        Product product = optionalProduct.get();
+        product.setDeleted(true);
+        productRepository.save(product);
         return "redirect:/products/show";
     }
 

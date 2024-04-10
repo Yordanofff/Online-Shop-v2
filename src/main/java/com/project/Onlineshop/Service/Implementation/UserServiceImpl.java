@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
         model.addAttribute("orderedProducts", orderProductRepository.findAll());
         model.addAttribute("orderStatuses", orderStatusRepository.findAll());
         model.addAttribute("orders", orderList);
-        model.addAttribute("products", productRepository.findAll());
+        model.addAttribute("products", productRepository.findByIsDeletedFalse());
         return "profile";
     }
 
