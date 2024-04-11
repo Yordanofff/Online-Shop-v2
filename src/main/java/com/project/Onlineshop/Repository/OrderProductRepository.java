@@ -4,6 +4,7 @@ import com.project.Onlineshop.Entity.OrderProduct;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface OrderProductRepository extends JpaRepository<OrderProduct, Long> {
@@ -16,4 +17,9 @@ public interface OrderProductRepository extends JpaRepository<OrderProduct, Long
 
     OrderProduct findByOrderIdAndProductId(Long orderId, Long productId);
 
+    List<OrderProduct> findAllByOrder_Id(Long orderId); // This returns all information;
+    // OrderProduct(id=null, order=null, product=Product(id=1, name=Баничка, price=2.10, quantity=0, imageLocation=null, isDeleted=false), quantity=1, productPriceWhenPurchased=null)
+
+    @Query("SELECT op.product.id, op.productPriceWhenPurchased FROM OrderProduct op WHERE op.order.id = :orderId")
+    List<Object[]> findProductIdAndProductPricesByOrderId(Long orderId);
 }

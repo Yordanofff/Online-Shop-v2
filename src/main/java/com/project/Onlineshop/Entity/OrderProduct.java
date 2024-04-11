@@ -31,6 +31,8 @@ public class OrderProduct {
 
     private int quantity;
 
+    private BigDecimal productPriceWhenPurchased;
+
     public OrderProduct(Long id, String name, BigDecimal price, int quantity) {
         this.product = Product.builder().id(id).name(name).price(price).build();
         this.quantity = quantity;

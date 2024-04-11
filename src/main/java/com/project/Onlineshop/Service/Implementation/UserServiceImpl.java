@@ -156,11 +156,48 @@ public class UserServiceImpl implements UserService {
         Long orderId = basketOrder.getId();
         BigDecimal totalPrice = calculateOrderPrice(orderId);
 
-        basketOrder.setPrice(calculateOrderPrice(basketOrder.getId()));
+        List<OrderProduct> orderProducts = orderProductRepository.findAllByOrder_Id(basketOrder.getId());
 
-        List<OrderProduct> orderProducts = orderProductRepository.findAllByOrderId(basketOrder.getId());
+        validateEnoughStockForTheOrder(model, redirectAttributes, orderProducts, orderId, totalPrice);
 
+        // BELOW - IF ALL STOCK AVAILABLE:
 
+        reduceStockQuantity(orderProducts);
+        saveThePurchasePriceInOrderProduct(orderProducts);
+
+        // Change the order status to "Pending"
+        OrderStatus pending = new OrderStatus(OrderStatusType.PENDING.getId(), OrderStatusType.PENDING.name());
+        basketOrder.setStatus(pending);
+        basketOrder.setPrice(totalPrice);  // not really needed anymore as it can be calculated based on product price at purchase..
+        orderRepository.save(basketOrder);
+
+        redirectAttributes.addFlashAttribute("success", "Order added successfully.");
+
+        return "redirect:/user/basket/show";
+    }
+
+    private void saveThePurchasePriceInOrderProduct(List<OrderProduct> orderProducts){
+        // Add the price that the item was bought - for every item in the current order.
+        for (OrderProduct op : orderProducts) {
+            //OrderProduct(id=null, order=null, product=Product(id=1, name=name1, price=2.10, quantity=0, imageLocation=null), quantity=3)
+            Product productInStock = productRepository.findByIdNotDeleted(op.getProduct().getId()).get();
+            op.setProductPriceWhenPurchased(productInStock.getPrice());
+            orderProductRepository.save(op);
+        }
+    }
+
+    private void reduceStockQuantity(List<OrderProduct> orderProducts){
+        // Reduce the quantity in the DB
+        for (OrderProduct op : orderProducts) {
+            Product productInStock = productRepository.findByIdNotDeleted(op.getProduct().getId()).get();
+            productInStock.setQuantity(productInStock.getQuantity() - op.getQuantity());
+            productRepository.save(productInStock);
+        }
+    }
+
+    private String validateEnoughStockForTheOrder(Model model, RedirectAttributes redirectAttributes,
+                                                  List<OrderProduct> orderProducts, Long orderId, BigDecimal totalPrice){
+        // Looping over each product and checking if there's enough quantity of it for the order.
         List<String> errors = new ArrayList<>();
         for (OrderProduct op : orderProducts) {
             Product productInStock = productRepository.findByIdNotDeleted(op.getProduct().getId()).get();
@@ -177,26 +214,8 @@ public class UserServiceImpl implements UserService {
             model.addAttribute("totalPrice", totalPrice);
             return "redirect:/user/basket/show";
         }
-
-        // BELOW - IF ALL STOCK AVAILABLE:
-
-        // Reduce the quantity in the DB
-        for (OrderProduct op : orderProducts) {
-            Product productInStock = productRepository.findByIdNotDeleted(op.getProduct().getId()).get();
-            productInStock.setQuantity(productInStock.getQuantity() - op.getQuantity());
-            productRepository.save(productInStock);
-        }
-
-        // Change the order status to "Pending"
-        OrderStatus pending = new OrderStatus(OrderStatusType.PENDING.getId(), OrderStatusType.PENDING.name());
-        basketOrder.setStatus(pending);
-        orderRepository.save(basketOrder);
-
-        redirectAttributes.addFlashAttribute("success", "Order added successfully.");
-//        model.addAttribute("success", "Order added successfully.");  // this not working so using flashAttribute instead.
-        return "redirect:/user/basket/show";
+        return null;
     }
-
 
     public BigDecimal calculateOrderPrice(Long orderId) {
         List<OrderProduct> allProducts = orderProductRepository.findAllByOrderId(orderId);

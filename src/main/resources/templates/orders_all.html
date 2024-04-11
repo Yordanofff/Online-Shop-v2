@@ -32,11 +32,11 @@
                 <td th:text="${order.user.username} + '(' + ${order.user.id} +')'"></td>
                 <td th:text="${order.orderDateTime}"></td>
                 <td>
-                <span th:each="orderProduct : ${orderProducts}">
-                    <span th:if="${orderProduct.order.id == order.id}">
-                        <span th:text="${orderProduct.product.name} + ' x' + ${orderProduct.quantity} + ', '"></span>
+                    <span th:each="orderProduct : ${orderProducts}">
+                        <span th:if="${orderProduct.order.id == order.id}">
+                            <span th:text="${orderProduct.product.name} + ' x' + ${orderProduct.quantity} + ', '"></span>
+                        </span>
                     </span>
-                </span>
                 </td>
                 <td th:text="${order.price}"></td>
                     <form th:action="@{/orders/changeStatus}" method="post">
@@ -44,14 +44,17 @@
                 <td>
                     <select class="form-select" name="statusId">
                         <option th:each="status : ${statuses}"
-                            th:if="${status.name != 'BASKET'}"
-                            th:text="${status.name}"
-                            th:value="${status.id}"
-                            th:selected="${status.id == order.status.id}"></option>
-                </select>
+                                th:if="${status.name != 'BASKET'}"
+                                th:text="${status.name}"
+                                th:value="${status.id}"
+                                th:selected="${status.id == order.status.id}"></option>
+                    </select>
                 </td>
                 <td>
                    <button type="submit" class="btn btn-primary">Save status</button>
+                </td>
+                <td>
+                    <a th:href="@{'/orders/show/' + ${order.id}}" class="btn btn-primary">Show details</a>
                 </td>
                     </form>
                 </span>

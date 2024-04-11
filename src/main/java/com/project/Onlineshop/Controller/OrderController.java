@@ -1,16 +1,21 @@
 package com.project.Onlineshop.Controller;
 
 import com.project.Onlineshop.Entity.Order;
+import com.project.Onlineshop.Entity.OrderProduct;
 import com.project.Onlineshop.Entity.OrderStatus;
+import com.project.Onlineshop.Entity.User;
 import com.project.Onlineshop.Repository.*;
 import com.project.Onlineshop.Service.Implementation.UserServiceImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/orders")
@@ -58,5 +63,33 @@ public class OrderController {
         }
         redirectAttributes.addFlashAttribute("success", "Order status changed successfully for order ID "+orderId+"!");
         return "redirect:/orders/show";
+    }
+
+    @GetMapping("/show/{id}")
+    public String viewSingleOrder(@PathVariable("id") Long id, Model model) {
+        Optional<Order> optionalOrder = orderRepository.findById(id);
+        if (optionalOrder.isEmpty()){
+            return "404_page_not_found";
+        }
+        Order order = optionalOrder.get();
+        User user = userRepository.findById(order.getUser().getId()).get();
+        List<OrderProduct> orderProductList = orderProductRepository.findAllByOrderId(order.getId());
+
+        // Created a map of productId and productPurchasePrice as the repository is not working correctly atm.
+        List<Object[]> productIdAndProductPrices = orderProductRepository.findProductIdAndProductPricesByOrderId(order.getId());
+        Map<Long, BigDecimal> productIdToProductPriceMap = new HashMap<>();
+        for (Object[] row : productIdAndProductPrices) {
+            Long productId = (Long) row[0];
+            BigDecimal productPrice = (BigDecimal) row[1];
+            productIdToProductPriceMap.put(productId, productPrice);
+        }
+
+        model.addAttribute("order", order);
+        model.addAttribute("statuses",orderStatusRepository.findAll());
+        model.addAttribute("user", user);
+        model.addAttribute("orderProducts", orderProductList);
+        model.addAttribute("productIdToProductPriceMap", productIdToProductPriceMap);
+
+        return "orders_single";
     }
 }

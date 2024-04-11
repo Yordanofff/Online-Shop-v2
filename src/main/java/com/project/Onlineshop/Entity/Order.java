@@ -31,6 +31,11 @@ public class Order {
 
     private BigDecimal price; // will be calculated from the DTO (product * price)
 
+    // Tried adding these to make the OrderProduct repository, but it didn't work so commented for later. TODO: fix if time.
+    //    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    //    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    //    private List<OrderProduct> orderProducts = new ArrayList<>();
+
     // TODO: DTO check if quantity is available - return error
 
 }
