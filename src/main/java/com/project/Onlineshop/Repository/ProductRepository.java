@@ -18,6 +18,11 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE %:keyword% AND p.isDeleted = FALSE")
     List<Product> findByNameContainingIgnoreCase(@Param("keyword") String keyword);
 
+    @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE %:latinKeyword% ESCAPE '!' AND p.isDeleted = FALSE " +
+            "OR LOWER(p.name) LIKE %:cyrillicKeyword% ESCAPE '!' AND p.isDeleted = FALSE")
+    List<Product> findByNameContainingIgnoreCase(@Param("latinKeyword") String latinKeyword, @Param("cyrillicKeyword") String cyrillicKeyword);
+
+
     @Query("SELECT p FROM Product p WHERE p.quantity BETWEEN :minQuantity AND :maxQuantity AND p.isDeleted = FALSE")
     List<Product> findProductsByQuantityBetween(@Param("minQuantity") int minQuantity, @Param("maxQuantity") int maxQuantity);
 

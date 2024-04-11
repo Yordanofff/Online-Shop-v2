@@ -24,6 +24,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.project.Onlineshop.Utility.SearchUtility.*;
+
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl {
@@ -50,8 +52,16 @@ public class ProductServiceImpl {
     }
 
     public List<Product> searchProducts(String keyword) {
-        keyword = keyword.toLowerCase();
-        return productRepository.findByNameContainingIgnoreCase(keyword);
+        String latinKeyword;
+        String cyrillicKeyword;
+        if (containsCyrillic(keyword)) {
+            latinKeyword = convertToLatin(keyword.toLowerCase());
+            cyrillicKeyword = keyword.toLowerCase();
+        } else {
+            latinKeyword = keyword.toLowerCase();
+            cyrillicKeyword = convertToCyrillic(latinKeyword);
+        }
+        return productRepository.findByNameContainingIgnoreCase(latinKeyword, cyrillicKeyword);
     }
 
     public String addNewProduct(String productType, Model model) {
