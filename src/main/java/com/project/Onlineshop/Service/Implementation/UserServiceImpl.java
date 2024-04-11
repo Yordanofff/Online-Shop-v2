@@ -251,4 +251,19 @@ public class UserServiceImpl implements UserService {
         }
 
     }
+
+    public String showUserOrders(Authentication authentication, Model model){
+        MyUserDetails myUserDetails = (MyUserDetails) authentication.getPrincipal();
+        User user = myUserDetails.getUser();
+        List<Order> currentUserOrders = orderRepository.findOrdersByUserIdAndStatusNotBasket(user.getId());
+        if(!currentUserOrders.isEmpty()){
+            model.addAttribute("orders", currentUserOrders);
+            model.addAttribute("orderProducts", orderProductRepository.findAll());
+            model.addAttribute("products", productRepository.findByIsDeletedFalse());
+            model.addAttribute("statuses",orderStatusRepository.findAll());
+        } else {
+            model.addAttribute("no_orders", "Sorry, you haven't placed any orders yet!");
+        }
+        return "orders_user";
+    }
 }
