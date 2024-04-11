@@ -25,6 +25,9 @@ public class Order {
 
     private LocalDateTime orderDateTime;
 
+    private LocalDateTime orderDeliveryDateTime;
+    private LocalDateTime orderCancelDateTime;
+
     @ManyToOne
     @JoinColumn(name = "status_id")
     private OrderStatus status;
