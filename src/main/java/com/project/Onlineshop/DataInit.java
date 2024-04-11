@@ -130,6 +130,9 @@ public class DataInit implements ApplicationRunner {
         List<Food> foodList = productRepository.getAllByEntityTypeIncludingDeletedForDataInit(Food.class);
         if (foodList.isEmpty()) {
             productRepository.save(new Food("Баничка", BigDecimal.valueOf(2.10), 10, LocalDate.of(2022, 4, 1), "banica.jpg"));
+            productRepository.save(new Food("Козунак", BigDecimal.valueOf(2.00), 10, LocalDate.of(2023, 10, 11), "kozunak.jpg"));
+            productRepository.save(new Food("Боб", BigDecimal.valueOf(8.00), 20, LocalDate.of(2023, 10, 14), "bob.jpg"));
+
         }
 
         List<Accessories> accessoriesList = productRepository.getAllByEntityTypeIncludingDeletedForDataInit(Accessories.class);

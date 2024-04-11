@@ -106,6 +106,9 @@
                         <h5 class="card-title" th:text="${product.name}">Product Name</h5>
                     </span>
                     <p class="card-text text-danger" th:text="${product.price +'лв.'}">Price: $0.00</p>
+                    <span th:if="${product instanceof T(com.project.Onlineshop.Entity.Products.Food)}">
+                        <h6 class="card-text" th:text="'Expiry Date: ' + ${product.expiryDate}">Expiry Date: N/A</h6>
+                    </span>
                 </div>
 
                 <div class="card-footer">
