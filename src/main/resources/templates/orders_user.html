@@ -24,11 +24,12 @@
                     <th scope="col">Products</th>
                     <th scope="col">Price</th>
                     <th scope="col" style="width: 140px;">Status</th>
+                    <th scope="col"></th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="order : ${orders}">
-                    <td th:text="${order.orderDateTime}"></td>
+                    <td th:text="${#temporals.format(order.orderDateTime, 'dd MMMM yyyy')}"></td>
                     <td>
                     <span th:each="orderProduct, iterStat : ${orderProducts}">
                         <span th:if="${orderProduct.order.id == order.id}">
@@ -43,6 +44,8 @@
                     <td th:text="${order.status.name}"></td>
                     <td>
                         <a th:href="@{'/orders/show/' + ${order.id}}" class="btn btn-primary">Show details</a>
+                        <a th:if="${order.orderCancelDateTime == null and order.orderDeliveryDateTime == null}" th:href="@{'/user/cancelOrder/' + ${order.id}}" class="btn btn-danger">Cancel order</a>
+                        <a th:if="${order.orderCancelDateTime != null or order.orderDeliveryDateTime != null}" class="btn btn-secondary" disabled>Cancel order</a>
                     </td>
                 </tr>
                 </tbody>

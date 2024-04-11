@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,9 @@ public class OrderController {
             if(orderStatusRepository.findById(statusId).isPresent()){
                 OrderStatus status = orderStatusRepository.findById(statusId).get();
                 order.setStatus(status);
+                if(status.getName().equalsIgnoreCase("DELIVERED")){
+                    order.setOrderDeliveryDateTime(LocalDateTime.now());
+                }
                 orderRepository.save(order);
             }
         }
