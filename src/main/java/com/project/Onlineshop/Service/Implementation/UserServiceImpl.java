@@ -23,9 +23,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -115,7 +117,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     public String showBasket(Model model, Authentication authentication) {
         MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
@@ -176,7 +177,7 @@ public class UserServiceImpl implements UserService {
         return "redirect:/user/basket/show";
     }
 
-    private void saveThePurchasePriceInOrderProduct(List<OrderProduct> orderProducts){
+    private void saveThePurchasePriceInOrderProduct(List<OrderProduct> orderProducts) {
         // Add the price that the item was bought - for every item in the current order.
         for (OrderProduct op : orderProducts) {
             //OrderProduct(id=null, order=null, product=Product(id=1, name=name1, price=2.10, quantity=0, imageLocation=null), quantity=3)
@@ -186,7 +187,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void reduceStockQuantity(List<OrderProduct> orderProducts){
+    private void reduceStockQuantity(List<OrderProduct> orderProducts) {
         // Reduce the quantity in the DB
         for (OrderProduct op : orderProducts) {
             Product productInStock = productRepository.findByIdNotDeleted(op.getProduct().getId()).get();
@@ -196,7 +197,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private String validateEnoughStockForTheOrder(Model model, RedirectAttributes redirectAttributes,
-                                                  List<OrderProduct> orderProducts, Long orderId, BigDecimal totalPrice){
+                                                  List<OrderProduct> orderProducts, Long orderId, BigDecimal totalPrice) {
         // Looping over each product and checking if there's enough quantity of it for the order.
         List<String> errors = new ArrayList<>();
         for (OrderProduct op : orderProducts) {
@@ -252,18 +253,37 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    public String showUserOrders(Authentication authentication, Model model){
+    public String showUserOrders(Authentication authentication, Model model) {
         MyUserDetails myUserDetails = (MyUserDetails) authentication.getPrincipal();
         User user = myUserDetails.getUser();
         List<Order> currentUserOrders = orderRepository.findOrdersByUserIdAndStatusNotBasket(user.getId());
-        if(!currentUserOrders.isEmpty()){
+        if (!currentUserOrders.isEmpty()) {
             model.addAttribute("orders", currentUserOrders);
             model.addAttribute("orderProducts", orderProductRepository.findAll());
             model.addAttribute("products", productRepository.findByIsDeletedFalse());
-            model.addAttribute("statuses",orderStatusRepository.findAll());
+            model.addAttribute("statuses", orderStatusRepository.findAll());
         } else {
             model.addAttribute("no_orders", "Sorry, you haven't placed any orders yet!");
         }
         return "orders_user";
+    }
+
+    public String changeOrderStatusToCancelled(Long orderId) {
+        Optional<Order> orderOptional = orderRepository.findById(orderId);
+        if (orderOptional.isEmpty()) {
+            return "404_page_not_found";
+        } else {
+            Order order = orderOptional.get();
+            Optional<OrderStatus> status = orderStatusRepository.findByName("CANCELLED");
+            if (status.isPresent()) {
+                OrderStatus cancelledStatus = status.get();
+                order.setStatus(cancelledStatus);
+                order.setOrderCancelDateTime(LocalDateTime.now());
+                orderRepository.save(order);
+            } else {
+                System.out.println("Status not found?");
+            }
+        }
+        return "redirect:/user/orders";
     }
 }

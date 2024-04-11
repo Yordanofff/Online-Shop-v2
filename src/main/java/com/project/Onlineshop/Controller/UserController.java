@@ -1,9 +1,15 @@
 package com.project.Onlineshop.Controller;
 
+import ch.qos.logback.core.status.Status;
 import com.project.Onlineshop.Dto.Request.UserRequestDto;
+import com.project.Onlineshop.Entity.Order;
+import com.project.Onlineshop.Entity.OrderStatus;
+import com.project.Onlineshop.Repository.OrderRepository;
+import com.project.Onlineshop.Repository.OrderStatusRepository;
 import com.project.Onlineshop.Service.Implementation.UserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,11 +17,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Optional;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
     private final UserServiceImpl userService;
+    private final OrderRepository orderRepository;
+    private final OrderStatusRepository orderStatusRepository;
 
     @GetMapping("/login")
     String userLogin() {
@@ -59,5 +69,10 @@ public class UserController {
     @GetMapping("/orders")
     public String showCurrentUserOrders(Authentication authentication, Model model){
         return userService.showUserOrders(authentication, model);
+    }
+
+    @GetMapping("/cancelOrder/{id}")
+    public String cancelOrder(@PathVariable("id") Long orderId){
+        return userService.changeOrderStatusToCancelled(orderId);
     }
 }
