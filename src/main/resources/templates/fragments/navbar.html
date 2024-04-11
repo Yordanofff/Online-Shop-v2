@@ -84,18 +84,27 @@
                            aria-label="Search" name="searchString">
                     <button class="btn btn-dark mр-3" type="submit" style="margin-right: 20px;">Search</button>
                 </form>
-                <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
-                    <a class="nav-link text-white" th:inline="text" style="display: inline-block;" sec:authorize="hasRole('ROLE_USER')">Hello
-                        <a th:href="@{/user/profile}" th:inline="text" th:text="${#authentication.name}" class="text-white" style="display: inline;"></a>
+
+                <li class="nav-item dropdown" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false" th:text="${#authentication.name}">
                     </a>
-                    <a class="nav-link text-white" th:inline="text" style="display: inline-block;" sec:authorize="hasRole('ROLE_EMPLOYEE')">Hello
-                        <a th:href="@{/employee/profile}" th:inline="text" th:text="${#authentication.name}" class="text-white" style="display: inline;"></a>
-                    </a>
-                </li>
-                <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
-                    <form th:action="@{/logout}" method="post">
-                        <button type="submit" class="nav-link text-white">Logout</button>
-                    </form>
+                    <ul class="dropdown-menu dropdown-menu-lg-end">
+                        <li sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
+                            <a class="dropdown-item" th:href="@{/employee/profile}">Profile details</a>
+                        </li>
+                        <li sec:authorize="hasRole('ROLE_USER')">
+                            <a class="dropdown-item" th:href="@{/user/profile}">Profile details</a>
+                        </li>
+                        <li sec:authorize="hasRole('ROLE_USER')">
+                            <a class="dropdown-item" th:href="@{/user/basket/show}">Show basket</a>
+                        </li>
+                        <li th:if="${#authorization.expression('isAuthenticated()')}">
+                            <form class="dropdown-item" th:action="@{/logout}" method="post">
+                                <button type="submit" class="nav-link text-red">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
                 </li>
 
                 <li th:unless="${#authorization.expression('isAuthenticated()')}" class="nav-item dropdown">
