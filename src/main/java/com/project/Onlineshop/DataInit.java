@@ -194,7 +194,7 @@ public class DataInit implements ApplicationRunner {
                     .isNonSlip(true)
                     .color(black)
                     .brand(brand)
-                    .imageLocation("railing-2.jpg")
+                    .imageLocation("railing-2.jpeg")
                     .build());
         }
 
