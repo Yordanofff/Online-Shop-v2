@@ -31,8 +31,6 @@
                     <p class="fw-normal lead" sec:authorize="hasRole('ROLE_USER')">Delivered orders: <span class="text-success"
                                                                       th:text="${#lists.size(orders)}"></span>
                     </p>
-                    <p class="fw-normal lead" sec:authorize="hasRole('ROLE_USER')">
-                        <a th:href="@{/user/basket/show}" class="text-primary">Your basket</a> | </p>
                     <p class="fw-normal lead" sec:authorize="hasRole('ROLE_USER') or hasRole('ROLE_EMPLOYEE')">
                         <a href="/password/change" class="text-primary">Change password</a>
                     </p>

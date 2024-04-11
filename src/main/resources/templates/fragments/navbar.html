@@ -85,9 +85,8 @@
                     <button class="btn btn-dark mр-3" type="submit" style="margin-right: 20px;">Search</button>
                 </form>
 
-                <li class="nav-item dropdown" th:if="${#authorization.expression('isAuthenticated()')}">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                       aria-expanded="false" th:text="${#authentication.name}">
+                <li th:if="${#authorization.expression('isAuthenticated()')}">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="${#authentication.name}">
                     </a>
                     <ul class="dropdown-menu dropdown-menu-lg-end">
                         <li sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
@@ -97,11 +96,15 @@
                             <a class="dropdown-item" th:href="@{/user/profile}">Profile details</a>
                         </li>
                         <li sec:authorize="hasRole('ROLE_USER')">
-                            <a class="dropdown-item" th:href="@{/user/basket/show}">Show basket</a>
+                            <a class="dropdown-item" th:href="@{/user/basket/show}">Your basket</a>
+                        </li>
+                        <li sec:authorize="hasRole('ROLE_USER')">
+                            <a class="dropdown-item" th:href="@{/user/orders}">Your orders</a>
                         </li>
                         <li th:if="${#authorization.expression('isAuthenticated()')}">
-                            <form class="dropdown-item" th:action="@{/logout}" method="post">
-                                <button type="submit" class="nav-link text-red">Logout</button>
+                            <form th:action="@{/logout}" method="post">
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                <button type="submit" class="dropdown-item text-danger">Logout</button>
                             </form>
                         </li>
                     </ul>

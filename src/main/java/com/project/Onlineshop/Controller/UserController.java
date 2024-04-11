@@ -56,4 +56,8 @@ public class UserController {
         return userService.updateQuantity(productId, orderId, quantity, model);
     }
 
+    @GetMapping("/orders")
+    public String showCurrentUserOrders(Authentication authentication, Model model){
+        return userService.showUserOrders(authentication, model);
+    }
 }
