@@ -9,6 +9,7 @@ import com.project.Onlineshop.Entity.Products.*;
 import com.project.Onlineshop.Repository.*;
 import com.project.Onlineshop.Service.UserService;
 import com.project.Onlineshop.Static.BulgarianCity;
+import com.project.Onlineshop.Static.JobType;
 import com.project.Onlineshop.Static.OrderStatusType;
 import com.project.Onlineshop.Static.RoleType;
 import lombok.RequiredArgsConstructor;
@@ -145,6 +146,7 @@ public class DataInit implements ApplicationRunner {
                     .createdAt(now())
                     .username("admin")
                     .isEnabled(true)
+                    .jobType(JobType.ADMIN)
                     .build());
 
             employeeRepository.save(Employee.builder()
@@ -156,6 +158,7 @@ public class DataInit implements ApplicationRunner {
                     .createdAt(now())
                     .username("employee")
                     .isEnabled(true)
+                    .jobType(JobType.TEST)
                     .build());
         }
     }
