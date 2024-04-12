@@ -2,6 +2,7 @@ package com.project.Onlineshop.Entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -44,6 +45,12 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt; // Date when employee was created/hired
 
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private Address address;
+
+    private String phoneNumber;
+
     private boolean isEnabled;
 
     @ManyToOne
@@ -53,6 +60,4 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orderList;
 
-
-//    private Address address;  // TODO: Address (street name, number etc.) + City classes
 }

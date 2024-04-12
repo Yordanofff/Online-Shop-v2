@@ -42,6 +42,8 @@ public class UserServiceImpl implements UserService {
     private final ProductRepository productRepository;
     private final ProductServiceImpl productService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final CityRepository cityRepository;
+    private final AddressRepository addressRepository;
 
     @Override
     public UserResponseDto addUser(UserRequestDto userRequestDto) {
@@ -57,6 +59,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             User user = userMapper.toEntity(userRequestDto);
+            addressRepository.save(user.getAddress());
             user.setRole(userRole);
             user.setPassword(encoder.encode(userRequestDto.getPassword()));
             userRepository.save(user);
@@ -80,28 +83,34 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    public String register(Model model) {
+        List<City> cities = cityRepository.findAll();
+        model.addAttribute("cities", cities);
+        model.addAttribute("userRequestDto", new UserRequestDto());
+        return "register_user";
+    }
+
     public String registerNewUser(UserRequestDto userRequestDto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+        List<City> cities = cityRepository.findAll();
         if (bindingResult.hasErrors()) {
             model.addAttribute("userRequestDto", userRequestDto);
+            model.addAttribute("cities", cities);
             return "register_user";
         }
         try {
             addUser(userRequestDto);
+            redirectAttributes.addFlashAttribute("success", "Account created successfully!");
+            return "redirect:/user/register";
         } catch (EmailInUseException e) {
-            model.addAttribute("userRequestDto", userRequestDto);
             model.addAttribute("email_error", e.getMessage());
-            return "register_user";
         } catch (UsernameInUseException e) {
-            model.addAttribute("userRequestDto", userRequestDto);
             model.addAttribute("user_error", e.getMessage());
-            return "register_user";
         } catch (PasswordsNotMatchingException e) {
-            model.addAttribute("userRequestDto", userRequestDto);
             model.addAttribute("password_error", e.getMessage());
-            return "register_user";
         }
-        redirectAttributes.addFlashAttribute("success", "Account created successfully!");
-        return "redirect:/user/register";
+        model.addAttribute("userRequestDto", userRequestDto);
+        model.addAttribute("cities", cities);
+        return "register_user";
     }
 
     public String showProfile(Model model, Authentication authentication) {

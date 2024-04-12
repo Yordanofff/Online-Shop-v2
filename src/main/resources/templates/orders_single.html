@@ -18,6 +18,9 @@
         <p class="fw-normal lead">Name: <span class="text-primary"
                                               th:text="${user.firstName + ' ' + user.lastName}"></span>
         <p class="fw-normal lead">Email: <span class="text-primary" th:text="${user.email}"></span>
+        <p class="fw-normal lead">Phone: <span class="text-primary" th:text="${user.phoneNumber != '' ? user.phoneNumber : 'N/A'}"></span></p>
+        <p class="fw-normal lead">Delivery address: <span class="text-primary" th:text="${user.address.city.name + ', ' + user.address.streetName}"></span>
+        <p class="fw-normal lead">Additional Information: <span class="text-primary" th:text="${user.address.additionalInformation}"></span>
 
         <hr class="my-4">
 

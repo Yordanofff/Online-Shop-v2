@@ -1,5 +1,6 @@
 package com.project.Onlineshop.Dto.Response;
 
+import com.project.Onlineshop.Entity.Address;
 import com.project.Onlineshop.Entity.Role;
 import lombok.Data;
 
@@ -14,4 +15,6 @@ public class UserResponseDto {
     private Role role;
     private LocalDateTime createdAt;
     private boolean isEnabled;
+    private String phoneNumber;
+    private Address address;
 }

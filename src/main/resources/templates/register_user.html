@@ -61,6 +61,33 @@
                               th:errors="*{repeatedPassword}"></span>
                         <p class="text-danger" th:text="${password_error != null} ? ${password_error}"></p>
                     </div>
+
+                    <div class="form-group">
+                        <label for="city">City:</label>
+                        <select th:field="*{cityId}" class="form-control" id="city">
+                            <option value="">Select City</option> <!-- Default option -->
+                            <option th:each="city : ${cities}" th:value="${city.id}" th:text="${city.name}"></option>
+                        </select>
+                        <span class="text-danger" th:if="${#fields.hasErrors('cityId')}" th:errors="*{cityId}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="streetName">Street Name:</label>
+                        <input type="text" th:field="*{streetName}" class="form-control" id="streetName" placeholder="Enter Street Name">
+                        <span class="text-danger" th:if="${#fields.hasErrors('streetName')}" th:errors="*{streetName}"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="additionalInformation">Additional Information:</label>
+                        <input type="text" th:field="*{additionalInformation}" class="form-control" id="additionalInformation" placeholder="Enter Additional Information">
+                        <span class="text-danger" th:if="${#fields.hasErrors('additionalInformation')}" th:errors="*{additionalInformation}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number:</label>
+                        <input type="text" th:field="*{phoneNumber}" class="form-control" id="phoneNumber" placeholder="Enter Phone Number">
+                        <span class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></span>
+                    </div>
+
                     <div class="text-center">
                         <button type="submit" class="btn btn-secondary btn-lg">Register</button>
                     </div>

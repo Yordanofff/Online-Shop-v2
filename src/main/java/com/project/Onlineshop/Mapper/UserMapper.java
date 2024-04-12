@@ -2,7 +2,10 @@ package com.project.Onlineshop.Mapper;
 
 import com.project.Onlineshop.Dto.Request.UserRequestDto;
 import com.project.Onlineshop.Dto.Response.UserResponseDto;
+import com.project.Onlineshop.Entity.Address;
+import com.project.Onlineshop.Entity.City;
 import com.project.Onlineshop.Entity.User;
+import com.project.Onlineshop.Static.BulgarianCity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -17,6 +20,21 @@ public interface UserMapper {
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "isEnabled", constant = "true")
     @Mapping(target = "role", ignore = true)  // will be set in the service class
+    @Mapping(target = "address", expression = "java(createAddress(userRequestDto))")
     User toEntity(UserRequestDto userRequestDto);
 
+    default Address createAddress(UserRequestDto userRequestDto) {
+        if (userRequestDto.getCityId() == null) {
+            return null;
+        }
+        City city = BulgarianCity.getCityById(userRequestDto.getCityId());
+        if (city == null) {
+            return null;
+        }
+        return Address.builder()
+                .city(city)
+                .streetName(userRequestDto.getStreetName())
+                .additionalInformation(userRequestDto.getAdditionalInformation())
+                .build();
+    }
 }

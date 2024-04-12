@@ -1,5 +1,6 @@
 package com.project.Onlineshop;
 
+import com.project.Onlineshop.Entity.Address;
 import com.project.Onlineshop.Entity.Employee;
 import com.project.Onlineshop.Entity.User;
 import org.springframework.security.core.GrantedAuthority;
@@ -101,5 +102,19 @@ public class MyUserDetails implements UserDetails {
             return getEmployee().isEnabled();
         }
         return getUser().isEnabled();
+    }
+
+    public Address getAddress() {
+        if (isEmployee) {
+            return null;
+        }
+        return getUser().getAddress();
+    }
+
+    public String getPhoneNumber() {
+        if (isEmployee) {
+            return null;
+        }
+        return getUser().getPhoneNumber();
     }
 }
