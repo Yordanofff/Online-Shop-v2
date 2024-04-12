@@ -28,12 +28,11 @@
                     <p class="fw-normal lead">E-mail: <span class="text-success"
                                                             th:text="${userDetails.email}"></span>
                     </p>
-                    <p class="fw-normal lead">Phone number: <span class="text-success"
-                                                            th:text="${userDetails.phoneNumber}"></span>
-                    </p>
-                    <p class="fw-normal lead">City: <span class="text-success" th:text="${userDetails.address.city.name}"></span>
-                    <p class="fw-normal lead">Street Name: <span class="text-success" th:text="${userDetails.address.streetName}"></span>
-                    <p class="fw-normal lead">Additional Info: <span class="text-success" th:text="${userDetails.address.additionalInformation}"></span>
+                    <p class="fw-normal lead">Phone: <span class="text-primary" th:text="${userDetails.phoneNumber != null ? userDetails.phoneNumber : 'N/A'}"></span></p>
+
+                    <p class="fw-normal lead" sec:authorize="hasRole('ROLE_USER')">City: <span class="text-success" th:text="${userDetails.address.city.name}"></span>
+                    <p class="fw-normal lead" sec:authorize="hasRole('ROLE_USER')">Street Name: <span class="text-success" th:text="${userDetails.address.streetName}"></span>
+                    <p class="fw-normal lead" sec:authorize="hasRole('ROLE_USER')">Additional Info: <span class="text-success" th:text="${userDetails.address.additionalInformation}"></span>
                     </p>
                     <p class="fw-normal lead" sec:authorize="hasRole('ROLE_USER')">Delivered orders: <span class="text-success"
                                                                       th:text="${#lists.size(orders)}"></span>

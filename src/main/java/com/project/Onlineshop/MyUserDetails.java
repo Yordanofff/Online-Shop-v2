@@ -113,7 +113,7 @@ public class MyUserDetails implements UserDetails {
 
     public String getPhoneNumber() {
         if (isEmployee) {
-            return null;
+            return getEmployee().getPhoneNumber();
         }
         return getUser().getPhoneNumber();
     }
