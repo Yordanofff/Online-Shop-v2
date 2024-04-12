@@ -25,7 +25,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="employee : ${employees}">
+            <tr th:each="employee : ${employees}" th:class="${employee.salary == null} ? 'table-danger' : ''">
                 <td th:text="${employee.id}"></td>
                 <td th:text="${employee.username}"></td>
                 <td th:text="${employee.firstName}"></td>

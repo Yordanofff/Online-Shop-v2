@@ -57,7 +57,7 @@ public class ProductController {
     }
 
     @PostMapping("/edit")
-    public String editProduct(@ModelAttribute @Valid Product product, @RequestParam("quantityChange") int quantityChange,
+    public String editProduct(@ModelAttribute @Valid Product product, @RequestParam("quantityChange") String quantityChange,
                               Model model, RedirectAttributes redirectAttributes) {
         return productService.saveEditedProduct(product, model, quantityChange, redirectAttributes);
     }
