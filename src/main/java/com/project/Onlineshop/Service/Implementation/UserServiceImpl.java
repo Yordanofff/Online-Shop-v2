@@ -168,7 +168,23 @@ public class UserServiceImpl implements UserService {
 
         List<OrderProduct> orderProducts = orderProductRepository.findAllByOrder_Id(basketOrder.getId());
 
-        validateEnoughStockForTheOrder(model, redirectAttributes, orderProducts, orderId, totalPrice);
+        // Looping over each product and checking if there's enough quantity of it for the order.
+        List<String> errors = new ArrayList<>();
+        for (OrderProduct op : orderProducts) {
+            Product productInStock = productRepository.findByIdNotDeleted(op.getProduct().getId()).get();
+            if (productInStock.getQuantity() < op.getQuantity()) {
+                String errorMessage = op.getProduct().getName() + " (Available: " + productInStock.getQuantity() + ")";  // brackets used in thymeleaf to find the value.
+                errors.add(op.getProduct().getId() + "-" + errorMessage);
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            redirectAttributes.addFlashAttribute("productsNotFound", errors);
+            model.addAttribute("order_id", orderId);
+            model.addAttribute("orderedProducts", orderProducts);
+            model.addAttribute("totalPrice", totalPrice);
+            return "redirect:/user/basket/show";
+        }
 
         // BELOW - IF ALL STOCK AVAILABLE:
 
@@ -203,28 +219,6 @@ public class UserServiceImpl implements UserService {
             productInStock.setQuantity(productInStock.getQuantity() - op.getQuantity());
             productRepository.save(productInStock);
         }
-    }
-
-    private String validateEnoughStockForTheOrder(Model model, RedirectAttributes redirectAttributes,
-                                                  List<OrderProduct> orderProducts, Long orderId, BigDecimal totalPrice) {
-        // Looping over each product and checking if there's enough quantity of it for the order.
-        List<String> errors = new ArrayList<>();
-        for (OrderProduct op : orderProducts) {
-            Product productInStock = productRepository.findByIdNotDeleted(op.getProduct().getId()).get();
-            if (productInStock.getQuantity() < op.getQuantity()) {
-                String errorMessage = op.getProduct().getName() + " (Available: " + productInStock.getQuantity() + ")";  // brackets used in thymeleaf to find the value.
-                errors.add(op.getProduct().getId() + "-" + errorMessage);
-            }
-        }
-
-        if (!errors.isEmpty()) {
-            redirectAttributes.addFlashAttribute("productsNotFound", errors);
-            model.addAttribute("order_id", orderId);
-            model.addAttribute("orderedProducts", orderProducts);
-            model.addAttribute("totalPrice", totalPrice);
-            return "redirect:/user/basket/show";
-        }
-        return null;
     }
 
     public BigDecimal calculateOrderPrice(Long orderId) {
