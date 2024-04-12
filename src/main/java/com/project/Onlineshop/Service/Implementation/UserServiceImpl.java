@@ -268,6 +268,17 @@ public class UserServiceImpl implements UserService {
         return "orders_user";
     }
 
+    private void returnProductsToStock(Long orderId){
+        List<OrderProduct> orderProductsList = orderProductRepository.findAllByOrderId(orderId);
+        for(OrderProduct op : orderProductsList){
+            if(productRepository.findById(op.getProduct().getId()).isPresent()){
+                Product product = productRepository.findById(op.getProduct().getId()).get();
+                product.setQuantity(product.getQuantity()+op.getQuantity());
+                productRepository.save(product);
+            }
+        }
+    }
+
     public String changeOrderStatusToCancelled(Long orderId) {
         Optional<Order> orderOptional = orderRepository.findById(orderId);
         if (orderOptional.isEmpty()) {
@@ -279,6 +290,7 @@ public class UserServiceImpl implements UserService {
                 OrderStatus cancelledStatus = status.get();
                 order.setStatus(cancelledStatus);
                 order.setOrderCancelDateTime(LocalDateTime.now());
+                returnProductsToStock(orderId);
                 orderRepository.save(order);
             } else {
                 System.out.println("Status not found?");
