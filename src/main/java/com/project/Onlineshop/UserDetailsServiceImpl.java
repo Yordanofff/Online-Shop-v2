@@ -6,6 +6,7 @@ import com.project.Onlineshop.Repository.EmployeeRepository;
 import com.project.Onlineshop.Repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -52,6 +53,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserDetails loadEmployeeByEmailOrUsername(String emailOrUsername) {
         Optional<Employee> optionalEmployee = employeeRepository.findByEmail(emailOrUsername);
         if (optionalEmployee.isPresent()) {
+            if (!optionalEmployee.get().isEnabled()) {
+                throw new DisabledException("User is not enabled");
+            }
             return new MyUserDetails(optionalEmployee.get());
         }
         optionalEmployee = employeeRepository.findByUsername(emailOrUsername);
