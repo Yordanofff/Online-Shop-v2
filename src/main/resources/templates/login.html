@@ -10,9 +10,13 @@
 
 <div class="col-6 container flex-grow-1 mt-5 mb-5">
     <div th:if="${param.error}">
-        <p class="alert alert-danger text-center">Invalid username or password.</p>
+        <p th:if="${session.SPRING_SECURITY_LAST_EXCEPTION.message == 'User is disabled'}"
+           class="alert alert-danger text-center">Your account needs to be approved by an admin first!
+        </p>
+        <p th:if="${session.SPRING_SECURITY_LAST_EXCEPTION.message != 'User is disabled'}"
+           class="alert alert-danger text-center">Invalid username or password.
+        </p>
     </div>
-
     <div th:if="${param.loggedOut}">
         <p class="alert alert-success text-center">You have logged out successfully.</p>
     </div>
