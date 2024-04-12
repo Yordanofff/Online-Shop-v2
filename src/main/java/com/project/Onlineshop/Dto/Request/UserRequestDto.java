@@ -1,5 +1,6 @@
 package com.project.Onlineshop.Dto.Request;
 
+import com.project.Onlineshop.Entity.Address;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -36,4 +37,14 @@ public class UserRequestDto {
     @NotBlank(message = "Please enter a confirmation password!")
     @Size(min = 3, message = "The password must be at least 3 characters long!")
     private String repeatedPassword;
+
+    @NotNull(message = "Please select a city!")
+    private Long cityId;
+
+    @NotBlank(message = "Please enter a Street name!")
+    private String streetName;
+
+    private String additionalInformation;
+
+    private String phoneNumber;
 }
