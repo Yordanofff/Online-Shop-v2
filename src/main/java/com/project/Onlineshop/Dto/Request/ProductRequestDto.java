@@ -26,7 +26,7 @@ public class ProductRequestDto {
     private int quantity;
 
     @NotBlank(message = "You must upload product picture")
-    private String imageLocation;  // TODO: rename to imageFileName?
+    private String imageLocation;
 
 //    private String productType; // will be creating different products of this
 

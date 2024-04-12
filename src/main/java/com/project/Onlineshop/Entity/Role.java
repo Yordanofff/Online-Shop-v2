@@ -22,5 +22,4 @@ public class Role {
     @Column(unique = true)
     private String name;  // Will come from Enum
 
-//    private String permissions; // TODO - not sure if needed
 }

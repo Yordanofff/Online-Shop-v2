@@ -145,32 +145,6 @@ public class ProductController {
     //        return "upload_test";
     //    }
 
-    // TODO - do we need this?
-    //    private Class<? extends Product> getProductClass(String category) {
-    //        // TODO - can we use the Enum instead of this?
-    //        switch (category) {
-    //            case "ALL":
-    //                return Product.class;
-    //            case "FOOD":
-    //                return Food.class;
-    //            case "DRINK":
-    //                return Drink.class;
-    //            case "SANITARY":
-    //                return Sanitary.class;
-    //            case "RAILING":
-    //                return Railing.class;
-    //            case "ACCESSORIES":
-    //                return Accessories.class;
-    //            case "DECORATION":
-    //                return Decoration.class;
-    //            case "OTHERS":
-    //                return Others.class;
-    //
-    //            default:
-    //                return Others.class;
-    //        }
-    //    }
-
     //    @PostMapping("/upload")
     //    public String uploadImage(Model model, @RequestParam("image") MultipartFile file) throws IOException {
     //        return imageService.uploadImage(model, file);

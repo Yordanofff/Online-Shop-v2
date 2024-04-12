@@ -23,7 +23,7 @@ public class Product {
     protected BigDecimal price;
     protected int quantity;
 
-    protected String imageLocation;  // TODO: Rename to imageName?
+    protected String imageLocation;
     protected boolean isDeleted;
 
     public Product() {

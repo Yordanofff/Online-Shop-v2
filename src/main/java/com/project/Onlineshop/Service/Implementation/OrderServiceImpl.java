@@ -47,8 +47,6 @@ public class OrderServiceImpl implements OrderService {
             if (!isProductQuantityInStockEnough(product, quantity)) {
                 throw new NotEnoughStockException(product, getStockAmountOfProduct(product));
             }
-            // TODO - check all products and return all errors at once - better user experience
-            //  will be List<String> erorrs .... .add(this error) then handle the message with model.AddAttribute...
         }
     }
 

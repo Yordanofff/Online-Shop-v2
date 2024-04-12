@@ -50,7 +50,7 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
 
     List<Product> findByIsDeletedFalse();
 
-    List<Product> findByIsDeletedTrue();  // TODO - admin/employee page to allow putting items back in stock
+    List<Product> findByIsDeletedTrue();
 
     @Query("SELECT p FROM Product p WHERE p.id = :id AND p.isDeleted = false")
     Optional<Product> findByIdNotDeleted(@Param("id") Long id);
