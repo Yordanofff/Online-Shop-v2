@@ -8,7 +8,7 @@
 
 <body class="d-flex flex-column min-vh-100">
 
-<div class="col-6 container flex-grow-1 mt-6 mb-6">
+<div class="col-7 container flex-grow-1 mt-6 mb-6">
     <div class="row justify-content-center">
         <table class="table table-hover">
             <thead>
@@ -16,9 +16,10 @@
                 <th scope="col">#</th>
                 <th scope="col">Username(id)</th>
                 <th scope="col">Order date</th>
-                <th scope="col">Products</th>
+                <th scope="col" style="width: 200px;">Products</th>
                 <th scope="col">Price</th>
                 <th scope="col" style="width: 140px;">Status</th>
+                <th scope="col" style="width: 150px;"></th>
                 <th scope="col" style="width: 150px;"></th>
             </tr>
             </thead>
@@ -51,9 +52,9 @@
                     </select>
                 </td>
                 <td>
-                   <button type="submit" class="btn btn-primary">Save status</button>
-                </td>
-                <td>
+                   <button type="submit" class="btn btn-primary" style="margin-right: 5px;">Save status</button>
+                    </td>
+                        <td>
                     <a th:href="@{'/orders/show/' + ${order.id}}" class="btn btn-primary">Show details</a>
                 </td>
                     </form>
