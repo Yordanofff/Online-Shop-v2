@@ -402,8 +402,8 @@ public class ProductServiceImpl {
     }
 
     public String searchProductsByQuantity(Model model) {
-        int minQuantity = productRepository.findProductWithLowestQuantity().get().getQuantity();
-        int maxQuantity = productRepository.findProductWithHighestQuantity().get().getQuantity();
+        int minQuantity = productRepository.findProductsByLowestQuantity().getFirst().getQuantity();
+        int maxQuantity = productRepository.findProductsWithHighestQuantity().getFirst().getQuantity();
         model.addAttribute("minQuantity", minQuantity);
         model.addAttribute("maxQuantity", maxQuantity);
         return "search_by_quantity";

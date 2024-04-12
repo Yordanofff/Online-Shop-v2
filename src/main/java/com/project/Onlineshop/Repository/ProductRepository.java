@@ -41,11 +41,12 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.price = (SELECT MAX(p2.price) FROM Product p2) AND p.isDeleted = FALSE")
     Optional<Product> findProductWithHighestPrice();
 
+    // Using list because it will break if looking for a single product and there are more with same quantity.
     @Query("SELECT p FROM Product p WHERE p.quantity = (SELECT MIN(p2.quantity) FROM Product p2) AND p.isDeleted = FALSE")
-    Optional<Product> findProductWithLowestQuantity();
+    List<Product> findProductsByLowestQuantity();
 
     @Query("SELECT p FROM Product p WHERE p.quantity = (SELECT MAX(p2.quantity) FROM Product p2) AND p.isDeleted = FALSE")
-    Optional<Product> findProductWithHighestQuantity();
+    List<Product> findProductsWithHighestQuantity();
 
     List<Product> findByIsDeletedFalse();
 
