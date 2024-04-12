@@ -77,6 +77,9 @@
                 <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
                     <a class="nav-link" th:href="@{/orders/show}">Orders</a>
                 </li>
+                <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                    <a class="nav-link" th:href="@{/admin/showEmployees}">Employees</a>
+                </li>
             </ul>
             <ul class="navbar-nav">
                 <form class="d-flex" role="search" th:action="@{/products/search}">
