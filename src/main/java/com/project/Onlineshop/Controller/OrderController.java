@@ -5,7 +5,7 @@ import com.project.Onlineshop.Entity.OrderProduct;
 import com.project.Onlineshop.Entity.OrderStatus;
 import com.project.Onlineshop.Entity.User;
 import com.project.Onlineshop.Repository.*;
-import com.project.Onlineshop.Service.Implementation.UserServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,27 +20,14 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
-    private final UserServiceImpl userService;
     private final OrderStatusRepository orderStatusRepository;
-
-    public OrderController(OrderRepository orderRepository,
-                           OrderProductRepository orderProductRepository,
-                           ProductRepository productRepository,
-                           UserRepository userRepository, UserServiceImpl userService,
-                           OrderStatusRepository orderStatusRepository) {
-        this.orderRepository = orderRepository;
-        this.orderProductRepository = orderProductRepository;
-        this.productRepository = productRepository;
-        this.userRepository = userRepository;
-        this.userService = userService;
-        this.orderStatusRepository = orderStatusRepository;
-    }
 
     @GetMapping("/show")
     public String showOrders(Model model){
