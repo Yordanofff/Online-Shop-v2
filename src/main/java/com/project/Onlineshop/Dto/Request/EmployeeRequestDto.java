@@ -1,6 +1,8 @@
 package com.project.Onlineshop.Dto.Request;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
@@ -35,4 +37,7 @@ public class EmployeeRequestDto {
 
     @Column(unique = true, nullable = true)
     private String phoneNumber;
+
+    @Enumerated(EnumType.STRING)
+    private String jobType;
 }

@@ -23,4 +23,5 @@ public class EmployeeResponseDto {
     private Role role;
     private LocalDateTime createdAt;
     private boolean isEnabled;
+    private String jobType;
 }
