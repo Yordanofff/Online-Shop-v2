@@ -68,6 +68,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             Employee employee = employeeMapper.toEntity(employeeRequestDto);
             employee.setRole(optionalRole.get());
             employee.setPassword(encoder.encode(employeeRequestDto.getPassword()));
+            //new employee accounts will be disabled -> after admin approval, they will be enabled.
+            employee.setEnabled(false);
             employeeRepository.save(employee);
             return employeeMapper.toDto(employee);
         } catch (Exception exception) {
