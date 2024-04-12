@@ -177,7 +177,8 @@ public class ProductServiceImpl {
         return "product_view";
     }
 
-    public String addToBasket(Long productId, int quantity, RedirectAttributes redirectAttributes) {
+    public String addToBasket(Long productId, int quantity, RedirectAttributes redirectAttributes, boolean isFromAllProducts) {
+
         Product product = productRepository.findByIdNotDeleted(productId).orElseThrow();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -202,9 +203,13 @@ public class ProductServiceImpl {
 
         addNewItemInOrderProductOrAppendToAnExisting(order, product, quantity);
 
-        redirectAttributes.addFlashAttribute("product_added", "Added " + quantity + " items to your basket.");
 
         //  TODO: add button - viewBasket ?
+        if (isFromAllProducts){
+            redirectAttributes.addFlashAttribute("product_added", "Added " + quantity + " x " + product.getName() + " to your basket.");
+            return "redirect:/products/show";
+        }
+        redirectAttributes.addFlashAttribute("product_added", "Added " + quantity + " items to your basket.");
         return "redirect:/products/show/" + productId;
     }
 

@@ -33,7 +33,12 @@ public class ProductController {
     @PostMapping("/add_to_basket")
     public String addToBasket(@RequestParam("productId") Long productId, @RequestParam("quantity") int quantity,
                               RedirectAttributes redirectAttributes) {
-        return productService.addToBasket(productId, quantity, redirectAttributes);
+        return productService.addToBasket(productId, quantity, redirectAttributes, false);
+    }
+
+    @PostMapping("/add_to_basket/from_all_products")
+    public String addToBasketFromAllProducts(@RequestParam("productId") Long productId, RedirectAttributes redirectAttributes) {
+        return productService.addToBasket(productId, 1, redirectAttributes, true);
     }
 
     @GetMapping("/show")

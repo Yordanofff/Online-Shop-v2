@@ -71,6 +71,8 @@
         </form>
     </div>
 
+    <div th:if="${product_added}" class="alert alert-success"><p th:text="${product_added}"></p></div>
+
     <div class="row justify-content-center" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
         <form method="get" id="priceRangeForm">
             <div class="card">
@@ -98,33 +100,57 @@
             <div class="card h-100 d-flex flex-column">
 
                 <span th:if="${product.imageLocation != null}">
-                    <img th:src="@{'/images/' + ${product.imageLocation}}"
-                         class="card-img-top img-fluid img-thumbnail"/>
+                    <a th:href="@{'/products/show/' + ${product.id}}">
+                        <img th:src="@{'/images/' + ${product.imageLocation}}"
+                             class="card-img-top img-fluid img-thumbnail"/>
+                    </a>
                 </span>
-                <div class="card-body flex-grow-1 text-center">
-                     <span th:if="${product.name != null}">
-                        <h5 class="card-title" th:text="${product.name}">Product Name</h5>
-                    </span>
-                    <p class="card-text text-danger" th:text="${product.price +'лв.'}">Price: $0.00</p>
-                    <span th:if="${product instanceof T(com.project.Onlineshop.Entity.Products.Food)}">
-                        <h6 class="card-text" th:text="'Expiry Date: ' + ${product.expiryDate}">Expiry Date: N/A</h6>
-                    </span>
-                </div>
 
+
+                <div class="card-body flex-grow-1 text-center">
+
+                <span th:if="${product.name != null}">
+                    <h5 class="card-title" th:text="${product.name}">Product Name</h5>
+                </span>
+                <p class="card-text text-danger" th:text="${product.price +'лв.'}">Price: $0.00</p>
+                <span th:if="${product instanceof T(com.project.Onlineshop.Entity.Products.Food)}">
+                    <h6 class="card-text" th:text="'Expiry Date: ' + ${product.expiryDate}">Expiry Date: N/A</h6>
+                </span>
+
+                </div>
                 <div class="card-footer">
                     <a th:href="@{'/user/login'}" sec:authorize="isAnonymous()" class="btn btn-primary">Login to Add to
                         Cart</a>
+
                     <div sec:authorize="isAuthenticated()">
-                        <!--  TODO: add to basket - quantity 1 ->  /products/add_to_basket -->
-                        <a th:href="@{'/products/show/' + ${product.id}}" class="btn btn-primary">Show more</a>
-                    </div>
-                    <div sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
-                        <a th:href="@{'/products/edit/' + ${product.id}}" class="btn btn-warning">Edit</a>
-                        <a th:href="@{'/products/delete?id=' + ${product.id}}" class="btn btn-danger">Delete</a>
+                        <div class="row">
+                            <a th:href="@{'/products/show/' + ${product.id}}" class="btn btn-primary">Show more</a>
+                        </div>
+
+                        <div class="row" sec:authorize="hasRole('ROLE_USER')">
+                            <form action="#" th:action="@{/products/add_to_basket/from_all_products}"
+                                  th:object="${product}" method="post">
+                                <input type="hidden" name="productId" th:value="${product.id}"/>
+
+                                <div class="row">
+                                    <button th:if="${product.quantity > 0}" class="btn btn-success btn-block mt-4"
+                                            type="submit">Add to Basket
+                                    </button>
+                                    <button th:unless="${product.quantity > 0}" class="btn btn-secondary btn-block mt-4"
+                                            type="submit" disabled>Add to Basket
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
+                <div sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_EMPLOYEE')">
+                    <a th:href="@{'/products/edit/' + ${product.id}}" class="btn btn-warning">Edit</a>
+                    <a th:href="@{'/products/delete?id=' + ${product.id}}" class="btn btn-danger">Delete</a>
+                </div>
             </div>
+
         </div>
     </div>
 
