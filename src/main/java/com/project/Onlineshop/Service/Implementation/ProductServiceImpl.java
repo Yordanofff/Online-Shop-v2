@@ -315,15 +315,6 @@ public class ProductServiceImpl {
         }
     }
 
-    public String showSearchByPriceResults(Model model) {
-        BigDecimal minPrice = productRepository.findProductWithLowestPrice().get().getPrice();
-        BigDecimal maxPrice = productRepository.findProductWithHighestPrice().get().getPrice();
-
-        model.addAttribute("minPrice", minPrice.toString());
-        model.addAttribute("maxPrice", maxPrice.toString());
-        return "search_by_price";
-    }
-
     public String showSearchByQuantityResults(int minQuantity, int maxQuantity, Model model) {
         if (minQuantity < 0 || maxQuantity < 0) {
             model.addAttribute("incorrect_quantity", "You must enter positive quantity values!");
