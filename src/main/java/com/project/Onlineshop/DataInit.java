@@ -147,6 +147,7 @@ public class DataInit implements ApplicationRunner {
                     .username("admin")
                     .isEnabled(true)
                     .jobType(JobType.ADMIN)
+                    .salary(BigDecimal.valueOf(5000))
                     .build());
 
             employeeRepository.save(Employee.builder()
@@ -158,6 +159,7 @@ public class DataInit implements ApplicationRunner {
                     .createdAt(now())
                     .username("employee")
                     .isEnabled(true)
+                    .salary(BigDecimal.valueOf(2000))
                     .jobType(JobType.TEST)
                     .build());
         }
