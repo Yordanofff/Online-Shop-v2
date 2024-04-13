@@ -125,7 +125,7 @@ public class ProductServiceImpl {
         }
     }
 
-    private boolean validateEditedProduct(Product product, Model model, int quantityChange, RedirectAttributes redirectAttributes) {
+    private boolean validateEditedProduct(Product product, Model model, String quantityChange, RedirectAttributes redirectAttributes) {
         if (product.getName().length() < 3) {
             redirectAttributes.addFlashAttribute("name_too_short", "You must enter a longer name!");
             return true;
@@ -134,14 +134,19 @@ public class ProductServiceImpl {
             redirectAttributes.addFlashAttribute("price_too_low", "You must enter a positive price!");
             return true;
         }
-        if (product.getQuantity() + quantityChange < 0) {
-            redirectAttributes.addFlashAttribute("quantity_too_low", "You must enter a quantity so that the stock is at least 0!");
+        if (quantityChange.isEmpty()) {
             return true;
+        } else {
+            int quantityInt = Integer.parseInt(quantityChange);
+            if (product.getQuantity() + quantityInt < 0) {
+                redirectAttributes.addFlashAttribute("quantity_too_low", "You must enter a quantity so that the stock is at least 0!");
+                return true;
+            }
         }
         return false;
     }
 
-    public String saveEditedProduct(Product product, Model model, int quantityChange, RedirectAttributes redirectAttributes) {
+    public String saveEditedProduct(Product product, Model model, String quantityChange, RedirectAttributes redirectAttributes) {
         if (validateEditedProduct(product, model, quantityChange, redirectAttributes)) {
             return "redirect:/products/edit/" + product.getId();
         }
@@ -150,7 +155,8 @@ public class ProductServiceImpl {
             Product existingProduct = optionalProduct.get();
             existingProduct.setName(product.getName());
             existingProduct.setPrice(product.getPrice());
-            existingProduct.setQuantity(existingProduct.getQuantity() + quantityChange);  // positive or negative
+            int quantityInt = Integer.parseInt(quantityChange);
+            existingProduct.setQuantity(existingProduct.getQuantity() + quantityInt);  // positive or negative
             productRepository.save(existingProduct);
             redirectAttributes.addFlashAttribute("success", "Stock updated successfully!");
             return "redirect:/products/edit/" + product.getId();
@@ -205,7 +211,7 @@ public class ProductServiceImpl {
 
 
         //  TODO: add button - viewBasket ?
-        if (isFromAllProducts){
+        if (isFromAllProducts) {
             redirectAttributes.addFlashAttribute("product_added", "Added " + quantity + " x " + product.getName() + " to your basket.");
             return "redirect:/products/show";
         }

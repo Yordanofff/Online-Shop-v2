@@ -27,30 +27,15 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                                .requestMatchers("/admin/**", "/employee/get_all").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers("/employee/get_all").denyAll()
-
-                                .requestMatchers("/employee/**").hasAuthority("ROLE_EMPLOYEE")
-
-                                .requestMatchers("/products/edit", "/products/delete", "/products/undelete", "/products/show/deleted", "/products/show/delete/**", "/products/add",
-                                        "/products/save", "/products/upload", "/products/searchByPrice", "/products/searchByQuantity", "/orders/changeStatus", "/orders/show" ).hasAnyAuthority("ROLE_EMPLOYEE", "ROLE_ADMIN")
-
-//                                .requestMatchers("/password/**").hasAnyAuthority("ROLE_EMPLOYEE", "ROLE_USER")
-//
-//                                .requestMatchers("/user/**", "/products/add_to_basket", "/products/add_to_basket/**", "/products/").hasAuthority("USER")
-                                .requestMatchers("/employee/login").permitAll()
-                                .anyRequest().permitAll()
-
-//                                .requestMatchers("/products/edit", "/products/edit/**", "/products/delete", "/products/undelete",
-//                                        "/products/show/deleted", "/products/show/deleted/**", "/products/add", "/products/save", "/products/upload",
-//                                        "/products/searchByPrice", "/products/searchByQuantity").hasAnyAuthority("ROLE_ADMIN", "ROLE_EMPLOYEE")
-
-                        // Тези отдолу трябва да са достъпни от всички
-                            // /employee /login /register
-                            // /about /login /register
-                            // /products+ /show /show/{id} /search
-                            // /orders /show /show/{id}
-                            // /user + /login /register
+                        .requestMatchers("/", "/home", "/user/login",
+                                "/user/register", "/employee/login", "/employee/register", "/products/show", "/login", "/register", "/photo1.jpg", "/photo2.jpg", "/photo3.jpg").permitAll()
+                        .requestMatchers("/show/{id}", "/password/**", "/products/show", "/products/search").hasAnyAuthority("ROLE_USER", "ROLE_EMPLOYEE", "ROLE_ADMIN")
+                        .requestMatchers("/employee/profile", "/orders/changeStatus", "/products/add", "/products/save").hasAuthority("ROLE_EMPLOYEE")
+                        .requestMatchers("/orders/show").hasAnyAuthority("ROLE_EMPLOYEE","ROLE_ADMIN")
+                        .requestMatchers("/products/add_to_basket/**", "/user/profile", "/user/basket/**", "/user/updateQuantity", "/user/orders", "/user/cancelOrder/{id}").hasAnyAuthority("ROLE_USER")
+                        .requestMatchers("/products/edit/**", "/products/delete/", "/products/undelete", "/product/show/deleted/**", "/products/upload", "/products/searchByPrice", "/products/searchByQuantity").hasAuthority("ROLE_EMPLOYEE")
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+                        .anyRequest().permitAll()
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
