@@ -327,6 +327,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public String showSearchByPriceForm(Model model) {
+        Optional<Product> lowestPriceProduct = productRepository.findProductWithLowestPrice();
+        Optional<Product> highestPriceProduct = productRepository.findProductWithHighestPrice();
+
+        if (lowestPriceProduct.isPresent() && highestPriceProduct.isPresent()) {
+            BigDecimal minPrice = lowestPriceProduct.get().getPrice();
+            BigDecimal maxPrice = highestPriceProduct.get().getPrice();
+            model.addAttribute("minPrice", minPrice.toString());
+            model.addAttribute("maxPrice", maxPrice.toString());
+        } else {
+            model.addAttribute("minPrice", "0");
+            model.addAttribute("maxPrice", "0");
+        }
+
+        return "search_by_price";
+    }
+
+    @Override
     public String searchProductsByQuantity(Model model) {
         int minQuantity = productRepository.findProductsByLowestQuantity().getFirst().getQuantity();
         int maxQuantity = productRepository.findProductsWithHighestQuantity().getFirst().getQuantity();
