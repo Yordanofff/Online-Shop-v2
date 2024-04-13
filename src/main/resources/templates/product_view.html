@@ -64,7 +64,7 @@
                 <div class="form-group" th:if="${product.class.simpleName  == 'Sanitary'}">
                     <p class="fw-normal lead">Material: <span th:text="${product.material.name}"></span></p>
                     <p class="fw-normal lead">Biodegradable: <span th:text="${product.isBiodegradable}"></span></p>
-                    <p class="fw-normal lead">Reusable: <span th:text="${product.getReusable}"></span></p>
+                    <p class="fw-normal lead">Reusable: <span th:text="${product.isReusable}"></span></p>
                 </div>
 
                 <hr class="my-4">
