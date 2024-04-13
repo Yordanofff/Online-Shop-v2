@@ -17,7 +17,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserController {
     private final UserServiceImpl userService;
 
-
     @GetMapping("/login")
     String userLogin() {
         return "login_user";
@@ -44,7 +43,7 @@ public class UserController {
     }
 
     @PostMapping("/basket/buy")
-    public String buyNow(Model model, Authentication authentication, RedirectAttributes redirectAttributes){
+    public String buyNow(Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
         return userService.buyNow(model, authentication, redirectAttributes);
     }
 
@@ -57,12 +56,12 @@ public class UserController {
     }
 
     @GetMapping("/orders")
-    public String showCurrentUserOrders(Authentication authentication, Model model){
+    public String showCurrentUserOrders(Authentication authentication, Model model) {
         return userService.showUserOrders(authentication, model);
     }
 
     @GetMapping("/cancelOrder/{id}")
-    public String cancelOrder(@PathVariable("id") Long orderId){
+    public String cancelOrder(@PathVariable("id") Long orderId) {
         return userService.changeOrderStatusToCancelled(orderId);
     }
 }

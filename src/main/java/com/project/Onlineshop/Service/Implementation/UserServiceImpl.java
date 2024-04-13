@@ -33,7 +33,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder encoder;
     private final OrderProductRepository orderProductRepository;
@@ -41,7 +40,6 @@ public class UserServiceImpl implements UserService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ProductServiceImpl productService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final CityRepository cityRepository;
     private final AddressRepository addressRepository;
 
@@ -69,20 +67,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private boolean isEmailInDB(String email) {
-        return userRepository.findByEmail(email).isPresent();
-    }
-
-    private boolean isUsernameInDB(String username) {
-        return userRepository.findByUsername(username).isPresent();
-    }
-
-    private void validatePasswordsAreMatching(UserRequestDto userRequestDto) {
-        if (!userRequestDto.getPassword().equals(userRequestDto.getRepeatedPassword())) {
-            throw new PasswordsNotMatchingException("Passwords don't match");
-        }
-    }
-
+    @Override
     public String register(Model model) {
         List<City> cities = cityRepository.findAll();
         model.addAttribute("cities", cities);
@@ -90,6 +75,7 @@ public class UserServiceImpl implements UserService {
         return "register_user";
     }
 
+    @Override
     public String registerNewUser(UserRequestDto userRequestDto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         List<City> cities = cityRepository.findAll();
         if (bindingResult.hasErrors()) {
@@ -113,6 +99,7 @@ public class UserServiceImpl implements UserService {
         return "register_user";
     }
 
+    @Override
     public String showProfile(Model model, Authentication authentication) {
         MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
@@ -125,7 +112,7 @@ public class UserServiceImpl implements UserService {
         return "profile";
     }
 
-
+    @Override
     public String showBasket(Model model, Authentication authentication) {
         MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
@@ -141,6 +128,7 @@ public class UserServiceImpl implements UserService {
         return "basket";
     }
 
+    @Override
     public String updateQuantity(Long productId, Long orderId, int quantity, Model model) {
         updateProductQuantity(orderId, productId, quantity);
 
@@ -157,6 +145,7 @@ public class UserServiceImpl implements UserService {
         return "redirect:/user/basket/show";
     }
 
+    @Override
     public String buyNow(Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
         MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
@@ -202,6 +191,55 @@ public class UserServiceImpl implements UserService {
         return "redirect:/user/basket/show";
     }
 
+    @Override
+    public BigDecimal calculateOrderPrice(Long orderId) {
+        List<OrderProduct> allProducts = orderProductRepository.findAllByOrderId(orderId);
+        BigDecimal totalPrice = BigDecimal.valueOf(0);
+        for (OrderProduct op : allProducts) {
+            BigDecimal productPrice = op.getProduct().getPrice();
+            BigDecimal quantity = BigDecimal.valueOf(op.getQuantity());
+            totalPrice = totalPrice.add(productPrice.multiply(quantity));
+        }
+        return totalPrice;
+    }
+
+    @Override
+    public String showUserOrders(Authentication authentication, Model model) {
+        MyUserDetails myUserDetails = (MyUserDetails) authentication.getPrincipal();
+        User user = myUserDetails.getUser();
+        List<Order> currentUserOrders = orderRepository.findOrdersByUserIdAndStatusNotBasket(user.getId());
+        if (!currentUserOrders.isEmpty()) {
+            model.addAttribute("orders", currentUserOrders);
+            model.addAttribute("orderProducts", orderProductRepository.findAll());
+            model.addAttribute("products", productRepository.findByIsDeletedFalse());
+            model.addAttribute("statuses", orderStatusRepository.findAll());
+        } else {
+            model.addAttribute("no_orders", "Sorry, you haven't placed any orders yet!");
+        }
+        return "orders_user";
+    }
+
+    @Override
+    public String changeOrderStatusToCancelled(Long orderId) {
+        Optional<Order> orderOptional = orderRepository.findById(orderId);
+        if (orderOptional.isEmpty()) {
+            return "404_page_not_found";
+        } else {
+            Order order = orderOptional.get();
+            Optional<OrderStatus> status = orderStatusRepository.findByName("CANCELLED");
+            if (status.isPresent()) {
+                OrderStatus cancelledStatus = status.get();
+                order.setStatus(cancelledStatus);
+                order.setOrderCancelDateTime(LocalDateTime.now());
+                returnProductsToStock(orderId);
+                orderRepository.save(order);
+            } else {
+                System.out.println("Status not found?");
+            }
+        }
+        return "redirect:/user/orders";
+    }
+
     private void saveThePurchasePriceInOrderProduct(List<OrderProduct> orderProducts) {
         // Add the price that the item was bought - for every item in the current order.
         for (OrderProduct op : orderProducts) {
@@ -221,19 +259,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public BigDecimal calculateOrderPrice(Long orderId) {
-        List<OrderProduct> allProducts = orderProductRepository.findAllByOrderId(orderId);
-        BigDecimal totalPrice = BigDecimal.valueOf(0);
-        for (OrderProduct op : allProducts) {
-            BigDecimal productPrice = op.getProduct().getPrice();
-            BigDecimal quantity = BigDecimal.valueOf(op.getQuantity());
-            totalPrice = totalPrice.add(productPrice.multiply(quantity));
-        }
-        return totalPrice;
-    }
-
     private void updateProductQuantity(Long orderId, Long productId, int newQuantity) {
-
         if (newQuantity < 0) {
             newQuantity = 0;
         }
@@ -256,21 +282,6 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    public String showUserOrders(Authentication authentication, Model model) {
-        MyUserDetails myUserDetails = (MyUserDetails) authentication.getPrincipal();
-        User user = myUserDetails.getUser();
-        List<Order> currentUserOrders = orderRepository.findOrdersByUserIdAndStatusNotBasket(user.getId());
-        if (!currentUserOrders.isEmpty()) {
-            model.addAttribute("orders", currentUserOrders);
-            model.addAttribute("orderProducts", orderProductRepository.findAll());
-            model.addAttribute("products", productRepository.findByIsDeletedFalse());
-            model.addAttribute("statuses", orderStatusRepository.findAll());
-        } else {
-            model.addAttribute("no_orders", "Sorry, you haven't placed any orders yet!");
-        }
-        return "orders_user";
-    }
-
     private void returnProductsToStock(Long orderId){
         List<OrderProduct> orderProductsList = orderProductRepository.findAllByOrderId(orderId);
         for(OrderProduct op : orderProductsList){
@@ -282,23 +293,17 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public String changeOrderStatusToCancelled(Long orderId) {
-        Optional<Order> orderOptional = orderRepository.findById(orderId);
-        if (orderOptional.isEmpty()) {
-            return "404_page_not_found";
-        } else {
-            Order order = orderOptional.get();
-            Optional<OrderStatus> status = orderStatusRepository.findByName("CANCELLED");
-            if (status.isPresent()) {
-                OrderStatus cancelledStatus = status.get();
-                order.setStatus(cancelledStatus);
-                order.setOrderCancelDateTime(LocalDateTime.now());
-                returnProductsToStock(orderId);
-                orderRepository.save(order);
-            } else {
-                System.out.println("Status not found?");
-            }
+    private boolean isEmailInDB(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    private boolean isUsernameInDB(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
+
+    private void validatePasswordsAreMatching(UserRequestDto userRequestDto) {
+        if (!userRequestDto.getPassword().equals(userRequestDto.getRepeatedPassword())) {
+            throw new PasswordsNotMatchingException("Passwords don't match");
         }
-        return "redirect:/user/orders";
     }
 }
