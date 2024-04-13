@@ -10,6 +10,7 @@ import com.project.Onlineshop.Exceptions.ProductStockNotEnoughException;
 import com.project.Onlineshop.Exceptions.ServerErrorException;
 import com.project.Onlineshop.Mapper.ProductMapper;
 import com.project.Onlineshop.Repository.*;
+import com.project.Onlineshop.Service.ProductService;
 import com.project.Onlineshop.Static.OrderStatusType;
 import com.project.Onlineshop.Utility.PriceRange;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ import static com.project.Onlineshop.Utility.SearchUtility.*;
 
 @Service
 @RequiredArgsConstructor
-public class ProductServiceImpl {
+public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
     private final ProductRepository productRepository;
     private final MaterialRepository materialRepository;
@@ -38,6 +39,7 @@ public class ProductServiceImpl {
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
 
+    @Override
     public Class<? extends Product> getProductClass(String category) {
         return switch (category) {
             case "FOOD" -> Food.class;
@@ -51,6 +53,7 @@ public class ProductServiceImpl {
         };
     }
 
+    @Override
     public List<Product> searchProducts(String keyword) {
         String latinKeyword;
         String cyrillicKeyword;
@@ -64,6 +67,7 @@ public class ProductServiceImpl {
         return productRepository.findByNameContainingIgnoreCase(latinKeyword, cyrillicKeyword);
     }
 
+    @Override
     public String addNewProduct(String productType, Model model) {
 
         //Return 404 if productType is not a class.
@@ -79,7 +83,7 @@ public class ProductServiceImpl {
         addModelAttributesDependingOnProductType(productType, model);
         return "product_add";
     }
-
+    @Override
     public String saveProduct(String productType, ProductRequestDto productRequestDto,
                               BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
@@ -112,6 +116,7 @@ public class ProductServiceImpl {
         return "redirect:/products/show";
     }
 
+    @Override
     public List<Product> getTheProductsToShow(String category) {
         if (Objects.equals(category, "PRODUCT")) {
             return productRepository.findByIsDeletedFalse();
@@ -125,27 +130,7 @@ public class ProductServiceImpl {
         }
     }
 
-    private boolean validateEditedProduct(Product product, Model model, String quantityChange, RedirectAttributes redirectAttributes) {
-        if (product.getName().length() < 3) {
-            redirectAttributes.addFlashAttribute("name_too_short", "You must enter a longer name!");
-            return true;
-        }
-        if (product.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            redirectAttributes.addFlashAttribute("price_too_low", "You must enter a positive price!");
-            return true;
-        }
-        if (quantityChange.isEmpty()) {
-            return true;
-        } else {
-            int quantityInt = Integer.parseInt(quantityChange);
-            if (product.getQuantity() + quantityInt < 0) {
-                redirectAttributes.addFlashAttribute("quantity_too_low", "You must enter a quantity so that the stock is at least 0!");
-                return true;
-            }
-        }
-        return false;
-    }
-
+    @Override
     public String saveEditedProduct(Product product, Model model, String quantityChange, RedirectAttributes redirectAttributes) {
         if (validateEditedProduct(product, model, quantityChange, redirectAttributes)) {
             return "redirect:/products/edit/" + product.getId();
@@ -165,6 +150,7 @@ public class ProductServiceImpl {
         }
     }
 
+    @Override
     public String showSingleId(Model model, Long id) {
         String productAddedMessage = (String) model.getAttribute("product_added");
         String stockNotEnoughError = (String) model.getAttribute("no_stock");
@@ -183,6 +169,7 @@ public class ProductServiceImpl {
         return "product_view";
     }
 
+    @Override
     public String addToBasket(Long productId, int quantity, RedirectAttributes redirectAttributes, boolean isFromAllProducts) {
 
         Product product = productRepository.findByIdNotDeleted(productId).orElseThrow();
@@ -217,6 +204,236 @@ public class ProductServiceImpl {
         }
         redirectAttributes.addFlashAttribute("product_added", "Added " + quantity + " items to your basket.");
         return "redirect:/products/show/" + productId;
+    }
+
+    @Override
+    public Order getOrCreateBasketOrder(User user) {
+        Order order = getBasketOrder(user);
+
+        if (order != null) {
+            return order;
+        }
+
+        OrderStatus basketOrderStatus = OrderStatus.builder()
+                .id(OrderStatusType.BASKET.getId())
+                .name(OrderStatusType.BASKET.name())
+                .build();
+        return createNewOrder(user, basketOrderStatus);
+    }
+
+    @Override
+    public Order getBasketOrder(User user) {
+        OrderStatus basketOrderStatus = OrderStatus.builder()
+                .id(OrderStatusType.BASKET.getId())
+                .name(OrderStatusType.BASKET.name())
+                .build();
+
+        List<Order> basket_orders = getUserOrdersByOrderStatus(user, basketOrderStatus);
+
+        if (basket_orders.size() > 1) {
+            throw new ServerErrorException("Critical server error.More than one basket for user with userID: " + user.getId());
+        }
+
+        if (basket_orders.size() == 1) {
+            return basket_orders.getFirst();
+        }
+
+        return null;
+    }
+
+    @Override
+    public String showSearchByQuantityResults(int minQuantity, int maxQuantity, Model model) {
+        if (minQuantity < 0 || maxQuantity < 0) {
+            model.addAttribute("incorrect_quantity", "You must enter positive quantity values!");
+            return "search_by_quantity";
+        }
+        if (maxQuantity < minQuantity) {
+            model.addAttribute("min_bigger_than_max", "You must enter a larger number for the minimum quantity than for the maximum quantity!");
+            return "search_by_quantity";
+        }
+        List<Product> result = productRepository.findProductsByQuantityBetween(minQuantity, maxQuantity);
+        if (result.isEmpty()) {
+            model.addAttribute("list_empty", "No match was found for your search!");
+        } else {
+            model.addAttribute("search_by_quantity_results", "Showing products having quantity between " + minQuantity + "-" + maxQuantity);
+        }
+        model.addAttribute("products", result);
+        return "products_all";
+    }
+
+    @Override
+    public String showSortedProductsBySortType(String sortType, boolean ascending, Model model, List<Product> products) {
+        model.addAttribute("sortType", sortType);
+
+        if (sortType.equalsIgnoreCase("byName")) {
+            if (ascending) {
+                products.sort(Comparator.comparing(Product::getName));
+            } else {
+                products.sort(Comparator.comparing(Product::getName).reversed());
+            }
+            model.addAttribute("products", products);
+        }
+
+        if (sortType.equalsIgnoreCase("byPrice")) {
+            if (ascending) {
+                products.sort(Comparator.comparing(Product::getPrice));
+            } else {
+                products.sort(Comparator.comparing(Product::getPrice).reversed());
+            }
+            model.addAttribute("products", products);
+        }
+
+        if (sortType.equalsIgnoreCase("byExpiryDate")) {
+            List<Food> foods = productRepository.getAllByEntityType(Food.class);
+            if (ascending) {
+                foods.sort(Comparator.comparing(Food::getExpiryDate));
+            } else {
+                foods.sort(Comparator.comparing(Food::getExpiryDate).reversed());
+            }
+            model.addAttribute("products", foods);
+            model.addAttribute("category", "FOOD"); // set the category too.
+        }
+
+        return "products_all";
+    }
+
+    @Override
+    public String searchProductByName(String searchString, Model model) {
+        if (!searchString.isEmpty()) {
+            model.addAttribute("products", searchProducts(searchString));
+        }
+        model.addAttribute("searchString", searchString);
+        return "products_found";
+    }
+
+    @Override
+    public String showProductsForChosenPrice(String minPrice, String maxPrice, boolean minPriceChanged, boolean maxPriceChanged, RedirectAttributes redirectAttributes, Model model) {
+        if (!minPriceChanged || !maxPriceChanged) {
+            redirectAttributes.addFlashAttribute("error", "You must choose both min and max values!");
+            model.addAttribute("minPrice", minPrice.toString());
+            model.addAttribute("maxPrice", maxPrice.toString());
+            return "redirect:/products/searchByPrice";
+        }
+        BigDecimal minPriceDecimal = new BigDecimal(minPrice);
+        BigDecimal maxPriceDecimal = new BigDecimal(maxPrice);
+
+        PriceRange priceRange = PriceRange.getMinMaxNumber(minPriceDecimal, maxPriceDecimal);
+        BigDecimal actualMinPrice = priceRange.getMin();
+        BigDecimal actualMaxPrice = priceRange.getMax();
+
+        model.addAttribute("products", findAllProductsBetweenTwoPrices(minPriceDecimal, maxPriceDecimal));
+        model.addAttribute("search_by_price_results", "(Showing products having a price between " + actualMinPrice + " лв. and " + actualMaxPrice + " лв.)");
+        return "products_all";
+    }
+
+    @Override
+    public String searchProductsByQuantity(Model model) {
+        int minQuantity = productRepository.findProductsByLowestQuantity().getFirst().getQuantity();
+        int maxQuantity = productRepository.findProductsWithHighestQuantity().getFirst().getQuantity();
+        model.addAttribute("minQuantity", minQuantity);
+        model.addAttribute("maxQuantity", maxQuantity);
+        return "search_by_quantity";
+    }
+
+    @Override
+    public String editProductForm(Long id, Model model) {
+        Optional<Product> product = productRepository.findByIdNotDeleted(id);
+        if (product.isPresent()) {
+            model.addAttribute("product", product.get());
+            return "product_edit";
+        }
+        return "404_page_not_found";
+    }
+
+    @Override
+    public String deleteProduct(Long id) {
+        Optional<Product> optionalProduct = productRepository.findByIdNotDeleted(id);
+        if (optionalProduct.isEmpty()) {
+            return "404_page_not_found";
+        }
+        // Not  deleting the item - just changing the flag.
+        Product product = optionalProduct.get();
+        // Less DB operations - if someone else just did that.
+        if (!product.isDeleted()) {
+            product.setDeleted(true);
+            productRepository.save(product);
+        }
+        return "redirect:/products/show";
+    }
+
+    @Override
+    public String undeleteProduct(Long id) {
+        Optional<Product> optionalProduct = productRepository.findById(id);  // DELETED product
+        if (optionalProduct.isEmpty()) {
+            return "404_page_not_found";
+        }
+        Product product = optionalProduct.get();
+        if (product.isDeleted()) {
+            product.setDeleted(false);
+            productRepository.save(product);
+        }
+        return "redirect:/products/show/deleted";
+    }
+
+    @Override
+    public String showAllDeletedProducts(Model model) {
+        List<Product> deletedProducts = productRepository.findByIsDeletedTrue();
+        model.addAttribute("products", deletedProducts);
+        return "products_enable_deleted";
+    }
+
+    @Override
+    public String showSingleIdIncludingDeleted(Model model, Long id) {
+        Product product = productRepository.findById(id).orElse(null);
+
+        if (product == null) {
+            return "404_page_not_found";
+        }
+
+        model.addAttribute("product", product);
+        return "product_view";
+    }
+
+    @Override
+    public String showAllProducts(String sortType, String category, boolean ascending,
+                                  String minPrice, String maxPrice, Model model) {
+        List<Product> products = productRepository.findByIsDeletedFalse(); // Default - show all (enabled only)
+
+        // Show the min max price range - on the sliders. Will keep the same range for all items for now. Keep it simple.
+        BigDecimal minPriceRange = getMinPriceOfSelectedProducts(products);
+        BigDecimal maxPriceRange = getMaxPriceOfSelectedProducts(products);
+        model.addAttribute("minPriceR", minPriceRange.toString());
+        model.addAttribute("maxPriceR", maxPriceRange.toString());
+
+        if (category != null) {
+            model.addAttribute("category", category);
+            products = getTheProductsToShow(category);  // if category is selected - update the list
+        }
+
+        if (minPrice == null) {
+            model.addAttribute("minPrice", minPriceRange); // if null - set it to the minimum to show all products.
+            minPrice = minPriceRange.toString();
+        }
+        if (maxPrice == null) {
+            model.addAttribute("maxPrice", maxPriceRange);
+            maxPrice = maxPriceRange.toString();
+        }
+
+        // At this point we always have minPrice and MaxPrice as Strings.
+
+        BigDecimal minPriceDecimalSelected = new BigDecimal(minPrice);
+        BigDecimal maxPriceDecimalSelected = new BigDecimal(maxPrice);
+        PriceRange priceRange = PriceRange.getMinMaxNumber(minPriceDecimalSelected, maxPriceDecimalSelected);
+        BigDecimal actualMinPrice = priceRange.getMin();
+        BigDecimal actualMaxPrice = priceRange.getMax();
+        products = getAllProductsInPriceRange(actualMinPrice, actualMaxPrice, products);  // apply the new filter
+
+        if (sortType != null) {
+            return showSortedProductsBySortType(sortType, ascending, model, products);
+        }
+
+        model.addAttribute("products", products); // if no sorting is selected
+        return "products_all";
     }
 
     private void addModelAttributesDependingOnProductType(String productType, Model model) {
@@ -268,40 +485,6 @@ public class ProductServiceImpl {
         }
     }
 
-    public Order getOrCreateBasketOrder(User user) {
-        Order order = getBasketOrder(user);
-
-        if (order != null) {
-            return order;
-        }
-
-        OrderStatus basketOrderStatus = OrderStatus.builder()
-                .id(OrderStatusType.BASKET.getId())
-                .name(OrderStatusType.BASKET.name())
-                .build();
-        return createNewOrder(user, basketOrderStatus);
-    }
-
-    public Order getBasketOrder(User user) {
-        OrderStatus basketOrderStatus = OrderStatus.builder()
-                .id(OrderStatusType.BASKET.getId())
-                .name(OrderStatusType.BASKET.name())
-                .build();
-
-        List<Order> basket_orders = getUserOrdersByOrderStatus(user, basketOrderStatus);
-
-        if (basket_orders.size() > 1) {
-            throw new ServerErrorException("Critical server error.More than one basket for user with userID: " + user.getId());
-        }
-
-        if (basket_orders.size() == 1) {
-            return basket_orders.getFirst();
-        }
-
-        return null;
-    }
-
-
     private List<Order> getUserOrdersByOrderStatus(User user, OrderStatus orderStatus) {
         return orderRepository.findAllByUser_IdAndStatus_Id(user.getId(), orderStatus.getId());
     }
@@ -320,192 +503,6 @@ public class ProductServiceImpl {
             throw new ProductStockNotEnoughException("Not enough stock. Required: " + quantityRequired + " Available: " + product.getQuantity());
         }
     }
-
-    public String showSearchByQuantityResults(int minQuantity, int maxQuantity, Model model) {
-        if (minQuantity < 0 || maxQuantity < 0) {
-            model.addAttribute("incorrect_quantity", "You must enter positive quantity values!");
-            return "search_by_quantity";
-        }
-        if (maxQuantity < minQuantity) {
-            model.addAttribute("min_bigger_than_max", "You must enter a larger number for the minimum quantity than for the maximum quantity!");
-            return "search_by_quantity";
-        }
-        List<Product> result = productRepository.findProductsByQuantityBetween(minQuantity, maxQuantity);
-        if (result.isEmpty()) {
-            model.addAttribute("list_empty", "No match was found for your search!");
-        } else {
-            model.addAttribute("search_by_quantity_results", "Showing products having quantity between " + minQuantity + "-" + maxQuantity);
-        }
-        model.addAttribute("products", result);
-        return "products_all";
-    }
-
-    public String showSortedProductsBySortType(String sortType, boolean ascending, Model model, List<Product> products) {
-        model.addAttribute("sortType", sortType);
-
-        if (sortType.equalsIgnoreCase("byName")) {
-            if (ascending) {
-                products.sort(Comparator.comparing(Product::getName));
-            } else {
-                products.sort(Comparator.comparing(Product::getName).reversed());
-            }
-            model.addAttribute("products", products);
-        }
-
-        if (sortType.equalsIgnoreCase("byPrice")) {
-            if (ascending) {
-                products.sort(Comparator.comparing(Product::getPrice));
-            } else {
-                products.sort(Comparator.comparing(Product::getPrice).reversed());
-            }
-            model.addAttribute("products", products);
-        }
-
-        if (sortType.equalsIgnoreCase("byExpiryDate")) {
-            List<Food> foods = productRepository.getAllByEntityType(Food.class);
-            if (ascending) {
-                foods.sort(Comparator.comparing(Food::getExpiryDate));
-            } else {
-                foods.sort(Comparator.comparing(Food::getExpiryDate).reversed());
-            }
-            model.addAttribute("products", foods);
-            model.addAttribute("category", "FOOD"); // set the category too.
-        }
-
-        return "products_all";
-    }
-
-
-    public String searchProductByName(String searchString, Model model) {
-        if (!searchString.isEmpty()) {
-            model.addAttribute("products", searchProducts(searchString));
-        }
-        model.addAttribute("searchString", searchString);
-        return "products_found";
-    }
-
-    public String showProductsForChosenPrice(String minPrice, String maxPrice, boolean minPriceChanged, boolean maxPriceChanged, RedirectAttributes redirectAttributes, Model model) {
-        if (!minPriceChanged || !maxPriceChanged) {
-            redirectAttributes.addFlashAttribute("error", "You must choose both min and max values!");
-            model.addAttribute("minPrice", minPrice.toString());
-            model.addAttribute("maxPrice", maxPrice.toString());
-            return "redirect:/products/searchByPrice";
-        }
-        BigDecimal minPriceDecimal = new BigDecimal(minPrice);
-        BigDecimal maxPriceDecimal = new BigDecimal(maxPrice);
-
-        PriceRange priceRange = PriceRange.getMinMaxNumber(minPriceDecimal, maxPriceDecimal);
-        BigDecimal actualMinPrice = priceRange.getMin();
-        BigDecimal actualMaxPrice = priceRange.getMax();
-
-        model.addAttribute("products", findAllProductsBetweenTwoPrices(minPriceDecimal, maxPriceDecimal));
-        model.addAttribute("search_by_price_results", "(Showing products having a price between " + actualMinPrice + " лв. and " + actualMaxPrice + " лв.)");
-        return "products_all";
-    }
-
-    public String searchProductsByQuantity(Model model) {
-        int minQuantity = productRepository.findProductsByLowestQuantity().getFirst().getQuantity();
-        int maxQuantity = productRepository.findProductsWithHighestQuantity().getFirst().getQuantity();
-        model.addAttribute("minQuantity", minQuantity);
-        model.addAttribute("maxQuantity", maxQuantity);
-        return "search_by_quantity";
-    }
-
-    public String editProductForm(Long id, Model model) {
-        Optional<Product> product = productRepository.findByIdNotDeleted(id);
-        if (product.isPresent()) {
-            model.addAttribute("product", product.get());
-            return "product_edit";
-        }
-        return "404_page_not_found";
-    }
-
-    public String deleteProduct(Long id) {
-        Optional<Product> optionalProduct = productRepository.findByIdNotDeleted(id);
-        if (optionalProduct.isEmpty()) {
-            return "404_page_not_found";
-        }
-        // Not  deleting the item - just changing the flag.
-        Product product = optionalProduct.get();
-        // Less DB operations - if someone else just did that.
-        if (!product.isDeleted()) {
-            product.setDeleted(true);
-            productRepository.save(product);
-        }
-        return "redirect:/products/show";
-    }
-
-    public String undeleteProduct(Long id) {
-        Optional<Product> optionalProduct = productRepository.findById(id);  // DELETED product
-        if (optionalProduct.isEmpty()) {
-            return "404_page_not_found";
-        }
-        Product product = optionalProduct.get();
-        if (product.isDeleted()) {
-            product.setDeleted(false);
-            productRepository.save(product);
-        }
-        return "redirect:/products/show/deleted";
-    }
-
-    public String showAllDeletedProducts(Model model) {
-        List<Product> deletedProducts = productRepository.findByIsDeletedTrue();
-        model.addAttribute("products", deletedProducts);
-        return "products_enable_deleted";
-    }
-
-    public String showSingleIdIncludingDeleted(Model model, Long id) {
-        Product product = productRepository.findById(id).orElse(null);
-
-        if (product == null) {
-            return "404_page_not_found";
-        }
-
-        model.addAttribute("product", product);
-        return "product_view";
-    }
-
-    public String showAllProducts(String sortType, String category, boolean ascending,
-                                  String minPrice, String maxPrice, Model model) {
-        List<Product> products = productRepository.findByIsDeletedFalse(); // Default - show all (enabled only)
-
-        // Show the min max price range - on the sliders. Will keep the same range for all items for now. Keep it simple.
-        BigDecimal minPriceRange = getMinPriceOfSelectedProducts(products);
-        BigDecimal maxPriceRange = getMaxPriceOfSelectedProducts(products);
-        model.addAttribute("minPriceR", minPriceRange.toString());
-        model.addAttribute("maxPriceR", maxPriceRange.toString());
-
-        if (category != null) {
-            model.addAttribute("category", category);
-            products = getTheProductsToShow(category);  // if category is selected - update the list
-        }
-
-        if (minPrice == null) {
-            model.addAttribute("minPrice", minPriceRange); // if null - set it to the minimum to show all products.
-            minPrice = minPriceRange.toString();
-        }
-        if (maxPrice == null) {
-            model.addAttribute("maxPrice", maxPriceRange);
-            maxPrice = maxPriceRange.toString();
-        }
-
-        // At this point we always have minPrice and MaxPrice as Strings.
-
-        BigDecimal minPriceDecimalSelected = new BigDecimal(minPrice);
-        BigDecimal maxPriceDecimalSelected = new BigDecimal(maxPrice);
-        PriceRange priceRange = PriceRange.getMinMaxNumber(minPriceDecimalSelected, maxPriceDecimalSelected);
-        BigDecimal actualMinPrice = priceRange.getMin();
-        BigDecimal actualMaxPrice = priceRange.getMax();
-        products = getAllProductsInPriceRange(actualMinPrice, actualMaxPrice, products);  // apply the new filter
-
-        if (sortType != null) {
-            return showSortedProductsBySortType(sortType, ascending, model, products);
-        }
-
-        model.addAttribute("products", products); // if no sorting is selected
-        return "products_all";
-    }
-
 
     private List<Product> getAllProductsInPriceRange(BigDecimal min, BigDecimal max, List<Product> products) {
         List<Product> productsInPriceRange = new ArrayList<>();
@@ -552,6 +549,27 @@ public class ProductServiceImpl {
         } else {
             return null;
         }
+    }
+
+    private boolean validateEditedProduct(Product product, Model model, String quantityChange, RedirectAttributes redirectAttributes) {
+        if (product.getName().length() < 3) {
+            redirectAttributes.addFlashAttribute("name_too_short", "You must enter a longer name!");
+            return true;
+        }
+        if (product.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            redirectAttributes.addFlashAttribute("price_too_low", "You must enter a positive price!");
+            return true;
+        }
+        if (quantityChange.isEmpty()) {
+            return true;
+        } else {
+            int quantityInt = Integer.parseInt(quantityChange);
+            if (product.getQuantity() + quantityInt < 0) {
+                redirectAttributes.addFlashAttribute("quantity_too_low", "You must enter a quantity so that the stock is at least 0!");
+                return true;
+            }
+        }
+        return false;
     }
 
     //    public String filterProductsByChosenCategory(String category, Model model) {

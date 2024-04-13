@@ -11,6 +11,7 @@ import com.project.Onlineshop.Exceptions.UsernameInUseException;
 import com.project.Onlineshop.Mapper.UserMapper;
 import com.project.Onlineshop.MyUserDetails;
 import com.project.Onlineshop.Repository.*;
+import com.project.Onlineshop.Service.ProductService;
 import com.project.Onlineshop.Service.UserService;
 import com.project.Onlineshop.Static.OrderStatusType;
 import com.project.Onlineshop.Static.RoleType;
@@ -39,7 +40,7 @@ public class UserServiceImpl implements UserService {
     private final OrderStatusRepository orderStatusRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
-    private final ProductServiceImpl productService;
+    private final ProductService productService;
     private final CityRepository cityRepository;
     private final AddressRepository addressRepository;
 

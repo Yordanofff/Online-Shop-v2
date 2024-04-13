@@ -3,7 +3,7 @@ package com.project.Onlineshop.Controller;
 import com.project.Onlineshop.Dto.Request.ProductRequestDto;
 import com.project.Onlineshop.Entity.Products.Product;
 import com.project.Onlineshop.Service.ImageService;
-import com.project.Onlineshop.Service.Implementation.ProductServiceImpl;
+import com.project.Onlineshop.Service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductServiceImpl productService;
+    private final ProductService productService;
     private final ImageService imageService;
 
     @GetMapping("/show/{id}")
