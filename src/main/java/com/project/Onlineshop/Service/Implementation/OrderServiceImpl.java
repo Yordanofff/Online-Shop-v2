@@ -3,18 +3,24 @@ package com.project.Onlineshop.Service.Implementation;
 import com.project.Onlineshop.Dto.Request.OrderRequestDto;
 import com.project.Onlineshop.Entity.Order;
 import com.project.Onlineshop.Entity.OrderProduct;
+import com.project.Onlineshop.Entity.OrderStatus;
 import com.project.Onlineshop.Entity.Products.Product;
+import com.project.Onlineshop.Entity.User;
 import com.project.Onlineshop.Exceptions.NotEnoughStockException;
 import com.project.Onlineshop.Exceptions.ProductNotFoundException;
 import com.project.Onlineshop.Mapper.OrderMapper;
-import com.project.Onlineshop.Repository.OrderProductRepository;
-import com.project.Onlineshop.Repository.OrderRepository;
-import com.project.Onlineshop.Repository.ProductRepository;
+import com.project.Onlineshop.Repository.*;
 import com.project.Onlineshop.Service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -24,6 +30,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
+    private final UserRepository userRepository;
+    private final OrderStatusRepository orderStatusRepository;
 
     @Override
     public void addOrder(OrderRequestDto orderRequestDto) {
@@ -36,6 +44,61 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
 
         orderProductRepository.saveAll(orderProducts);
+    }
+
+    @Override
+    public String showOrders(Model model){
+        model.addAttribute("orders", orderRepository.findAll());
+        model.addAttribute("orderProducts", orderProductRepository.findAll());
+        model.addAttribute("products", productRepository.findByIsDeletedFalse());
+        model.addAttribute("users", userRepository.findAll());
+        model.addAttribute("statuses",orderStatusRepository.findAll());
+        return "orders_all";
+    }
+
+    @Override
+    public String changeOrderStatus(Long orderId, Long statusId, RedirectAttributes redirectAttributes, Model model) {
+        if(orderRepository.findById(orderId).isPresent()){
+            Order order = orderRepository.findById(orderId).get();
+            if(orderStatusRepository.findById(statusId).isPresent()){
+                OrderStatus status = orderStatusRepository.findById(statusId).get();
+                order.setStatus(status);
+                if(status.getName().equalsIgnoreCase("DELIVERED")){
+                    order.setOrderDeliveryDateTime(LocalDateTime.now());
+                }
+                orderRepository.save(order);
+            }
+        }
+        redirectAttributes.addFlashAttribute("success", "Order status changed successfully for order ID "+orderId+"!");
+        return "redirect:/orders/show";
+    }
+
+    @Override
+    public String viewSingleOrder(Long id, Model model) {
+        Optional<Order> optionalOrder = orderRepository.findById(id);
+        if (optionalOrder.isEmpty()){
+            return "404_page_not_found";
+        }
+        Order order = optionalOrder.get();
+        User user = userRepository.findById(order.getUser().getId()).get();
+        List<OrderProduct> orderProductList = orderProductRepository.findAllByOrderId(order.getId());
+
+        // Created a map of productId and productPurchasePrice as the repository is not working correctly atm.
+        List<Object[]> productIdAndProductPrices = orderProductRepository.findProductIdAndProductPricesByOrderId(order.getId());
+        Map<Long, BigDecimal> productIdToProductPriceMap = new HashMap<>();
+        for (Object[] row : productIdAndProductPrices) {
+            Long productId = (Long) row[0];
+            BigDecimal productPrice = (BigDecimal) row[1];
+            productIdToProductPriceMap.put(productId, productPrice);
+        }
+
+        model.addAttribute("order", order);
+        model.addAttribute("statuses",orderStatusRepository.findAll());
+        model.addAttribute("user", user);
+        model.addAttribute("orderProducts", orderProductList);
+        model.addAttribute("productIdToProductPriceMap", productIdToProductPriceMap);
+
+        return "orders_single";
     }
 
     private void validateIfAllProductsAreInStock(List<OrderProduct> orderProducts) {
