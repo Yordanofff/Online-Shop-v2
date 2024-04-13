@@ -52,11 +52,11 @@
 
                 <div class="form-group" th:if="${productType == 'Drink'}">
                     <label for="bestBefore">Best before:</label>
-                    <input type="date" th:field="*{bestBefore}" class="form-control" id="bestBefore">
+                    <input type="date" th:field="*{bestBefore}" class="form-control" id="bestBefore" required>
                 </div>
                 <div class="form-group" th:if="${productType == 'Food'}">
                     <label for="expiryDate">Expiry Date:</label>
-                    <input type="date" th:field="*{expiryDate}" class="form-control" id="expiryDate">
+                    <input type="date" th:field="*{expiryDate}" class="form-control" id="expiryDate" required>
                 </div>
                 <div th:if="${productType == 'Sanitary'}">
                     <div class="form-group">
