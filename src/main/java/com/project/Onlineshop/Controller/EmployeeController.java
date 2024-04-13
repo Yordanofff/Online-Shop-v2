@@ -2,10 +2,8 @@ package com.project.Onlineshop.Controller;
 
 import com.project.Onlineshop.Dto.Request.EmployeeRequestDto;
 import com.project.Onlineshop.Service.EmployeeService;
-import com.project.Onlineshop.Service.Implementation.EmployeeServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,8 +20,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class EmployeeController {
     private final EmployeeService employeeService;
 
-    @Autowired
-    EmployeeServiceImpl employeeServiceImpl;
 
     @GetMapping("/get_all")
     public String listAllEmployees(Model model) {
@@ -38,19 +34,19 @@ public class EmployeeController {
 
 
     @GetMapping("/register")
-    String registerEmployeeForm(Model model){
+    String registerEmployeeForm(Model model) {
         model.addAttribute("employeeRequestDto", new EmployeeRequestDto());
         return "register_employee";
     }
 
     @PostMapping("/register")
-    String registerNewEmployee(@ModelAttribute @Valid EmployeeRequestDto employeeRequestDto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes){
-        return employeeServiceImpl.registerNewEmployee(employeeRequestDto, bindingResult, model, redirectAttributes);
+    String registerNewEmployee(@ModelAttribute @Valid EmployeeRequestDto employeeRequestDto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+        return employeeService.registerNewEmployee(employeeRequestDto, bindingResult, model, redirectAttributes);
     }
 
     @GetMapping("/profile")
-    String showProfile(Model model, Authentication authentication){
-        return employeeServiceImpl.showProfile(model, authentication);
+    String showProfile(Model model, Authentication authentication) {
+        return employeeService.showProfile(model, authentication);
     }
 
 }

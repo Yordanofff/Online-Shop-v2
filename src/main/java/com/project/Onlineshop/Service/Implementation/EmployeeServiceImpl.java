@@ -3,7 +3,6 @@ package com.project.Onlineshop.Service.Implementation;
 import com.project.Onlineshop.Dto.Request.EmployeeRequestDto;
 import com.project.Onlineshop.Dto.Response.EmployeeResponseDto;
 import com.project.Onlineshop.Entity.Employee;
-import com.project.Onlineshop.Entity.Order;
 import com.project.Onlineshop.Entity.Role;
 import com.project.Onlineshop.Entity.User;
 import com.project.Onlineshop.Exceptions.*;
@@ -100,6 +99,42 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
     }
 
+    @Override
+    public String registerNewEmployee(EmployeeRequestDto employeeRequestDto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("employeeRequestDto", employeeRequestDto);
+            return "register_employee";
+        }
+        try {
+            create(employeeRequestDto);
+        } catch (EmailInUseException e) {
+            model.addAttribute("employeeRequestDto", employeeRequestDto);
+            model.addAttribute("email_error", e.getMessage());
+            return "register_employee";
+        } catch (UsernameInUseException e) {
+            model.addAttribute("employeeRequestDto", employeeRequestDto);
+            model.addAttribute("user_error", e.getMessage());
+            return "register_employee";
+        } catch (PasswordsNotMatchingException e) {
+            model.addAttribute("employeeRequestDto", employeeRequestDto);
+            model.addAttribute("password_error", e.getMessage());
+            return "register_employee";
+        } catch (PhoneInUseException e) {
+            model.addAttribute("employeeRequestDto", employeeRequestDto);
+            model.addAttribute("phone_error", e.getMessage());
+            return "register_employee";
+        }
+        redirectAttributes.addFlashAttribute("success", "Account created successfully!");
+        return "redirect:/employee/register";
+    }
+
+    @Override
+    public String showProfile(Model model, Authentication authentication) {
+        MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
+        model.addAttribute("userDetails", userDetails);
+        return "profile";
+    }
 
     // TODO - move password validations in Util/Helper
     private void validatePasswordsAreMatching(EmployeeRequestDto employeeRequestDto) {
@@ -164,40 +199,4 @@ public class EmployeeServiceImpl implements EmployeeService {
     private boolean isPhoneNumberInDB(String phoneNumber) {
         return employeeRepository.findByPhoneNumber(phoneNumber).isPresent();
     }
-
-    public String registerNewEmployee(EmployeeRequestDto employeeRequestDto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("employeeRequestDto", employeeRequestDto);
-            return "register_employee";
-        }
-        try {
-            create(employeeRequestDto);
-        } catch (EmailInUseException e) {
-            model.addAttribute("employeeRequestDto", employeeRequestDto);
-            model.addAttribute("email_error", e.getMessage());
-            return "register_employee";
-        } catch (UsernameInUseException e) {
-            model.addAttribute("employeeRequestDto", employeeRequestDto);
-            model.addAttribute("user_error", e.getMessage());
-            return "register_employee";
-        } catch (PasswordsNotMatchingException e) {
-            model.addAttribute("employeeRequestDto", employeeRequestDto);
-            model.addAttribute("password_error", e.getMessage());
-            return "register_employee";
-        } catch (PhoneInUseException e) {
-            model.addAttribute("employeeRequestDto", employeeRequestDto);
-            model.addAttribute("phone_error", e.getMessage());
-            return "register_employee";
-        }
-        redirectAttributes.addFlashAttribute("success", "Account created successfully!");
-        return "redirect:/employee/register";
-    }
-
-    public String showProfile(Model model, Authentication authentication) {
-        MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
-        User user = userDetails.getUser();
-        model.addAttribute("userDetails", userDetails);
-        return "profile";
-    }
-
 }
