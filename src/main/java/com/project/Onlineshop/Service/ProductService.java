@@ -39,6 +39,8 @@ public interface ProductService {
 
     String showProductsForChosenPrice(String minPrice, String maxPrice, boolean minPriceChanged, boolean maxPriceChanged, RedirectAttributes redirectAttributes, Model model);
 
+    String showSearchByPriceForm(Model model);
+
     String searchProductsByQuantity(Model model);
 
     String editProductForm(Long id, Model model);
