@@ -106,11 +106,6 @@ public class ProductController {
         return productService.searchProductByName(searchString, model);
     }
 
-    @GetMapping("/searchByPrice")
-    public String searchProductsByPrice(Model model) {
-        return productService.showSearchByPriceResults(model);
-    }
-
     @PostMapping("/searchByPrice")
     public String showResultProductsByPrice(@RequestParam("minPrice") String minPrice,
                                             @RequestParam("maxPrice") String maxPrice,
