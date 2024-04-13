@@ -28,8 +28,8 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/", "/home", "/user/login",
-                                "/user/register", "/employee/login", "/employee/register", "/products/show", "/login", "/register", "/photo1.jpg", "/photo2.jpg", "/photo3.jpg").permitAll()
-                        .requestMatchers("/show/{id}", "/password/**", "/products/show", "/products/search").hasAnyAuthority("ROLE_USER", "ROLE_EMPLOYEE", "ROLE_ADMIN")
+                                "/user/register", "/employee/login", "/employee/register", "/products/show", "/login", "/register", "/photo1.jpg", "/photo2.jpg", "/photo3.jpg", "/products/search").permitAll()
+                        .requestMatchers("/show/{id}", "/password/**", "/products/show").hasAnyAuthority("ROLE_USER", "ROLE_EMPLOYEE", "ROLE_ADMIN")
                         .requestMatchers("/employee/profile", "/orders/changeStatus", "/products/add", "/products/save").hasAuthority("ROLE_EMPLOYEE")
                         .requestMatchers("/orders/show").hasAnyAuthority("ROLE_EMPLOYEE","ROLE_ADMIN")
                         .requestMatchers("/products/add_to_basket/**", "/user/profile", "/user/basket/**", "/user/updateQuantity", "/user/orders", "/user/cancelOrder/{id}").hasAnyAuthority("ROLE_USER")
